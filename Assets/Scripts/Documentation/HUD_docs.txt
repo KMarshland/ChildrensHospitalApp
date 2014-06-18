@@ -1,0 +1,9 @@
+This file is for documentation of HUD.cs
+
+Each "screen" should be defined in a separate function
+These functions are automatically called based on the screenID, a unique identification string
+When adding a new screen, make sure to link the new screenID to the function in Start()
+To switch between screens, simply change the screen id
+
+All positions should be defined as percentages with the FRect class
+For example, new FRect(0.1f, 0.1f, 0.8f, 0.8f) would give a rectangle that was the middle 80% of the screen

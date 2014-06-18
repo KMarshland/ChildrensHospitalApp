@@ -1,0 +1,151 @@
+<wire>
+    <classes>
+        
+        <class name="general" alias ="GENERAL">
+            <panel name="gen" alias = "GEN" width="[param:w]" height="[param:h]" background="[param:color]" target = "CONTAINER" >
+                <panel name = "backtomain" height = "5%" width = "10%" xpos = "2.5%" ypos = "2.5%" background = "000000" cornerradius = "13" onclickup = "deletegen">
+                    <text name = "back" text = "Back" font = "Georgia-Bold" size = "18" color = "ffffff" width = "50" height = "50" align = "center" valign = "center" />
+                </panel>
+                
+                <panel name = "menubutton" alias = "MENUBUTTON" height = "37.5%" width = "26.6666%" xpos = "5%" ypos = "10%" background = "000000" cornerradius = "13" onclickup = "createmenu">
+                    <text name = "menubuttonII"  text = "Menu" font = "Georgia-Bold" size = "40" color = "ffffff" width = "200" height = "100" align = "center" valign = "center"/>
+                </panel>
+                <panel name = "button2" height = "37.5%%" width = "26.6666%" xpos = "36.66%" ypos = "10%" background = "000000" cornerradius = "13" >
+                    <text name = "buttonII" text = "Button" font = "Georgia-Bold" size = "40" color = "666666" width = "200" height = "100" align = "center" valign = "center"/>
+                </panel>
+                <panel name = "button3" alias = "BUTTON3" height = "37.5%" width = "26.6666%" xpos = "68.32%" ypos = "10%" background = "000000" cornerradius = "13" >
+                    <text name = "buttonIII" text = "Button" font = "Georgia-Bold" size = "40" color = "666666" width = "200" height = "100" align = "center" valign = "center"/>
+                </panel>
+                <panel name = "button4" alias = "BUTTON4" width = "26.6666%" height = "37.5%" xpos = "5%" ypos = "52.5%" background = "000000" cornerradius = "13">
+                    <text name = "buttonIV"  text = "Button" font = "Georgia-Bold" size = "40" color = "666666" width = "200" height = "100" align = "center" valign = "center"/>
+                </panel>
+                <panel name = "button5" alias = "BUTTON5" width = "26.6666%" height = "37.5%" xpos = "36.666%" ypos = "52.5%" background = "000000" cornerradius = "13" >
+                    <text name = "buttonV"  text = "Button" font = "Georgia-Bold" size = "40" color = "666666" width = "200" height = "100" align = "center" valign = "center"/>
+                </panel>
+                <panel name = "button6" alias = "BUTTON6" width = "26.6666%" height = "37.5%" xpos = "68.32%" ypos = "52.5%" background = "000000" cornerradius = "13">
+                    <text name = "buttonVI"  text = "Button" font = "Georgia-Bold" size = "40" color = "666666" width = "200" height = "100" align = "center" valign = "center"/>
+                </panel>
+            </panel>
+        </class>
+        
+        <class name="menu" alias ="MENU">
+            <panel name="scrollmenu" alias = "SCROLLMENU" width="[param:w]" height="[param:h]" background="[param:color]" target = "CONTAINER" >
+                <panel name = "backtomain" height = "5%" width = "10%" xpos = "2.5%" ypos = "2.5%" background = "ffffff" cornerradius = "13" onclickup = "deletemenu" tofront = "yes">
+                    <text name = "back" text = "Back" font = "Georgia-Bold" size = "18" color = "000000" width = "50" height = "50" align = "center" valign = "center" />
+                </panel>
+                <panel name = "menutitle" alias = "MENUTITLE" background = "000000" height = "10%" width = "100%" xpos = "14%" ypos = "1%" >
+ 					<text name = "menutitletext" text = "Menu" font = "Georgia-Bold" size = "60" color = "#ffffff" width = "600" height = "100%" xpos = "25%" ypos = "0%"/>             
+                </panel>
+                
+                <panel name = "menuitem2" alias = "MENUITEMII" width = "100%" height = "12.4%" ypos = "12.5%%" background = "#ffffff" >
+                    <panel name = "textbox" alias = "TEXTBOX" width = "100%" height = "30%" xpos = "12%" ypos = "5%" background = "#ffffff">
+                        <text name = "menuitemtext" text = "Name of Menu Item" font = "Georgia-Bold" size = "24" color = "#000000" width = "600" height = "100%" xpos = "0%" ypos = "0%"/>
+                    </panel>
+                    <panel name = "textboxII" alias = "TEXTBOXII" width = "100%" height = "40%" xpos = "12%" ypos = "35%" background = "#ffffff">
+                       <text name = "menuitemtextII" text = "Description of menu item; times available. Price." font = "Georgia-Bold" size = "18" color = "#000000" width = "600" height = "50" xpos = "0%" ypos = "0%" />
+                    </panel> 
+                    <panel name = "picblock" alias = "PICBLOCK" width = "9%" height = "90%" ypos = "5%" xpos = "1%" background = "#006666" cornerradius = "6">
+                        <text name = "exampleimage" text = " [Image]" font = "Georgia-Bold" size = "18" color = "#00cccc" width = "100" height = "50" xpos = "8%" />
+                    </panel>
+                </panel>
+                
+                <panel name = "menuitem3" alias = "MENUITEMIII" width = "100%" height = "12.4%" ypos = "25%%" background = "#ffffff" tofront = "yes">
+                    <panel name = "textbox" alias = "TEXTBOX" width = "100%" height = "30%" xpos = "12%" ypos = "5%" background = "#ffffff">
+                        <text name = "menuitemtext" text = "Name of Menu Item" font = "Georgia-Bold" size = "24" color = "#000000" width = "600" height = "100%" xpos = "0%" ypos = "0%"/>
+                    </panel>
+                    <panel name = "textboxII" alias = "TEXTBOXII" width = "100%" height = "40%" xpos = "12%" ypos = "35%" background = "#ffffff">
+                       <text name = "menuitemtextII" text = "Description of menu item; times available. Price." font = "Georgia-Bold" size = "18" color = "#000000" width = "600" height = "50" xpos = "0%" ypos = "0%"/>
+                    </panel> 
+                    <panel name = "picblock" alias = "PICBLOCK" width = "9%" height = "90%" ypos = "5%" xpos = "1%" background = "#006666" cornerradius = "6">
+                        <text name = "exampleimage" text = " [Image]" font = "Georgia-Bold" size = "18" color = "#00cccc" width = "100" height = "50" xpos = "8%" />
+                    </panel>
+                </panel>
+                <panel name = "menuitem4" alias = "MENUITEMIV" width = "100%" height = "12.4%" ypos = "37.5%%" background = "#ffffff" tofront = "yes">
+                    <panel name = "textbox" alias = "TEXTBOX" width = "100%" height = "30%" xpos = "12%" ypos = "5%" background = "#ffffff">
+                        <text name = "menuitemtext" text = "Name of Menu Item" font = "Georgia-Bold" size = "24" color = "#000000" width = "600" height = "100%" xpos = "0%" ypos = "0%"/>
+                    </panel>
+                    <panel name = "textboxII" alias = "TEXTBOXII" width = "100%" height = "40%" xpos = "12%" ypos = "35%" background = "#ffffff">
+                       <text name = "menuitemtextII" text = "Description of menu item; times available. Price." font = "Georgia-Bold" size = "18" color = "#000000" width = "600" height = "50" xpos = "0%" ypos = "0%"/>
+                    </panel> 
+                    <panel name = "picblock" alias = "PICBLOCK" width = "9%" height = "90%" ypos = "5%" xpos = "1%" background = "#006666" cornerradius = "6">
+                        <text name = "exampleimage" text = " [Image]" font = "Georgia-Bold" size = "18" color = "#00cccc" width = "100" height = "50" xpos = "8%" />
+                    </panel>
+                </panel>
+                <panel name = "menuitem5" alias = "MENUITEMV" width = "100%" height = "12.4%" ypos = "50%%" background = "#ffffff" tofront = "yes">
+                    <panel name = "textbox" alias = "TEXTBOX" width = "100%" height = "30%" xpos = "12%" ypos = "5%" background = "#ffffff">
+                        <text name = "menuitemtext" text = "Name of Menu Item" font = "Georgia-Bold" size = "24" color = "#000000" width = "600" height = "100%" xpos = "0%" ypos = "0%"/></panel>
+                    <panel name = "textboxII" alias = "TEXTBOXII" width = "100%" height = "40%" xpos = "12%" ypos = "35%" background = "#ffffff">
+                       <text name = "menuitemtextII" text = "Description of menu item; times available. Price." font = "Georgia-Bold" size = "18" color = "#000000" width = "600" height = "50" xpos = "0%" ypos = "0%"/>
+                    </panel> 
+                    <panel name = "picblock" alias = "PICBLOCK" width = "9%" height = "90%" ypos = "5%" xpos = "1%" background = "#006666" cornerradius = "6">
+                        <text name = "exampleimage" text = " [Image]" font = "Georgia-Bold" size = "18" color = "#00cccc" width = "100" height = "50" xpos = "8%" />
+                    </panel>
+                </panel>
+                <panel name = "menuitem6" alias = "MENUITEMVI" width = "100%" height = "12.4%" ypos = "62.5%%" background = "#ffffff" tofront = "yes">
+                    <panel name = "textbox" alias = "TEXTBOX" width = "100%" height = "30%" xpos = "12%" ypos = "5%" background = "#ffffff">
+                        <text name = "menuitemtext" text = "Name of Menu Item" font = "Georgia-Bold" size = "24" color = "#000000" width = "600" height = "100%" xpos = "0%" ypos = "0%"/></panel>
+                    <panel name = "textboxII" alias = "TEXTBOXII" width = "100%" height = "40%" xpos = "12%" ypos = "35%" background = "#ffffff">
+                       <text name = "menuitemtextII" text = "Description of menu item; times available. Price." font = "Georgia-Bold" size = "18" color = "#000000" width = "600" height = "50" xpos = "0%" ypos = "0%"/>
+                    </panel> 
+                    <panel name = "picblock" alias = "PICBLOCK" width = "9%" height = "90%" ypos = "5%" xpos = "1%" background = "#006666" cornerradius = "6">
+                        <text name = "exampleimage" text = " [Image]" font = "Georgia-Bold" size = "18" color = "#00cccc" width = "100" height = "50" xpos = "8%" />
+                    </panel>
+                </panel>
+                <panel name = "menuitem7" alias = "MENUITEMVII" width = "100%" height = "12.4%" ypos = "75%%" background = "#ffffff" tofront = "yes">
+                    <panel name = "textbox" alias = "TEXTBOX" width = "100%" height = "30%" xpos = "12%" ypos = "5%" background = "#ffffff">
+                        <text name = "menuitemtext" text = "Name of Menu Item" font = "Georgia-Bold" size = "24" color = "#000000" width = "600" height = "100%" xpos = "0%" ypos = "0%"/></panel>
+                    <panel name = "textboxII" alias = "TEXTBOXII" width = "100%" height = "40%" xpos = "12%" ypos = "35%" background = "#ffffff">
+                       <text name = "menuitemtextII" text = "Description of menu item; times available. Price." font = "Georgia-Bold" size = "18" color = "#000000" width = "600" height = "50" xpos = "0%" ypos = "0%"/>
+                    </panel> 
+                    <panel name = "picblock" alias = "PICBLOCK" width = "9%" height = "90%" ypos = "5%" xpos = "1%" background = "#006666" cornerradius = "6">
+                        <text name = "exampleimage" text = " [Image]" font = "Georgia-Bold" size = "18" color = "#00cccc" width = "100" height = "50" xpos = "8%" />
+                    </panel>
+                </panel>
+                <panel name = "menuitem8" alias = "MENUITEMVIII" width = "100%" height = "12.4%" ypos = "87.5%%%" background = "#ffffff" tofront = "yes">
+                    <panel name = "textbox" alias = "TEXTBOX" width = "100%" height = "30%" xpos = "12%" ypos = "5%" background = "#ffffff">
+                        <text name = "menuitemtext" text = "Name of Menu Item" font = "Georgia-Bold" size = "24" color = "#000000" width = "600" height = "100%" xpos = "0%" ypos = "0%"/>
+                    </panel>
+                    <panel name = "textboxII" alias = "TEXTBOXII" width = "100%" height = "40%" xpos = "12%" ypos = "35%" background = "#ffffff">
+                       <text name = "menuitemtextII" text = "Description of menu item; times available. Price." font = "Georgia-Bold" size = "18" color = "#000000" width = "600" height = "50" xpos = "0%" ypos = "0%"/>
+                    </panel> 
+                    <panel name = "picblock" alias = "PICBLOCK" width = "9%" height = "90%" ypos = "5%" xpos = "1%" background = "#006666" cornerradius = "6">
+                        <text name = "exampleimage" text = " [Image]" font = "Georgia-Bold" size = "18" color = "#00cccc" width = "100" height = "50" xpos = "8%" />
+                    </panel>
+                </panel>
+            </panel>
+        </class>
+    </classes>
+    
+    <main>
+        <panel name = "contatiner" alias = "CONTAINER" width = "100%" height = "100%" background = "#ffffff">
+            <panel name = "geninfo" width = "30%" height = "80%" xpos = "3.5%%" ypos = "10%" background = "#000000" cornerradius = "13" onclickup = "create">
+                <text name = "general" alias = "GENERAL" text = "     General Information" font = "Georgia-Bold" size = "30" color = "#ffffff" width = "350" height = "300" xpos = "20%" ypos = "10%" />
+            </panel>
+            <panel name = "hosinfo" alias = "HOSINFO" width = "30%" height = "80%" xpos = "35.5%" ypos = "10%" background = "#000000" cornerradius = "13">
+                <text name = "buttonmain" text = "   [Button]" font = "Georgia-Bold" size = "30" color = "#666666" width = "350" height = "300" xpos = "20%" ypos = "10%" />
+            </panel>
+            <panel name = "contactinfo" alias = "CONTACTINFO" width = "30%" height = "80%" xpos = "67.5%" ypos = "10%" background = "000000" cornerradius = "13" onclickup = "email">
+                <text name = "contact" text = "     Contact" font = "Georgia-Bold" size = "30" color = "#ffffff" width = "350" height = "300" xpos = "20%" ypos = "10%" />
+            </panel>
+        </panel>
+    </main>
+    
+    <actions>
+        <action name = "translatemenu"></action>
+        <action name="create">
+            <create class="general" w="100%" h="100%" color="#ffffff" target = "CONTAINER"/>
+        </action>
+        <action name = "email" >
+            <email subject = "Hello!" body = "I am a user of Children's Mercy's new app." toaddress = "sophiaporter7@gmail.com"></email>
+        </action>
+        <action name = "deletegen">
+            <delete target = "GEN"></delete>
+        </action>
+        <action name = "deletemenu">
+            <delete target = "SCROLLMENU"></delete>
+        </action>
+        <action name = "createmenu" >
+            <create class="menu" w="100%" h="100%" color="#000000" target = "CONTAINER"/>
+        </action>
+    </actions>
+</wire>
