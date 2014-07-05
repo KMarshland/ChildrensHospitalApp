@@ -17,6 +17,7 @@ public class MapMaker : MonoBehaviour {
 	static List<Vector3> linePoints;
 	static Path path;
 	static bool [,] occupiedPoints;
+	static Vector3[] waypoints;
 
 	static Seeker seeker;
 	static AstarPath astarPath;
@@ -35,19 +36,91 @@ public class MapMaker : MonoBehaviour {
 		astarPath = GetComponent<AstarPath>();
 		astarPath.Scan();
 
-		GridGraph navg = (GridGraph)astarPath.graphs[0];
+		/*GridGraph navg = (GridGraph)astarPath.graphs[0];
 		navg.GetNodes( delegate ( GraphNode node ) {
 			node.Walkable = !isOccupied((node.position.x - 750)/1000, (node.position.y + 1000)/1000);
 
-			/*if (node.NodeIndex == 1){
-				Debug.Log(node.position.x + ", " + node.position.y + ", " + node.position.z);
-			}*/
+			//if (node.NodeIndex == 1){
+			//	Debug.Log(node.position.x + ", " + node.position.y + ", " + node.position.z);
+			//}
 
 			return true;
 		});
 		navg.erodeIterations = 1;
 		navg.ErodeWalkableArea();
-		navg.erodeIterations = 0;
+		navg.erodeIterations = 0;*/
+
+		//add the waypoints to the graph
+		float thebeforetime = Time.realtimeSinceStartup;
+
+
+		/*PointGraph navg = (PointGraph)astarPath.graphs[0];
+		navg.ScanGraph();
+
+		AstarPath.active.AddWorkItem (new AstarPath.AstarWorkItem (delegate () {
+
+		}, null));*/
+
+		/*Dictionary<int, List<PointNode>> xPoints = new Dictionary<int, List<PointNode>>();
+		Dictionary<int, List<PointNode>> yPoints = new Dictionary<int, List<PointNode>>();
+		AstarPath.active.AddWorkItem (new AstarPath.AstarWorkItem (delegate () {
+			foreach (Vector3 v in waypoints){
+				PointNode p = navg.AddNode((Int3)v);
+				if (!xPoints.ContainsKey(p.position.x)){
+					xPoints[p.position.x] = new List<PointNode>();
+				} else {
+					//PointNode p0 = xPoints[p.position.x][xPoints[p.position.x].Count - 1];
+					xPoints[p.position.x].Add(p);
+					//p0.AddConnection(p, 1);
+					//p.AddConnection(p0, 1);
+				}
+
+				if (!yPoints.ContainsKey(p.position.y)){
+					yPoints[p.position.y] = new List<PointNode>();
+				} else {
+					//PointNode p0 = xPoints[p.position.x][xPoints[p.position.x].Count - 1];
+					yPoints[p.position.y].Add(p);
+					//p0.AddConnection(p, 1);
+					//p.AddConnection(p0, 1);
+				}
+				//p.AddConnection();
+				//navg.AddToLookup(p);
+
+				//p.RecalculateConnectionCosts();
+			}
+		}, new System.Func<bool, bool>(delegate(bool arg) {
+			foreach (int key in xPoints.Keys){
+				for (int i = 1; i < xPoints[key].Count; i++){
+					PointNode p0 = xPoints[key][i];
+					PointNode p1 = xPoints[key][i-1];
+
+					int x0 = p0.position.x/1000;
+					int x1 = p1.position.x/1000;
+					int y = p0.position.y/1000;
+
+					bool validConnection = true;
+					for (int x = x1; x <= x0; x++){
+						validConnection &= !isOccupied(x,y);
+					}
+					Debug.Log(validConnection + ", " + x0 + ", " + x1 + ", " + y);
+
+					if (validConnection){
+						p0.AddConnection(p1, (uint)(x0 - x1));
+						p1.AddConnection(p0, (uint)(x0 - x1));
+						p0.RecalculateConnectionCosts();
+						p1.RecalculateConnectionCosts();
+					}
+				}
+				//Debug.Log(key);
+			}
+
+			return true;
+		})));*/
+
+
+
+		
+		//Debug.Log((Time.realtimeSinceStartup - thebeforetime) + " seconds elapsed in waypoint adding");
 
 		//Debug.Log((Time.realtimeSinceStartup - theBeforeTime) + " seconds elapsed");
 		PlayerPrefs.SetString("MarkerSave", "");
@@ -55,8 +128,9 @@ public class MapMaker : MonoBehaviour {
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork){
 			StartCoroutine(MapLabel.updateMarkerSave());
 		}
-
 	}
+
+
 	
 	// Update is called once per frame
 	void FixedUpdate () {
@@ -302,7 +376,8 @@ public class MapMaker : MonoBehaviour {
 		}
 
 		occupiedPoints = erodeMapping(occupiedPoints, 2);
-		makeCubesFromMapping(occupiedPoints);
+		//makeCubesFromMapping(occupiedPoints);
+		//waypoints = makeWaypointsFromMapping(occupiedPoints);
 	}
 
 	static bool[,] erodeMapping(bool[,] mapping, int degree){
@@ -382,6 +457,116 @@ public class MapMaker : MonoBehaviour {
 		}
 
 		parentObj.transform.localScale = new Vector3(1f, 1f, 2f);
+		parentObj.transform.position += new Vector3(-0.5f, 0.5f, 0f);
+	}
+
+	static Vector3[] makeWaypointsFromMapping(bool[,] mapping){
+		float thebeforetime = Time.realtimeSinceStartup;
+		List<Vector3> points = new List<Vector3>();
+		Transform parentT = (new GameObject("Waypoint Parent")).transform;
+
+		for (int y = 0; y < mapping.GetLength(1); y++){
+			for (int x = 0; x < mapping.GetLength(0); x++){
+				if (!mapping[x,y]){
+
+					//int neighborNum = 0;//store how many neighbors it has
+					//int minNeighborNum = 1;//how many neighbors does it need?
+
+					bool leftEdge = (x == 0);
+					bool rightEdge = (x == mapping.GetLength(0) - 1);
+					bool topEdge = (y == mapping.GetLength(1) - 1);
+					bool bottomEdge = (y == 0);
+
+					//int sideNum = 0;
+					//int diagonalNum = 0;
+					bool[] side = new bool[4];//left, right, top, bottom
+					bool[] diagonal = new bool[4];//UL, UR, BL, BR
+
+					if (leftEdge || mapping[x - 1, y]){
+						side[0] = true;
+					} else {
+						side[0] = false;
+					}
+					
+					if (rightEdge || mapping[x + 1, y]){
+						side[1] = true;
+					} else {
+						side[1] = false;
+					}
+					
+					if (topEdge || mapping[x, y + 1]){
+						side[2] = true;
+					} else {
+						side[2] = false;
+					}
+					
+					if (bottomEdge || mapping[x, y - 1]){
+						side[3] = true;
+					} else {
+						side[3] = false;
+					}
+
+					if (topEdge && leftEdge){
+						diagonal[0] = true;
+					} else if (!(topEdge || leftEdge) && mapping[x - 1, y + 1]){
+						diagonal[0] = true;
+					} else {
+						diagonal[0] = false;
+					}
+
+					if (topEdge && rightEdge){
+						diagonal[1] = true;
+					} else if (!(topEdge || rightEdge) && mapping[x + 1, y + 1]){
+						diagonal[1] = true;
+					} else {
+						diagonal[1] = false;
+					}
+
+					if (bottomEdge && leftEdge){
+						diagonal[2] = true;
+					} else if (!(bottomEdge || leftEdge) && mapping[x - 1, y - 1]){
+						diagonal[2] = true;
+					} else {
+						diagonal[2] = false;
+					}
+					
+					if (bottomEdge && rightEdge){
+						diagonal[3] = true;
+					} else if (!(bottomEdge || rightEdge) && mapping[x + 1, y - 1]){
+						diagonal[3] = true;
+					} else {
+						diagonal[3] = false;
+					}
+
+					/*if (diagonalNum >= 1){
+						if (diagonalNum < sideNum || sideNum == 0){
+							spawnWaypoint(new Vector3(x, y, 0)).parent = parentT;
+							points.Add(new Vector3(x, y, 0));
+						}
+					}*/
+					bool spawning = false;
+					for (int i = 0; i < 4; i++){
+						if (diagonal[i]){
+							if (!(side[i%2] ^ side[Mathf.RoundToInt((i-0.5f)/2f)%2 + 2])){
+								spawning = true;
+							}
+						}
+					}
+
+					if (spawning){
+						spawnWaypoint(new Vector3(x, y, 0)).parent = parentT;
+						points.Add(new Vector3(x, y, 0));
+					}
+				}
+			}
+		}
+		
+		Debug.Log(
+			(Time.realtimeSinceStartup - thebeforetime) + 
+			" seconds elapsed to find " + points.Count + " waypoints"
+		);
+
+		return points.ToArray();
 	}
 
 	static GameObject makeCubeAtPoint(Vector3 pos){//quick function to spawn a cube and move it somewhere
@@ -404,6 +589,14 @@ public class MapMaker : MonoBehaviour {
 		//move it to where ever
 		obj.transform.position = pos - (scale*0.5f);
 		obj.transform.localScale = scale;
+		
+		return obj;
+	}
+
+	static Transform spawnWaypoint(Vector3 pos){
+		Transform obj = (GameObject.Instantiate(Resources.Load("Prefabs/Waypoint")) as GameObject).transform;
+		//move it to where ever
+		obj.position = pos;
 		
 		return obj;
 	}
