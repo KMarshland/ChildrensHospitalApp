@@ -195,30 +195,14 @@ public class MapMaker : MonoBehaviour {
 			//Debug.Log(v);
 		}*/
 
-		SimpleSmoothModifier ssm = GetComponent<SimpleSmoothModifier>();
-		ssm.iterations = 2;
-		ssm.offset = 1f;
+		//SimpleSmoothModifier ssm = GetComponent<SimpleSmoothModifier>();
+		//ssm.iterations = 2;
+		//ssm.offset = 1f;
 		List<Vector3> ppp = new List<Vector3>();
 		ppp.AddRange(pathPoints);
 		//ssm.smoothType = SimpleSmoothModifier.SmoothType.Bezier;
-		linePoints = ssm.SmoothSimple(ppp);
+		//linePoints = ssm.SmoothSimple(ppp);
 		linePoints = ppp;
-
-		//linePoints = new List<Vector3>();
-		//linePoints.AddRange(pathPoints);
-		//Debug.Log(linePoints.Count);
-		/*int chopper = linePoints.Count - 1;
-		for (int i = linePoints.Count - 2; i >= 0; i--){
-			if (linePoints[i].x == linePoints[i+1].x && 
-			    linePoints[i].y == linePoints[i+1].y && 
-			    linePoints[i].z == linePoints[i+1].z){
-				chopper = i;
-			}
-		}
-		linePoints.RemoveRange(chopper, linePoints.Count - chopper);*/
-		//ssm.iterations = 0;
-
-
 
 		makeLine(linePoints.ToArray());
 		//makeLine(pathPoints);

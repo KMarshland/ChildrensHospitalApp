@@ -341,31 +341,6 @@ namespace KaiTools{
 			return buildListFromParents(bsf);
 		}
 
-		/*public static Point[] smoothPathBasic(Point[] path){//fast and culls the vast majority of useless points
-
-			if (path.Length <= 2){//you can't cull it any more
-				return path;
-			}
-
-			int direction = path[0].directionTo(path[1]);//what direction is it going in?
-
-			List<Point> npath = new List<Point>();
-			npath.Add(path[0]);//always add the first point
-
-			for (int i = 1; i < path.Length-1; i++){//loop through the points
-				int dir = path[i].directionTo(path[i+1]);//check what direction it's going in
-				if (dir != direction){//only add it if it's a change in direction
-					direction = dir;
-					npath.Add(path[i]);
-				}
-			}
-			npath.Add(path[path.Length - 1]);//always add the last point
-
-			//Debug.Log("Went from " + path.Length + " to " + npath.Count + " points");
-
-			return listToArray(npath);
-		}*/
-
 		public static Vector3[] smoothPathBasic(Vector3[] path){//fast and culls the vast majority of useless points
 
 			for (int i = 0; i < path.Length; i++){
@@ -514,43 +489,48 @@ namespace KaiTools{
 			}
 			
 			List<Vector3> npath = new List<Vector3>();
+
+			//always add the first point
 			npath.Add(path[0]);
 
-			for (int i = 0; i < path.Length; i++){
-				//path[i] = MapMaker.closestUnnocupiedTo(path[i]);
-			}
-			
-			//Vector3 curP = path[0];
 
-			for (int i = 0; i < npath.Count - 2; i++){
-				float theta = Mathf.Rad2Deg * (Mathf.Atan2(
-					(npath[i+2] - npath[i+1]).y, (npath[i+2] - npath[i+1]).x
-					) 
-				                               
-				                               - Mathf.Atan2(
-					(npath[i+1] - npath[i]).y, (npath[i+1] - npath[i]).x
+			for (int i = 1; i < path.Length - 1; i++){
+				//the angle between the previous point and this one, relative to positive x = 0 degrees
+				float thetaA = Mathf.Rad2Deg * (
+					Mathf.Atan2(
+						(path[i] - path[i-1]).y, (path[i] - path[i-1]).x
 					)
-				                               );
-				
-				theta = Mathf.Abs(theta) > 180f ? ((180f - theta)) % 360f : theta % 360f;
+				);
+				      
+				//the angle between this point and the next one, relative to positive x = 0 degrees
+				float thetaB = Mathf.Rad2Deg * ( 
+				    Mathf.Atan2(
+						(path[i+1] - path[i]).y, (path[i+1] - path[i]).x
+					)
+				);
 
-				if (Mathf.Abs(theta) < 30f){
-					npath.RemoveAt(i);
+				//get the angle made by the previous point, this one, and the next
+				float theta = (Mathf.Abs(thetaA - thetaB))%360;
+				if (theta > 180){
+					theta = 360 - theta;
+				}
+
+				//If it's a significant turn, add it
+				if (theta > 15f){
+					npath.Add(path[i]);
 				}
 			}
 
-			int it = 0;
-			while (it < path.Length - 2){
-				npath.Add(path[it]);
-				for (int j = 0; j < path.Length - it - 1; j++){
-					if (Vector3.Distance(path[it-j], path[it+1]) < 2f){
-						it++;//skip the next point
-					} else {
-						break;
-					}
+			int it = 1;
+			while (it < npath.Count){
+				if (Vector3.Distance(npath[it-1], npath[it]) < 2f){//if this point is close to the previous one...
+					npath.RemoveAt(it);//remove it
 				}
 				it++;
 			}
+
+			//always add the last point
+			npath.Add(path[path.Length - 1]);
 			
 			return npath.ToArray();
 		}
