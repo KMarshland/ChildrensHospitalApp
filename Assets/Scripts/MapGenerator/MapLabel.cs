@@ -78,6 +78,23 @@ public class MapLabel : MonoBehaviour {
 		return false;
 	}
 
+	public void highlight(){
+		this.renderer.enabled = true;
+		this.transform.GetChild(0).renderer.enabled = true;
+
+		textMesh.color = Color.magenta;
+
+	}
+
+	public void downlight(){
+		if (priority <= 1){
+			this.renderer.enabled = false;
+			this.transform.GetChild(0).renderer.enabled = false;
+		}
+
+		textMesh.color = new Color(0f, 218f/255f, 19f/255f, 1f);
+	}
+
 	public string Label {
 		get {
 			return label;

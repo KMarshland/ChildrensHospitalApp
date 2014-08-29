@@ -338,6 +338,7 @@ public class MapCameraControl : MonoBehaviour {
 		if (preFrom != dropDownWhichFrom || preTo != dropDownWhichTo && dropDownWhichFrom != dropDownWhichTo){
 			mapMaker.StartPos = pois[dropDownWhichFrom];
 			mapMaker.EndPos = pois[dropDownWhichTo];
+			poiMarkers[dropDownWhichTo].highlight();
 			resetPath();
 		}
 	}
