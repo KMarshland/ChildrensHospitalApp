@@ -12,6 +12,8 @@ public class MapLabel : MonoBehaviour {
 	string[] tags;
 	int priority;
 	Vector3 pathLocation;
+	int floor;
+	bool visible;
 
 	int id;
 
@@ -29,6 +31,7 @@ public class MapLabel : MonoBehaviour {
 
 		//change the text to what is should be
 		textMesh.text = label;
+		this.Visible = MapMaker.floor.Id - 1 == floor;
 		//guiText.text = label;
 		this.name = "Label (" + label + ")";
 
@@ -50,9 +53,7 @@ public class MapLabel : MonoBehaviour {
 		}
 
 		//make sure the world know this label exists
-		pathLocation = KaiTools.Point.pointToVector3(
-			MapMaker.closestUnnocupiedTo(KaiTools.Point.vector3ToPoint(transform.position))
-		);
+		pathLocation = MapMaker.floor.closestUnnocupiedTo(transform.position);
 		pathLocation = new Vector3(pathLocation.x, pathLocation.y, 0f);
 		id = MapCameraControl.addLabel(this);
 	}
@@ -95,6 +96,14 @@ public class MapLabel : MonoBehaviour {
 		textMesh.color = new Color(0f, 218f/255f, 19f/255f, 1f);
 	}
 
+	public bool Visible {
+		get {
+			return this.gameObject.activeInHierarchy;
+		} set {
+			this.gameObject.SetActive(value);
+		}
+	}
+
 	public string Label {
 		get {
 			return label;
@@ -125,9 +134,10 @@ public class MapLabel : MonoBehaviour {
 		}
 	}
 
-	public static MapLabel createLabel(Vector3 position, string alltext, int priority){
+	public static MapLabel createLabel(Vector3 position, string alltext, int priority, int flor){
 		if (mainParent == null){
 			mainParent = new GameObject("Labels");
+			mainParent.tag = "Waypoints";
 			mainParent.transform.position = Vector3.zero;
 		}
 
@@ -137,9 +147,10 @@ public class MapLabel : MonoBehaviour {
 
 		MapLabel lab = obj.GetComponent("MapLabel") as MapLabel;
 		string[] text = alltext.Split(new char[]{','}, System.StringSplitOptions.RemoveEmptyEntries);
-		lab.label = text[0];
+		lab.label = text.Length >= 1 ? text[0] : "";
 		lab.tags = text;
 		lab.priority = priority;
+		lab.floor = flor;
 
 		return lab;
 	}
@@ -161,36 +172,36 @@ public class MapLabel : MonoBehaviour {
 
 		foreach (string line in lines){
 			string[] pieces = line.Trim().Split(new char[]{'|'});
-			//Debug.Log(line.Trim());
-			if (pieces.Length >= 4 && int.Parse(pieces[3]) > 0){
-				Vector3 oldPos = new Vector3(float.Parse(pieces[1].Trim()), float.Parse(pieces[2].Trim()), -4f);
-				createLabel(MapMaker.mapSpaceToWorldSpaceFull(oldPos), pieces[0].Trim(), int.Parse(pieces[3]));
+			if (pieces.Length >= 6){
+				string nid = pieces[0].Trim();
+				string ntext = pieces[1].Trim();
+				float x = float.Parse(pieces[2].Trim());
+				float y = float.Parse(pieces[3].Trim());
+				int pri = int.Parse(pieces[4].Trim());
+				int flor = int.Parse(pieces[5].Trim());
+
+				if (pri > 0){
+					Vector3 oldPos = new Vector3(x, y, -4f);
+					createLabel(MapMaker.mapSpaceToWorldSpaceFull(oldPos), ntext, pri, flor);
+				}
 			}
 		}
+
+		AstarPath.active.Scan();
 	}
 
 	public static IEnumerator updateMarkerSave(){
-		WWW www = new WWW("http://marshlandgames.com/HospitalProject/Client/MarkerPlacement/show_markers.php");
+		WWW www = new WWW("http://marshlandgames.com/HospitalProject/Client/MarkerPlacement/show_formatted_markers.php");
 
 		yield return www;
 
-		//strip the header and footer off
-		string stripped = www.text.Substring(85, www.text.Length - 85 - 8);
-		//Debug.Log(stripped);
+		//Debug.Log(www.text);
 
-		//split it up by cell
-		string[] piecesArr = Regex.Split(stripped, "<..>|<...>");
-		List<string> pieces = new List<string>();
-		foreach (string s in piecesArr){
-			if (s.Trim() != ""){
-				pieces.Add(s);
-			}
-		}
+		string[] piecesArr = www.text.Split(new string[]{"<br />"}, System.StringSplitOptions.RemoveEmptyEntries);
 
-		//stick the cells back together in a meaningfull way 
 		string newSaveString = "";
-		for (int i = 0; i < pieces.Count - 3; i+= 4){
-			newSaveString += pieces[i] + "|" + pieces[i+1] + "|" + pieces[i+2] + "|" + pieces[i+3] +"\n";
+		for (int i = 0; i < piecesArr.Length; i++){
+			newSaveString += piecesArr[i] + "\n";
 		}
 
 		//save what the new save is
