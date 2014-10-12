@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
+//using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+//using System.Runtime.Serialization;
+//using System.Runtime.Serialization.Formatters.Binary;
 using KaiTools;
 using Pathfinding;
 
@@ -32,15 +35,17 @@ public class Floor {
 
 		float t = Time.realtimeSinceStartup;
 
-		findOccupiedPoints();
-		erodeMapping(2);
-
 		if (Resources.Load("Prefabs/Floors/Floor " + Id) == null){
+			findOccupiedPoints();
+			Debug.Log("findoccupied: " + (Time.realtimeSinceStartup - t)); //=> 865 ms
+			erodeMapping(2);
+			Debug.Log("erode: " + (Time.realtimeSinceStartup - t)); //=> 1482 ms
+
 			Debug.Log("Building floor " + Id);
 			build();
 		}
 
-		buildTime = t - Time.realtimeSinceStartup;
+		buildTime = Time.realtimeSinceStartup - t;
 		made = true;
 	}
 
@@ -49,12 +54,16 @@ public class Floor {
 			make();
 		}
 
-		Object c = Resources.Load("Prefabs/Floors/Floor " + Id);
-		if (c == null){
-			build();
-		} else {
-			GameObject.Instantiate(c);
+		if (allFather == null){
+			Object c = Resources.Load("Prefabs/Floors/Floor " + Id);
+			if (c == null){
+				build();
+			} else {
+				allFather = GameObject.Instantiate(c) as GameObject;
+			}
 		}
+
+		this.Active = true;
 	}
 
 	public void build(){
@@ -163,17 +172,17 @@ public class Floor {
 		for (int x = 0; x < width; x += resolution){
 			for (int y = 0; y < height; y += resolution){
 				
-				float grayscaleSum = 0;//the sum of all grayscale values
+				/*float grayscaleSum = 0;//the sum of all grayscale values
 				
 				//check a square of size res around the point. 
 				for (int x2 = x; x2 < x + resolution; x2++){
 					for (int y2 = y; y2 < y + resolution; y2++){
 						grayscaleSum += map.GetPixel(x2,y2).grayscale;
 					}
-				}
+				}*/
 				
 				//If it's mostly black, make that point black
-				if (grayscaleSum * resToTheMinusTwo < tolerance){
+				if (map.GetPixel(x,y).grayscale * resToTheMinusTwo < tolerance){
 					//if it's black, make a cube there. Otherwise leave it alone 
 					//(makeCubeAtPoint(new Vector3(x * scaleDivResolution, y * scaleDivResolution, 0), scale)).transform.parent = parentObj.transform;
 					oPoints[(int)(x * scaleDivResolution), (int)(y * scaleDivResolution)] = true;
@@ -196,6 +205,8 @@ public class Floor {
 		
 		//loop through the old ones
 		for (int y = 0; y < mapping.GetLength(1); y++){
+			bool topEdge = y == 0;
+			bool bottomEdge = y == mapping.GetLength(1) - 1;
 			for (int x = 0; x < mapping.GetLength(0); x++){
 				if (mapping[x,y]){//if it is occupied, check if it needs to be eroded
 					int neighborNum = 0;//store how many neighbors it has
@@ -213,19 +224,19 @@ public class Floor {
 						neighborNum ++;
 					}
 					
-					if (y == 0){//it is on the top edge
+					if (topEdge){//it is on the top edge
 						minNeighborNum --;
 					} else if (mapping[x, y - 1]){//it isn't so check the tile one to the top
 						neighborNum ++;
 					}
 					
-					if (y == mapping.GetLength(1) - 1){//it is on the bottom edge
+					if (bottomEdge){//it is on the bottom edge
 						minNeighborNum --;
 					} else if (mapping[x, y + 1]){//it isn't so check the tile one to the bottom
 						neighborNum ++;
 					}
 					
-					if (minNeighborNum <= 0){//it doesn't need eroding
+					if (minNeighborNum <= 0){
 						nmapping[x,y] = true;
 					} else {
 						nmapping[x,y] = neighborNum >= minNeighborNum;//if it has enough neighbors, keep it occupied, otherwise nuke it
@@ -389,12 +400,47 @@ public class Floor {
 		return points.ToArray();
 	}
 
+	/*public void serialize() {
+
+		float thebeforetime = Time.realtimeSinceStartup;
+		IFormatter formatter = new BinaryFormatter();
+		Stream stream = new FileStream("PointCache" + this.Id + ".bin", FileMode.Create, FileAccess.Write, FileShare.None);
+		formatter.Serialize(stream, occupiedPoints);
+		stream.Close();
+		Debug.Log("Serialization time: " + (Time.realtimeSinceStartup - thebeforetime));
+	}
+
+	public void deserialize(string filename){
+		float thebeforetime = Time.realtimeSinceStartup;
+
+		IFormatter formatter = new BinaryFormatter();
+		Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+		bool[,] obj = (bool[,]) formatter.Deserialize(stream);
+		stream.Close();
+
+		Debug.Log("Deserialization time: " + (Time.realtimeSinceStartup - thebeforetime));
+	}*/
+
 	public GameObject AllFather {
 		get {
 			if (allFather == null){
 				allFather = new GameObject("Floor " + Id);
 			}
 			return allFather;
+		}
+	}
+
+	public bool Active {
+		get {
+			if (allFather == null){
+				return false;
+			}
+			return this.allFather.activeInHierarchy;
+		} set {
+			if (allFather == null){
+				return;
+			}
+			this.allFather.SetActive(value);
 		}
 	}
 

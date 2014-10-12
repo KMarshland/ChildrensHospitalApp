@@ -1,5 +1,6 @@
 ﻿
 using UnityEngine;
+using Pathfinding;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@ using System.Text.RegularExpressions;
 public class MapLabel : MonoBehaviour {
 
 	static GameObject mainParent;
+	static Dictionary<int, MapLabel> mapLabels = new Dictionary<int, MapLabel>();
 
 	public string label;
 	string[] tags;
@@ -14,6 +16,8 @@ public class MapLabel : MonoBehaviour {
 	Vector3 pathLocation;
 	int floor;
 	bool visible;
+	bool isElevator;
+	int[] elevatorFloors;
 
 	int id;
 
@@ -21,8 +25,12 @@ public class MapLabel : MonoBehaviour {
 	GUIText guiText;
 	GameObject marker;
 
+	bool addedToMapping = false;
+
 	// Use this for initialization
 	void Start () {
+
+		mapLabels[this.Id] = this;
 
 		//load the components
 		textMesh = this.gameObject.GetComponent("TextMesh") as TextMesh;
@@ -31,7 +39,7 @@ public class MapLabel : MonoBehaviour {
 
 		//change the text to what is should be
 		textMesh.text = label;
-		this.Visible = MapMaker.floor.Id - 1 == floor;
+		checkVisible();
 		//guiText.text = label;
 		this.name = "Label (" + label + ")";
 
@@ -53,9 +61,42 @@ public class MapLabel : MonoBehaviour {
 		}
 
 		//make sure the world know this label exists
-		pathLocation = MapMaker.floor.closestUnnocupiedTo(transform.position);
+		pathLocation = /*MapMaker.ActiveFloor.closestUnnocupiedTo*/(transform.position);
 		pathLocation = new Vector3(pathLocation.x, pathLocation.y, 0f);
 		id = MapCameraControl.addLabel(this);
+
+		scanSelf();
+	}
+
+	void scanSelf(){
+		if (this.Visible){
+			PointGraph navg = (PointGraph)AstarPath.active.graphs[0];
+			AstarPath.active.AddWorkItem (new AstarPath.AstarWorkItem (delegate () {
+				float f = Time.realtimeSinceStartup;
+				PointNode p = navg.AddNode((Int3)pathLocation);
+
+				if (p != null){
+					Dictionary<GraphNode, float> cons = new Dictionary<GraphNode, float>();
+					navg.GetNodes((delegate (GraphNode node) {
+						float distance;
+						if (navg.IsValidConnection(p, node, out distance)){
+							//Debug.Log(distance);
+							cons[node] = distance;
+						}
+						return true;
+					}));
+
+
+					foreach (GraphNode g in cons.Keys){
+						p.AddConnection(g, (uint)cons[g]);
+						g.AddConnection(p, (uint)cons[g]);
+					}
+
+					//Debug.Log("Found " + cons.Count + " valid connections");
+					//Debug.Log("Scan time: " + (Time.realtimeSinceStartup - f));
+				}
+			}, null));
+		}
 	}
 	
 	// Update is called once per frame
@@ -68,6 +109,20 @@ public class MapLabel : MonoBehaviour {
 
 		marker.transform.position = this.transform.position + new Vector3(0f, 0f, 2f);
 		marker.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+	}
+
+	public void checkVisible(){
+		int realFloor = MapMaker.ActiveFloor.Id - 1;
+		bool vis = false;
+		vis = vis || (realFloor == floor);
+
+		if (isElevator){
+			for (int i = 0; i < elevatorFloors.Length; i++){
+				vis = vis || (realFloor == elevatorFloors[i]);
+			}
+		}
+
+		this.Visible = vis;
 	}
 
 	public bool termApplies(string term){
@@ -134,7 +189,7 @@ public class MapLabel : MonoBehaviour {
 		}
 	}
 
-	public static MapLabel createLabel(Vector3 position, string alltext, int priority, int flor){
+	public static MapLabel createLabel(Vector3 position, int nid, string alltext, int priority, int flor, bool elevator, int[] servicedFloors){
 		if (mainParent == null){
 			mainParent = new GameObject("Labels");
 			mainParent.tag = "Waypoints";
@@ -146,11 +201,14 @@ public class MapLabel : MonoBehaviour {
 		obj.transform.position = position;
 
 		MapLabel lab = obj.GetComponent("MapLabel") as MapLabel;
+		lab.id = nid;
 		string[] text = alltext.Split(new char[]{','}, System.StringSplitOptions.RemoveEmptyEntries);
 		lab.label = text.Length >= 1 ? text[0] : "";
 		lab.tags = text;
 		lab.priority = priority;
 		lab.floor = flor;
+		lab.isElevator = elevator;
+		lab.elevatorFloors = servicedFloors;
 
 		return lab;
 	}
@@ -173,21 +231,28 @@ public class MapLabel : MonoBehaviour {
 		foreach (string line in lines){
 			string[] pieces = line.Trim().Split(new char[]{'|'});
 			if (pieces.Length >= 6){
-				string nid = pieces[0].Trim();
+				int nid = int.Parse(pieces[0].Trim());
 				string ntext = pieces[1].Trim();
 				float x = float.Parse(pieces[2].Trim());
 				float y = float.Parse(pieces[3].Trim());
 				int pri = int.Parse(pieces[4].Trim());
 				int flor = int.Parse(pieces[5].Trim());
+				bool ele = (int.Parse(pieces[6].Trim()) == 1);
+				string[] fls = pieces[7].Trim().Split(new char[]{','}, System.StringSplitOptions.RemoveEmptyEntries);
+				int[] efls = new int[fls.Length];
+				for (int i = 0; i < fls.Length; i++){
+					efls[i] = int.Parse(fls[i]);
+				}
+
 
 				if (pri > 0){
 					Vector3 oldPos = new Vector3(x, y, -4f);
-					createLabel(MapMaker.mapSpaceToWorldSpaceFull(oldPos), ntext, pri, flor);
+					createLabel(MapMaker.mapSpaceToWorldSpaceFull(oldPos), nid, ntext, pri, flor, ele, efls);
 				}
 			}
 		}
 
-		AstarPath.active.Scan();
+		//MapMaker.needsToScan = true;
 	}
 
 	public static IEnumerator updateMarkerSave(){
@@ -220,6 +285,13 @@ public class MapLabel : MonoBehaviour {
 		}
 		loadMarkers();
 		//Debug.Log(PlayerPrefs.GetString("MarkerSave"));
+	}
+
+	public static void onFloorChange(){
+		foreach (int i in mapLabels.Keys){
+			mapLabels[i].checkVisible();
+			mapLabels[i].scanSelf();
+		}
 	}
 
 }

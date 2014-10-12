@@ -7,6 +7,7 @@ using Pathfinding;
 public class MapMaker : MonoBehaviour {
 
 	public static MapMaker instance;
+	public static bool needsToScan = false;
 
 	public Texture2D[] maps;//the image map that you can easily set
 
@@ -30,53 +31,60 @@ public class MapMaker : MonoBehaviour {
 		new Floor(Resources.Load("Textures/Maps/CMHFloor5") as Texture2D),
 		new Floor(Resources.Load("Textures/Maps/CMHFloor6") as Texture2D)
 	};
-	public static Floor floor = floors[0];
+	static Floor floor;
+
+	public string[] extraLog;
+	static Dictionary<string, float> logs = new Dictionary<string, float>();
 
 	// Use this for initialization
 	void Start () {
 		instance = this;
 
 		float theBeforeTime = Time.realtimeSinceStartup;
-
 		/*for (int i = 0; i < floors.Length; i++){
 			floors[i].Id = i+1;
 			//floors[i].make();
 		}*/
 
 
-		line = this.GetComponent("LineRenderer") as LineRenderer;//get a reference to the line
 
+		line = this.GetComponent<LineRenderer>();//get a reference to the line
 		seeker = GetComponent<Seeker>();
 		astarPath = GetComponent<AstarPath>();
-		floor.spawn();
-		loadGraphForFloor(floor);
+		//logs["Getting components"] = Time.realtimeSinceStartup - theBeforeTime;
+
+		ActiveFloor = floors[0];
+		//logs["Set active floor"] = Time.realtimeSinceStartup - theBeforeTime;
 
 		//add the waypoints to the graph
 		//float thebeforetime = Time.realtimeSinceStartup;
 
 		PlayerPrefs.SetString("MarkerSave", "");
 		MapLabel.loadMarkers();
+		//logs["Initial marker load"] = Time.realtimeSinceStartup - theBeforeTime;
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork){
 			StartCoroutine(MapLabel.updateMarkerSave());
 		}
+		//logs["Start update of markers"] = Time.realtimeSinceStartup - theBeforeTime;
 
-		Debug.Log("Startup time: " + (1000f * (Time.realtimeSinceStartup - theBeforeTime)).ToString("F0") + " ms");
+		logs["Startup time"] = Time.realtimeSinceStartup - theBeforeTime;
+
+		setLogs();
 	}
-
-	void loadGraphForFloor(Floor f){
-		TextAsset cache = (Resources.Load("PathCaches/Floor" + (f.Id)) as TextAsset);
-		if (cache != null){//load the cache if it exists
-			byte[] bytes = cache.bytes;
-			AstarPath.active.astarData.DeserializeGraphs (bytes);
-		} else {//scan the graph
-			AstarPath.active.Scan();
-		}
-	}
-
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+		if (needsToScan){
+			Debug.Log("Scanned from update");
+			AstarPath.active.Scan();
+			needsToScan = false;
+		}
 
+		if (Input.GetKeyDown(KeyCode.UpArrow)){
+			//Debug.Log("Was " + ActiveFloor.Id);
+			ActiveFloor = floors[ActiveFloor.Id % floors.Length];
+			//Debug.Log("Now " + ActiveFloor.Id);
+		}
 	}
 
 	void makeLine(Vector3[] points){//a handy-dandy function to turn a list of points into something on the screen
@@ -101,6 +109,21 @@ public class MapMaker : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	void setLogs(){
+		extraLog = new string[logs.Count];
+		int _i = 0;
+		foreach (string s in logs.Keys){
+			extraLog[_i] = s + ": " + (1000f * (logs[s])).ToString("F0") + " ms";
+			_i ++;
+		}
+
+		string q = "";
+		foreach (string s in extraLog){
+			q += s + "\n";
+		}
+		//Debug.Log(q);
 	}
 
 	public void genPath(){//allows you to repath and display in one call
@@ -165,6 +188,39 @@ public class MapMaker : MonoBehaviour {
 	public Vector3[] LinePoints {
 		get {
 			return linePoints.ToArray();
+		}
+	}
+
+	static void loadGraphForFloor(Floor f){
+		TextAsset cache = (Resources.Load("PathCaches/Floor" + (f.Id)) as TextAsset);
+		if (cache != null){//load the cache if it exists
+			byte[] bytes = cache.bytes;
+			AstarPath.active.astarData.DeserializeGraphs (bytes);
+			//Debug.Log("Deserialized successfully");
+		} else {//scan the graph
+			MapMaker.needsToScan = true;
+			Debug.LogWarning("You could feed starving children in Africa with all the processing power this wastes. " + 
+			                 "You better have a damn good reason for not loading it from the cache or dynamically adding a single point.");
+		}
+	}
+
+	public static Floor ActiveFloor {
+		get {
+			return floor;
+		} set {
+			float theBeforeTime = Time.realtimeSinceStartup;
+			if (floor != null){
+				floor.Active = false;
+			}
+			//logs["Activate floor"] = Time.realtimeSinceStartup - theBeforeTime;
+			floor = value;
+			//logs["Set floor value"] = Time.realtimeSinceStartup - theBeforeTime;
+			floor.spawn();
+			//logs["Spawn floor"] = Time.realtimeSinceStartup - theBeforeTime;
+			loadGraphForFloor(floor);
+			//logs["Load graph"] = Time.realtimeSinceStartup - theBeforeTime;
+			MapMaker.instance.setLogs();
+			MapLabel.onFloorChange();
 		}
 	}
 

@@ -18,7 +18,7 @@ namespace KaiTools{
 			parent = null;
 
 			//check if its occupied
-			occupied = MapMaker.floor.isOccupied(this);//use the image to check as this is a TON faster
+			occupied = MapMaker.ActiveFloor.isOccupied(this);//use the image to check as this is a TON faster
 			//checkOccupied();
 		}
 		
@@ -30,7 +30,7 @@ namespace KaiTools{
 			parent = nparent;
 
 			//check if its occupied
-			occupied = MapMaker.floor.isOccupied(this);//use the image to check as this is a TON faster
+			occupied = MapMaker.ActiveFloor.isOccupied(this);//use the image to check as this is a TON faster
 			//checkOccupied();
 		}
 		
@@ -589,7 +589,7 @@ namespace KaiTools{
 			} else if (x0 == x1){//it is vertical
 				dy = y0 < y1 ? 1 : -1;
 				for (int y = y0; y < y1; y+=dy){
-					if (MapMaker.floor.isOccupied(x0, y)){
+					if (MapMaker.ActiveFloor.isOccupied(x0, y)){
 						return true;
 					}
 				}
@@ -597,7 +597,7 @@ namespace KaiTools{
 			} else if (y0 == y1){//it is horizontal
 				dx = x0 < x1 ? 1 : -1;
 				for (int x = x0; x < x1; x+=dx){
-					if (MapMaker.floor.isOccupied(x, y0)){
+					if (MapMaker.ActiveFloor.isOccupied(x, y0)){
 						return true;
 					}
 				}
@@ -613,7 +613,7 @@ namespace KaiTools{
 				for (int x = x0; x < x1; x+=dx){
 					int y = (int)(m*x + y0);
 					for (int w = -1 * widthToCheck; w <= widthToCheck; w++){
-						if (MapMaker.floor.isOccupied(x, y + w)){
+						if (MapMaker.ActiveFloor.isOccupied(x, y + w)){
 							return true;
 						}
 					}
@@ -624,7 +624,7 @@ namespace KaiTools{
 				for (int y = y0; y < y1; y+=dy){
 					int x = (int)(m*y + x0);
 					for (int w = -1 * widthToCheck; w <= widthToCheck; w++){
-						if (MapMaker.floor.isOccupied(x + w, y)){
+						if (MapMaker.ActiveFloor.isOccupied(x + w, y)){
 							return true;
 						}
 					}

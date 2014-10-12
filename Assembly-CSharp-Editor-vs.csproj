@@ -63,9 +63,13 @@
      <Compile Include="Assets\Resources\AstarPathfindingProject\Editor\OptimizationHandler.cs" />
      <Compile Include="Assets\Resources\AstarPathfindingProject\Editor\RVOSimulatorEditor.cs" />
      <Compile Include="Assets\Resources\AstarPathfindingProject\Editor\SeekerEditor.cs" />
+     <None Include="Assets\Resources\PathCaches\Floor5.txt" />
+     <None Include="Assets\Resources\PathCaches\Floor2.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\Editor\EditorAssets\Materials\Navmesh2.shader" />
+     <None Include="Assets\Resources\PathCaches\Floor7.txt" />
      <None Include="Assets\Plugins\yIRC\ReadMe.txt" />
      <None Include="Assets\Resources\TextAssets\MarkerSave.txt" />
+     <None Include="Assets\Resources\PathCaches\Floor6.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\Plugins\DotNetZip\License.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\Plugins\Poly2Tri\License.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\Projector Multiply.shader" />
@@ -74,6 +78,8 @@
      <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\_Example Scenes.txt" />
      <None Include="Assets\Plugins\yIRC\GUI\Fonts\Calibri.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\Readme_upgrading.txt" />
+     <None Include="Assets\Resources\PathCaches\Floor1.txt" />
+     <None Include="Assets\Resources\PathCaches\Floor4.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\Projector Light.shader" />
      <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example8_PathTypes\SquareShader.shader" />
      <None Include="Assets\Resources\AstarPathfindingProject\Readme.txt" />
@@ -82,6 +88,7 @@
      <None Include="Assets\Resources\AstarPathfindingProject\Plugins\JsonFx\Readme.txt" />
      <None Include="Assets\Scripts\Documentation\HUD_docs.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\link.xml" />
+     <None Include="Assets\Resources\PathCaches\Floor3.txt" />
  <Reference Include="yIRC">
  <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Assets/Plugins/yIRC.dll</HintPath>
  </Reference>
