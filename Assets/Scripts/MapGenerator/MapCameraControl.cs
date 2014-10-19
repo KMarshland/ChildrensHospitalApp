@@ -27,8 +27,8 @@ public class MapCameraControl : MonoBehaviour {
 
 	string[] instructions;
 	
-	static List<Vector3> pois;//points of interest
-	static List<string> poiNames;//and their names
+	//static List<Vector3> pois;//points of interest
+	//static List<string> poiNames;//and their names
 	static List<MapLabel> poiMarkers;
 	string searchDefault;
 	Vector2 dropDownScrollPosFrom = Vector2.zero;//keep track of the scrolling for the drop down menu
@@ -46,6 +46,8 @@ public class MapCameraControl : MonoBehaviour {
 
 	Transform mainCamera;
 	Transform centralCube;
+
+	List<MapLabel> remainingSegments;
 
 	// Use this for initialization
 	void Start () {
@@ -170,7 +172,8 @@ public class MapCameraControl : MonoBehaviour {
 		
 		theta = Mathf.Abs(theta) > 180 ? ((180f - theta)) % 360f : theta % 360f;
 		
-		string resi = "Go forward " + 
+		string resi = pointsPassed >= mapMaker.PathPoints.Length - 1 ? "" : 
+			"Go forward " + 
 			Vector3.Distance(transform.position, mapMaker.PathPoints[pointsPassed+1]).ToString("F1") + 
 			" units to the point (" + 
 				mapMaker.PathPoints[pointsPassed+1].x + "," + 
@@ -183,7 +186,7 @@ public class MapCameraControl : MonoBehaviour {
 	}
 	
 	void poiGUI(){
-		if (poiNames == null || poiNames.Count == 0){
+		if (poiMarkers == null || poiMarkers.Count == 0){
 			//Debug.Log("Oh noes! We ran out of markers! Check back next Tuesday for a refreshing mark. ");
 			return;
 		}
@@ -199,7 +202,7 @@ public class MapCameraControl : MonoBehaviour {
 		GUI.Label(new Rect(10, 70, 50, 25), "From: ");
 		
 		if (dropDownNFrom == 0){
-			if (GUI.Button(new Rect(60, 70, 100, 25), poiNames[dropDownWhichFrom])){
+			if (GUI.Button(new Rect(60, 70, 100, 25), poiMarkers[dropDownWhichFrom].Label)){
 				
 				if(dropDownNFrom==0){
 					dropDownNFrom = 1;
@@ -271,7 +274,7 @@ public class MapCameraControl : MonoBehaviour {
 		GUI.Label(new Rect(10, 110, 50, 25), "To: ");
 		
 		if (dropDownNTo == 0 && dropDownNFrom != 1){
-			if(GUI.Button(new Rect(60, 110, 100, 25), poiNames[dropDownWhichTo])){
+			if(GUI.Button(new Rect(60, 110, 100, 25), poiMarkers[dropDownWhichTo].Label)){
 				
 				if (dropDownNTo == 0){
 					dropDownNTo = 1;
@@ -326,7 +329,7 @@ public class MapCameraControl : MonoBehaviour {
 					dropDownNTo=0;
 					dropDownWhichTo=poiSearchTo[dropDownITo].Id;         
 					
-				}               
+				}
 				
 			}
 			
@@ -336,11 +339,148 @@ public class MapCameraControl : MonoBehaviour {
 		
 		//see if you need to do something else
 		if (preFrom != dropDownWhichFrom || preTo != dropDownWhichTo && dropDownWhichFrom != dropDownWhichTo){
-			mapMaker.StartPos = pois[dropDownWhichFrom];
-			mapMaker.EndPos = pois[dropDownWhichTo];
-			poiMarkers[dropDownWhichTo].highlight();
-			resetPath();
+			resetPath(navigateFrom(poiMarkers[dropDownWhichFrom], poiMarkers[dropDownWhichTo]));
 		}
+	}
+
+	List<MapLabel> navigateFrom(MapLabel a, MapLabel b){
+		List<MapLabel> res = new List<MapLabel>();
+
+		res.Add(a);
+
+		if (a.OnFloor == b.OnFloor){
+			res.Add(b);
+		} else {
+			//find out what elevators serve the starting floor
+			List<MapLabel> availableElevators = MapLabel.ElevatorsOnFloor(a.OnFloor);
+
+			bool direct = false;
+			foreach (MapLabel m in availableElevators){
+				if (m.IsElevator && m.isOnFloor(b.OnFloor)){
+					res.Add(m);
+					res.Add(b);
+					direct = true;
+					break;
+				}
+			}
+
+			if (!direct){
+				MapLabel goalLoc = b;
+
+				List<MapLabel> open = availableElevators;
+				List<MapLabel> closed = new List<MapLabel>();
+
+				List<MapLabel> neighbors;
+				MapLabel bsf;
+				int bcsf;
+				
+				//choose best of the options
+				bsf = open[0];
+				bcsf = bsf.getFCost(goalLoc);
+				foreach (MapLabel p in open){
+					if (p.getFCost(goalLoc) < bcsf){
+						bsf = p;
+						bcsf = p.getFCost(goalLoc);
+					}
+				}
+				open.Remove(bsf);
+				closed.Add(bsf);
+				
+				for (int i = 0; i < 5000; i++){//keep on checking. 5000 checks max
+
+					neighbors = MapLabel.ElevatorsOnFloor(bsf.OnFloor);
+					foreach (int flo in bsf.ElevatorFloors){
+						List<MapLabel> ex = MapLabel.ElevatorsOnFloor(flo);
+						foreach (MapLabel m in ex){
+							if (!neighbors.Contains(m)){
+								neighbors.Add(m);
+							}
+						}
+					}
+
+					//look through the neighbors
+					foreach (MapLabel p in neighbors){
+						if (!closed.Contains(p)){//don't check ones you've already checked
+							if (!open.Contains(p)){//if you don't already might want to check it
+								open.Add(p);
+								p.parentalLabel = bsf;
+							}
+						}
+					}
+					
+					if (open.Count == 0){
+						break;
+					}
+					
+					//choose best of the options
+					bsf = open[0];
+					bcsf = 1; //bsf.getFCost(goalLoc);
+					foreach (MapLabel p in open){
+						if (p.getFCost(goalLoc) < bcsf){
+							bsf = p;
+							bcsf = p.getFCost(goalLoc);
+						}
+					}
+					open.Remove(bsf);
+					closed.Add(bsf);
+					
+					if (bsf.OnFloor == goalLoc.OnFloor){//are you done?
+						List<MapLabel> reverseElevatorRoute = new List<MapLabel>();
+						while (bsf != null){
+							reverseElevatorRoute.Add(bsf);
+							bsf = bsf.parentalLabel;
+						}
+						reverseElevatorRoute.Reverse();
+						res.AddRange(reverseElevatorRoute);
+						res.Add(goalLoc);
+					}
+				}
+			}
+		}
+
+		if (true){
+			string deb = "Calculated segments: \n";
+			foreach (MapLabel m in res){
+				deb += m.Label + "\n";
+			}
+			Debug.Log(deb);
+		}
+
+		return res;
+	}
+	
+	void resetPath(List<MapLabel> segments){//totally recalculates path and instructions and such
+
+		if (segments.Count < 2){
+			return;
+		}
+
+		if (!segments[0].IsElevator){//if you're starting from something other than an elevator, go to its floor
+			MapMaker.ActiveFloor = MapMaker.floors[segments[0].OnFloor];
+		} else if (!segments[1].IsElevator){//however, if the place you're coming flor is an elevator...
+			MapMaker.ActiveFloor = MapMaker.floors[segments[1].OnFloor];//just go to the floor you were planning on
+		} else {//they're both elevators. Go to whatever floor they're both on
+			//TODO find this out
+		}
+		
+		mapMaker.StartPos = segments[0].PathLocation;
+		mapMaker.EndPos = segments[1].PathLocation;
+
+		segments[1].highlight();
+
+		remainingSegments = segments.GetRange(1, segments.Count - 1);
+
+		mapMaker.genPath();//generate the path
+	}
+	
+	public void recalculateFromPath(){
+		genInstructions();
+		
+		pointsPassed = 0;
+		instructionsPassed = 0;
+		pDistance = 10000f;
+		direction = (mapMaker.PathPoints[pointsPassed + 1] - mapMaker.PathPoints[pointsPassed]).normalized;
+		transform.position = mapMaker.PathPoints[pointsPassed];
 	}
 
 	string[] genInstructions(){
@@ -383,7 +523,10 @@ public class MapCameraControl : MonoBehaviour {
 			return;
 		}
 
-
+		if (pointsPassed >= mapMaker.PathPoints.Length - 1){
+			finishSegment();
+			return;
+		}
 
 		if (direction == null || Vector3.Distance(transform.position, mapMaker.LinePoints[instructionsPassed+1]) < 2f * speed){
 			instructionsPassed = (instructionsPassed + 1) % (mapMaker.LinePoints.Length - 1);
@@ -395,10 +538,14 @@ public class MapCameraControl : MonoBehaviour {
 		float distance = Vector3.Distance(transform.position, mapMaker.PathPoints[pointsPassed+1]);
 
 		if (direction == null || distance < speed || pDistance < distance){
-			pointsPassed = (pointsPassed + 1) % (mapMaker.PathPoints.Length - 1);
+			pointsPassed ++;// = (pointsPassed + 1) % (mapMaker.PathPoints.Length - 1);
 			speed = 0f;
 			distance = 10000f;
 			//Debug.Log(instructions[pointsPassed]);
+			if (pointsPassed >= mapMaker.PathPoints.Length - 1){
+				finishSegment();
+				return;
+			}
 		}
 
 		pDistance = distance;
@@ -416,29 +563,23 @@ public class MapCameraControl : MonoBehaviour {
 
 	}
 
-	void resetPath(){//totally recalculates path and instructions and such
-		mapMaker.genPath();//generate the path
-	}
-
-	public void recalculateFromPath(){
-		genInstructions();
-		
-		pointsPassed = 0;
-		instructionsPassed = 0;
-		pDistance = 10000f;
-		direction = (mapMaker.PathPoints[pointsPassed + 1] - mapMaker.PathPoints[pointsPassed]).normalized;
+	void finishSegment(){
+		speed = 0f;
+		pointsPassed = mapMaker.PathPoints.Length - 1;
 		transform.position = mapMaker.PathPoints[pointsPassed];
+		if (remainingSegments.Count > 1){
+			Debug.Log("Reseting path");
+			resetPath(remainingSegments);
+		}
 	}
 
 	public static int addLabel(MapLabel ml){
-		if (pois == null || poiNames == null){
-			pois = new List<Vector3>();
-			poiNames = new List<string>();
+		if (poiMarkers == null){
 			poiMarkers = new List<MapLabel>();
 		}
 
-		pois.Add(ml.PathLocation);
-		poiNames.Add(ml.Label);
+		//pois.Add(ml.PathLocation);
+		//poiNames.Add(ml.Label);
 		poiMarkers.Add(ml);
 
 		return poiMarkers.Count - 1;

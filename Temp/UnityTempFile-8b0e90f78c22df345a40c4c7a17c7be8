@@ -1,0 +1,67 @@
+-debug
+-target:library
+-nowarn:0169
+-out:Temp/Assembly-CSharp-Editor.dll
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll"
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll"
+-r:Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll
+-r:Library/ScriptAssemblies/Assembly-CSharp.dll
+-r:Assets/Plugins/yIRC.dll
+-r:Assets/Resources/AstarPathfindingProject/Plugins/Clipper/Pathfinding.ClipperLib.dll
+-r:Assets/Resources/AstarPathfindingProject/Plugins/DotNetZip/Pathfinding.Ionic.Zip.Reduced.dll
+-r:Assets/Resources/AstarPathfindingProject/Plugins/JsonFx/Pathfinding.JsonFx.dll
+-r:Assets/Resources/AstarPathfindingProject/Plugins/Poly2Tri/Pathfinding.Poly2Tri.dll
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.Graphs.dll"
+-define:UNITY_4_5_4
+-define:UNITY_4_5
+-define:UNITY_STANDALONE_WIN
+-define:ENABLE_MICROPHONE
+-define:ENABLE_TEXTUREID_MAP
+-define:ENABLE_UNITYEVENTS
+-define:ENABLE_NEW_HIERARCHY 
+-define:ENABLE_AUDIO_FMOD
+-define:UNITY_STANDALONE
+-define:ENABLE_MONO
+-define:ENABLE_TERRAIN
+-define:ENABLE_SUBSTANCE
+-define:ENABLE_GENERICS
+-define:INCLUDE_WP8SUPPORT
+-define:ENABLE_MOVIES
+-define:ENABLE_WWW
+-define:ENABLE_IMAGEEFFECTS
+-define:INCLUDE_WP_BLUE_SUPPORT
+-define:ENABLE_WEBCAM
+-define:INCLUDE_METROSUPPORT
+-define:RENDER_SOFTWARE_CURSOR
+-define:ENABLE_NETWORK
+-define:ENABLE_PHYSICS
+-define:ENABLE_CACHING
+-define:ENABLE_CLOTH
+-define:ENABLE_2D_PHYSICS
+-define:ENABLE_SHADOWS
+-define:ENABLE_AUDIO
+-define:ENABLE_NAVMESH_CARVING
+-define:ENABLE_DUCK_TYPING
+-define:ENABLE_SINGLE_INSTANCE_BUILD_SETTING
+-define:ENABLE_PROFILER
+-define:UNITY_EDITOR
+-define:UNITY_EDITOR_WIN
+Assets/Resources/AstarPathfindingProject/Editor/AnimationLinkEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/AstarPathEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/AstarUpdateWindow.cs
+Assets/Resources/AstarPathfindingProject/Editor/EditorGUIx.cs
+Assets/Resources/AstarPathfindingProject/Editor/EditorUtilities.cs
+Assets/Resources/AstarPathfindingProject/Editor/GraphEditors/GraphEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/GraphEditors/GridGeneratorEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/GraphEditors/LayerGridGraphEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/GraphEditors/NavMeshGeneratorEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/GraphEditors/PointGeneratorEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/GraphEditors/RecastGraphEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/GraphUpdateSceneEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/ModifierEditors/RaycastModifierEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/ModifierEditors/SmoothModifierEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/OptimizationHandler.cs
+Assets/Resources/AstarPathfindingProject/Editor/RVOSimulatorEditor.cs
+Assets/Resources/AstarPathfindingProject/Editor/SeekerEditor.cs
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Mono\lib/mono/2.0\System.Runtime.Serialization.dll"
+-r:"C:/Program Files (x86)/Unity/Editor/Data/Mono\lib/mono/2.0\System.Xml.Linq.dll"

@@ -22,10 +22,12 @@ public class MapLabel : MonoBehaviour {
 	int id;
 
 	TextMesh textMesh;
-	GUIText guiText;
+	GUIText guitext;
 	GameObject marker;
 
-	bool addedToMapping = false;
+	public MapLabel parentalLabel;//used for threading a route through elevators
+
+	//bool addedToMapping = false;
 
 	// Use this for initialization
 	void Start () {
@@ -47,7 +49,7 @@ public class MapLabel : MonoBehaviour {
 
 		//make the text non-fuzzy
 		float pixelRatio = (Camera.main.orthographicSize  * 2) / Camera.main.pixelHeight;
-		float characterSize = 1f;
+		//float characterSize = 1f;
 		transform.localScale = new Vector3(pixelRatio*10f, pixelRatio*10f, pixelRatio * 0.1f);
 
 		marker.transform.localScale = new Vector3(1f, 1f, 4f) / (pixelRatio * 10f);
@@ -72,7 +74,7 @@ public class MapLabel : MonoBehaviour {
 		if (this.Visible){
 			PointGraph navg = (PointGraph)AstarPath.active.graphs[0];
 			AstarPath.active.AddWorkItem (new AstarPath.AstarWorkItem (delegate () {
-				float f = Time.realtimeSinceStartup;
+				//float f = Time.realtimeSinceStartup;
 				PointNode p = navg.AddNode((Int3)pathLocation);
 
 				if (p != null){
@@ -134,6 +136,33 @@ public class MapLabel : MonoBehaviour {
 		return false;
 	}
 
+	public int getFCost(MapLabel other){//weird ass heuristic. I pity the fool who has to debug this
+		if (this.IsElevator){
+			int bestCost = Mathf.Abs(other.OnFloor - this.OnFloor);
+			foreach (int f in this.ElevatorFloors){
+				if (Mathf.Abs(other.OnFloor - f) < bestCost){
+					bestCost = Mathf.Abs(other.OnFloor - f);
+				}
+			}
+			return bestCost;
+		} else {
+			return Mathf.Abs(other.OnFloor - this.OnFloor);
+		}
+	}
+
+	public bool isOnFloor(int f){
+		if (isElevator){
+			foreach (int i in ElevatorFloors){
+				if (i == f){
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return this.OnFloor == f;
+		}
+	}
+
 	public void highlight(){
 		this.renderer.enabled = true;
 		this.transform.GetChild(0).renderer.enabled = true;
@@ -186,6 +215,30 @@ public class MapLabel : MonoBehaviour {
 	public Vector3 PathLocation {
 		get {
 			return pathLocation;
+		}
+	}
+
+	public int OnFloor {
+		get {
+			return floor;
+		}
+	}
+
+	public bool IsElevator {
+		get {
+			return isElevator;
+		}
+	}
+
+	public int[] ElevatorFloors {
+		get {
+			return elevatorFloors;
+		}
+	}
+
+	public static Dictionary<int, MapLabel> MapLabels {
+		get {
+			return mapLabels;
 		}
 	}
 
@@ -285,6 +338,16 @@ public class MapLabel : MonoBehaviour {
 		}
 		loadMarkers();
 		//Debug.Log(PlayerPrefs.GetString("MarkerSave"));
+	}
+
+	public static List<MapLabel> ElevatorsOnFloor(int floor){
+		List<MapLabel> availableElevators = new List<MapLabel>();
+		foreach (MapLabel m in MapLabel.MapLabels.Values){
+			if (m.IsElevator && m.isOnFloor(floor)){
+				availableElevators.Add(m);
+			}
+		}
+		return availableElevators;
 	}
 
 	public static void onFloorChange(){
