@@ -282,26 +282,35 @@ public class MapLabel : MonoBehaviour {
 		string[] lines = text.Trim().Split(new char[]{'\n', '\r', '\t'}, System.StringSplitOptions.RemoveEmptyEntries);
 
 		foreach (string line in lines){
-			string[] pieces = line.Trim().Split(new char[]{'|'});
-			if (pieces.Length >= 6){
-				int nid = int.Parse(pieces[0].Trim());
-				string ntext = pieces[1].Trim();
-				float x = float.Parse(pieces[2].Trim());
-				float y = float.Parse(pieces[3].Trim());
-				int pri = int.Parse(pieces[4].Trim());
-				int flor = int.Parse(pieces[5].Trim());
-				bool ele = (int.Parse(pieces[6].Trim()) == 1);
-				string[] fls = pieces[7].Trim().Split(new char[]{','}, System.StringSplitOptions.RemoveEmptyEntries);
-				int[] efls = new int[fls.Length];
-				for (int i = 0; i < fls.Length; i++){
-					efls[i] = int.Parse(fls[i]);
-				}
 
+			try {//suround in a try catch block in case any one is weirdly formatted
+				string[] pieces = line.Trim().Split(new char[]{'|'});
+				if (pieces.Length >= 6){
 
-				if (pri > 0){
-					Vector3 oldPos = new Vector3(x, y, -4f);
-					createLabel(MapMaker.mapSpaceToWorldSpaceFull(oldPos), nid, ntext, pri, flor, ele, efls);
+					int nid = int.Parse(pieces[0].Trim());
+					string ntext = pieces[1].Trim();
+					float x = float.Parse(pieces[2].Trim());
+					float y = float.Parse(pieces[3].Trim());
+					int pri = int.Parse(pieces[4].Trim());
+					int flor = int.Parse(pieces[5].Trim());
+					bool ele = (int.Parse(pieces[6].Trim()) == 1);
+					string[] fls = pieces[7].Trim().Split(new char[]{','}, System.StringSplitOptions.RemoveEmptyEntries);
+					int[] efls = new int[fls.Length];
+					if (fls.Length == 0 || fls[0] == "undefined"){
+						efls = new int[]{};
+					} else {
+						for (int i = 0; i < fls.Length; i++){
+							efls[i] = int.Parse(fls[i]);
+						}
+					}
+
+					if (pri > 0){
+						Vector3 oldPos = new Vector3(x, y, -4f);
+						createLabel(MapMaker.mapSpaceToWorldSpaceFull(oldPos), nid, ntext, pri, flor, ele, efls);
+					}
 				}
+			} catch {
+				Debug.LogWarning("Malformed label (request=\"" + line + "\")");
 			}
 		}
 
