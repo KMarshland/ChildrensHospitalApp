@@ -54,7 +54,8 @@ public class MapCameraControl : MonoBehaviour {
 
 		//MapCameraControl.main = this;
 		mainCamera = this.transform.FindChild("PrimaryRotator").FindChild("Main Camera");
-		centralCube = this.transform.FindChild("CentralCube");
+		centralCube = GameObject.Find("CentralCube").transform;//this.transform.FindChild("CentralCube");
+
 
 		mapMaker = this.gameObject.GetComponent("MapMaker") as MapMaker;
 
@@ -70,26 +71,30 @@ public class MapCameraControl : MonoBehaviour {
 		searchDefault = "Search";
 		dropDownSearchTermFrom = searchDefault;
 		dropDownSearchTermTo = searchDefault;
+		//Debug.Log(Screen.width);
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
 
 		if (Input.GetKeyDown(KeyCode.Space)){
-			if (detatched){
+			/*if (detatched){
 				transform.position = mapMaker.PathPoints[pointsPassed];
 				detatched = false;
 				speed = 0f;
-			}
+			}*/
 			//speed = (((int)(30f * speed) + 1)%(13))/10f;
 			speed = 0.3f;
 		}
 
-		if (!detatched && !birdsEye){
+		//if (!detatched && !birdsEye){
 			move();
-		}
+		//}
 
-		if (Mathf.Abs(Input.GetAxis("Vertical")) > 0f || Mathf.Abs(Input.GetAxis("Horizontal")) > 0f){
+		Vector3 transl = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f);
+		transform.position += transl + new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
+		
+		/*if (Mathf.Abs(Input.GetAxis("Vertical")) > 0f || Mathf.Abs(Input.GetAxis("Horizontal")) > 0f){
 			if (!birdsEye){
 				detatched = true;
 				
@@ -140,7 +145,7 @@ public class MapCameraControl : MonoBehaviour {
 				GameObject.Find("PlaneTransparent").renderer.enabled = true;
 				birdsEye = true;
 			}
-		}
+		}*/
 	}
 
 	void OnGUI(){
@@ -174,7 +179,7 @@ public class MapCameraControl : MonoBehaviour {
 		
 		string resi = pointsPassed >= mapMaker.PathPoints.Length - 1 ? "" : 
 			"Go forward " + 
-			Vector3.Distance(transform.position, mapMaker.PathPoints[pointsPassed+1]).ToString("F1") + 
+			Vector3.Distance(centralCube.position, mapMaker.PathPoints[pointsPassed+1]).ToString("F1") + 
 			" units to the point (" + 
 				mapMaker.PathPoints[pointsPassed+1].x + "," + 
 				mapMaker.PathPoints[pointsPassed+1].y + "), " +
@@ -479,8 +484,11 @@ public class MapCameraControl : MonoBehaviour {
 		pointsPassed = 0;
 		instructionsPassed = 0;
 		pDistance = 10000f;
+
 		direction = (mapMaker.PathPoints[pointsPassed + 1] - mapMaker.PathPoints[pointsPassed]).normalized;
-		transform.position = mapMaker.PathPoints[pointsPassed];
+		centralCube.position = mapMaker.PathPoints[0];
+
+		moveToView(mapMaker.PathPoints[0], mapMaker.PathPoints[1]);
 	}
 
 	string[] genInstructions(){
@@ -528,24 +536,18 @@ public class MapCameraControl : MonoBehaviour {
 			return;
 		}
 
-		if (direction == null || Vector3.Distance(transform.position, mapMaker.LinePoints[instructionsPassed+1]) < 2f * speed){
+		if (direction == null || Vector3.Distance(centralCube.position, mapMaker.LinePoints[instructionsPassed+1]) < 2f * speed){
 			instructionsPassed = (instructionsPassed + 1) % (mapMaker.LinePoints.Length - 1);
 			direction = (mapMaker.LinePoints[instructionsPassed + 1] - mapMaker.LinePoints[instructionsPassed]).normalized;
-			transform.position = mapMaker.LinePoints[instructionsPassed];
+			centralCube.position = mapMaker.LinePoints[instructionsPassed];
 			//Debug.Log(instructions[pointsPassed]);
 		}
 
-		float distance = Vector3.Distance(transform.position, mapMaker.PathPoints[pointsPassed+1]);
+		float distance = Vector3.Distance(centralCube.position, mapMaker.PathPoints[pointsPassed+1]);
 
 		if (direction == null || distance < speed || pDistance < distance){
-			pointsPassed ++;// = (pointsPassed + 1) % (mapMaker.PathPoints.Length - 1);
-			speed = 0f;
 			distance = 10000f;
-			//Debug.Log(instructions[pointsPassed]);
-			if (pointsPassed >= mapMaker.PathPoints.Length - 1){
-				finishSegment();
-				return;
-			}
+			finishStretch();
 		}
 
 		pDistance = distance;
@@ -554,23 +556,52 @@ public class MapCameraControl : MonoBehaviour {
 		//transform.LookAt(transform.position + direction);
 		//transform.Rotate(new Vector3(0f, -90f, 0f));
 		
-		Quaternion toRotation = Quaternion.Euler(new Vector3(0f, 0f, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x)));
-		transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, 0.01f * Time.time);
+		//Quaternion toRotation = Quaternion.Euler(new Vector3(0f, 0f, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x)));
+		//transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, 0.01f * Time.time);
 
 		//Debug.Log((direction * speed) + " bork bork " + Time.realtimeSinceStartup);
 
-		transform.position += direction * speed;
+		centralCube.position += direction * speed;
 
 	}
 
+	void finishStretch(){
+		pointsPassed ++;// = (pointsPassed + 1) % (mapMaker.PathPoints.Length - 1);
+		speed = 0f;
+
+		//Debug.Log(instructions[pointsPassed]);
+
+		Vector3 a = mapMaker.PathPoints[pointsPassed];
+		Vector3 b = pointsPassed >= mapMaker.PathPoints.Length - 1 ? a : mapMaker.PathPoints[pointsPassed + 1];
+
+		if (pointsPassed >= mapMaker.PathPoints.Length - 1){
+			finishSegment();
+		}
+
+		moveToView(a, b);
+	}
+
+	void moveToView(Vector3 a, Vector3 b){
+		Vector2 center = new Vector2((a.x + b.x)/2f, (a.y + b.y)/2f);
+		float maxDistance = Vector3.Distance(a, b) + 15;
+
+		bool usingHeight = Mathf.Abs(a.x - b.x)/Mathf.Abs(a.y - b.y) > ((0f + Screen.width) / (0f + Screen.height));
+
+		float scaleFactor = -0.75f * (usingHeight ? Screen.height : Screen.width) / 976f;
+
+		this.transform.position = new Vector3(center.x, center.y, maxDistance * scaleFactor + 1f);
+	}
+	
 	void finishSegment(){
 		speed = 0f;
 		pointsPassed = mapMaker.PathPoints.Length - 1;
-		transform.position = mapMaker.PathPoints[pointsPassed];
+		centralCube.position = mapMaker.PathPoints[pointsPassed];
 		if (remainingSegments.Count > 1){
 			Debug.Log("Reseting path");
 			resetPath(remainingSegments);
 		}
+
+
 	}
 
 	public static int addLabel(MapLabel ml){

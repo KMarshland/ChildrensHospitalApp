@@ -107,7 +107,7 @@ public class MapLabel : MonoBehaviour {
 		//transform.LookAt(new Vector3(realPos.x, realPos.y, transform.position.z));
 		//transform.Rotate(new Vector3(180f, 0f, 90f));
 		float theta = Camera.main.transform.rotation.eulerAngles.x;//perpendicular to the direction of the camera
-		transform.rotation = Quaternion.Euler(theta, 90f, 270f);//look in that direction
+		//transform.rotation = Quaternion.Euler(theta, 90f, 270f);//look in that direction
 
 		marker.transform.position = this.transform.position + new Vector3(0f, 0f, 2f);
 		marker.transform.rotation = Quaternion.Euler(0f, 0f, 0f);

@@ -544,6 +544,8 @@ namespace KaiTools{
 
 			return path;
 
+
+			////IGNORE
 			if (path.Length <= 2){//you can't cull it any more
 				return path;
 			}

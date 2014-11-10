@@ -79,17 +79,11 @@ public class MapMaker : MonoBehaviour {
 			AstarPath.active.Scan();
 			needsToScan = false;
 		}
-
-		if (Input.GetKeyDown(KeyCode.UpArrow)){
-			//Debug.Log("Was " + ActiveFloor.Id);
-			ActiveFloor = floors[ActiveFloor.Id % floors.Length];
-			//Debug.Log("Now " + ActiveFloor.Id);
-		}
 	}
 
 	void makeLine(Vector3[] points){//a handy-dandy function to turn a list of points into something on the screen
 
-		int height = 3;
+		int height = 1;
 
 		//tell it how many points there are
 		line.SetVertexCount(points.Length * (height));
@@ -138,6 +132,7 @@ public class MapMaker : MonoBehaviour {
 
 		path = p;
 		pathPoints = Point.smoothPathAdvanced(Point.smoothPathBasic(path.vectorPath.ToArray()));
+		pathPoints[pathPoints.Length - 1] = endPos;
 		/*Debug.Log("A: " + path.vectorPath.ToArray().Length + "\nB:" + 
 		          Point.smoothPathBasic(path.vectorPath.ToArray()).Length + "\nC:" + 
 		          pathPoints.Length);*/
