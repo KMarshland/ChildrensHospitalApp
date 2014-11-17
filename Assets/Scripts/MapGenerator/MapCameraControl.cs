@@ -30,24 +30,23 @@ public class MapCameraControl : MonoBehaviour {
 	//static List<Vector3> pois;//points of interest
 	//static List<string> poiNames;//and their names
 	static List<MapLabel> poiMarkers;
-	string searchDefault;
-	Vector2 dropDownScrollPosFrom = Vector2.zero;//keep track of the scrolling for the drop down menu
-	Vector2 dropDownScrollPosTo = Vector2.zero;//keep track of the scrolling for the drop down menu
-	int dropDownNFrom;
-	int dropDownIFrom;
-	int dropDownWhichFrom;
-	string dropDownSearchTermFrom;
-	List<MapLabel> poiSearchFrom;
-	int dropDownNTo;
-	int dropDownITo;
-	int dropDownWhichTo;
-	string dropDownSearchTermTo;
-	List<MapLabel> poiSearchTo;
+	MapLabel poiFrom;
+	MapLabel poiTo;
 
 	Transform mainCamera;
 	Transform centralCube;
 
 	List<MapLabel> remainingSegments;
+
+	public enum UIName{
+		Map,
+		Landing,
+		WhereFrom,
+		WhereTo,
+		Confirm
+	};
+
+	UIName activeScreen;
 
 	// Use this for initialization
 	void Start () {
@@ -68,91 +67,186 @@ public class MapCameraControl : MonoBehaviour {
 		postPos = new Vector3(126,126,-240);
 		postPosM = new Vector3(0,0,0);
 
-		searchDefault = "Search";
-		dropDownSearchTermFrom = searchDefault;
-		dropDownSearchTermTo = searchDefault;
-		//Debug.Log(Screen.width);
+		activeScreen = UIName.Map;
+		initUI();
 	}
-	
+
 	// Update is called once per frame
 	void FixedUpdate () {
 
+		if (Input.GetKeyDown(KeyCode.Escape)){
+			speed = 0f;
+			ActiveScreen = UIName.Landing;
+		}
+
 		if (Input.GetKeyDown(KeyCode.Space)){
-			/*if (detatched){
-				transform.position = mapMaker.PathPoints[pointsPassed];
-				detatched = false;
-				speed = 0f;
-			}*/
-			//speed = (((int)(30f * speed) + 1)%(13))/10f;
 			speed = 0.3f;
 		}
 
-		//if (!detatched && !birdsEye){
-			move();
-		//}
+		move();
 
 		Vector3 transl = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f);
 		transform.position += transl + new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
-		
-		/*if (Mathf.Abs(Input.GetAxis("Vertical")) > 0f || Mathf.Abs(Input.GetAxis("Horizontal")) > 0f){
-			if (!birdsEye){
-				detatched = true;
-				
-				//transform.position += new Vector3(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal"), 0f);
-				transform.position += (transform.right * Input.GetAxis("Vertical")) - (transform.up * Input.GetAxis("Horizontal"));
-			}
-		}
-
-		if (birdsEye){
-			Vector3 transl = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f);
-			mainCamera.localPosition += transl + new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
-			//transform.position += transl;
-			//prePosM += transl;
-		}
-		
-		if (Input.GetKeyDown(KeyCode.Escape)){
-			if (birdsEye){
-				transform.position = mapMaker.PathPoints[pointsPassed];
-				detatched = false;
-
-				mainCamera.localPosition = prePos;
-				transform.position = prePosM;
-
-				mainCamera.localRotation = Quaternion.Euler(regularRotation);
-				transform.localRotation = Quaternion.Euler(regularRotationM);
-
-				transform.FindChild("CentralCube").localScale = new Vector3(1f,1f,1f);
-				centralCube.position += new Vector3(0f,0f,3) - prePosM;
-
-				GameObject.Find("PlaneTransparent").renderer.enabled = false;
-				birdsEye = false;
-			} else {
-				regularRotation = mainCamera.localRotation.eulerAngles;
-				regularRotationM = transform.localRotation.eulerAngles;
-
-				prePos = mainCamera.localPosition;
-				prePosM = transform.position;
-
-				mainCamera.localPosition = postPos;
-				transform.position = postPosM;
-
-				mainCamera.localRotation = Quaternion.Euler(birdsRotation);
-				transform.localRotation = Quaternion.Euler(birdsRotationM);
-
-				transform.FindChild("CentralCube").localScale = new Vector3(2f,2f,2f);
-				centralCube.position += new Vector3(0f,0f,-3) + prePosM;
-
-				GameObject.Find("PlaneTransparent").renderer.enabled = true;
-				birdsEye = true;
-			}
-		}*/
 	}
 
 	void OnGUI(){
-		if (!birdsEye && !detatched){
+		//poiGUI();
+
+		if (ActiveScreen == UIName.Map){
 			instructionsGUI();
 		}
-		poiGUI();
+	}
+
+	void initUI(){
+		
+		UIName startScreen = activeScreen;
+		
+		//hide everything except for what you're starting on
+		System.Array all = System.Enum.GetValues(typeof(UIName));
+		foreach (UIName u in all){
+			if (u != startScreen){
+				hideScreen((UIName)u);
+			}
+		}
+		
+		//set up events for the map screen
+		UI.document.getElementById("getDirectionsButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			ActiveScreen = UIName.WhereFrom;
+		};
+		
+		//set up events for the landing screen
+		UI.document.getElementById("browseButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			ActiveScreen = UIName.Map;
+		};
+		
+		UI.document.getElementById("startButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			ActiveScreen = UIName.WhereFrom;
+		};
+		
+		//set up events for the where from? page
+		UI.document.getElementById("backToStartButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			ActiveScreen = UIName.Landing;
+		};
+		
+		UI.document.getElementById("fromLobbyButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			poiFrom = poiMarkers[0];
+			ActiveScreen = UIName.WhereTo;
+		};
+		
+		UI.document.getElementById("fromSearch").OnKeyUp += delegate(PowerUI.UIEvent keyEvent){
+			//Debug.Log(keyEvent.keyCode);
+			string term = UI.document.getElementById("fromSearch").value;
+			if (term == null){
+				term = "";
+			}
+			
+			
+			List<MapLabel> search = new List<MapLabel>();
+			foreach (MapLabel ml in poiMarkers){
+				if (ml.termApplies(term)){
+					search.Add(ml);
+				}
+			}
+			
+			var resultDiv = UI.document.getElementById("fromSearchResults");
+			resultDiv.innerHTML = "";
+			
+			foreach(MapLabel ml in search){
+				PowerUI.Element nEl = new PowerUI.Element("div");
+				nEl.className = "button searchResult";
+				nEl.textContent = ml.Label;
+				nEl.style.width = (UI.document.getElementById("fromSearch").pixelWidth - 50) + "px";
+				nEl.OnClick += delegate(PowerUI.UIEvent mouseEvent){
+					poiFrom = ml;
+					ActiveScreen = UIName.WhereTo;
+					UI.Variables["fromLabel"] = ml.Label;
+				};
+				resultDiv.AppendNewChild(nEl);
+			}
+		};
+		
+		//set up events for the where to? page
+		UI.document.getElementById("backToFromButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			ActiveScreen = UIName.WhereFrom;
+		};
+		
+		UI.document.getElementById("toSearch").OnKeyUp += delegate(PowerUI.UIEvent keyEvent){
+			//Debug.Log(keyEvent.keyCode);
+			string term = UI.document.getElementById("toSearch").value;
+			if (term == null){
+				term = "";
+			}
+			
+			
+			List<MapLabel> search = new List<MapLabel>();
+			foreach (MapLabel ml in poiMarkers){
+				if (ml.termApplies(term)){
+					search.Add(ml);
+				}
+			}
+			
+			var resultDiv = UI.document.getElementById("toSearchResults");
+			resultDiv.innerHTML = "";
+			
+			foreach(MapLabel ml in search){
+				PowerUI.Element nEl = new PowerUI.Element("div");
+				nEl.className = "button searchResult";
+				nEl.textContent = ml.Label;
+				nEl.style.width = (UI.document.getElementById("toSearch").pixelWidth - 50) + "px";
+				nEl.OnClick += delegate(PowerUI.UIEvent mouseEvent){
+					poiTo = ml;
+					ActiveScreen = UIName.Confirm;
+					UI.Variables["toLabel"] = ml.Label;
+				};
+				resultDiv.AppendNewChild(nEl);
+			}
+		};
+		
+		//set up events for the confirm page
+		UI.document.getElementById("backToToButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			ActiveScreen = UIName.WhereTo;
+		};
+		
+		UI.document.getElementById("goButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			ActiveScreen = UIName.Map;
+			resetGUI();
+			startNavigation();
+		};
+	}
+	
+	void resetGUI(){
+		var reses = UI.document.getElementsByClassName("searchResults");
+		foreach (var r in reses){
+			r.innerHTML = "";
+		}
+		
+		var inps = UI.document.getElementsByClassName("searchBoxInput");
+		foreach (var i in inps){
+			i.value = "";
+		}
+	}
+	
+	public UIName ActiveScreen {
+		get {
+			return activeScreen;
+		} set {
+			activeScreen = value;
+			showScreen(activeScreen);
+			System.Array all = System.Enum.GetValues(typeof(UIName));
+			foreach (UIName u in all){
+				if (u != activeScreen){
+					hideScreen((UIName)u);
+				}
+			}
+		}
+	}
+
+	void showScreen(UIName id){
+		UI.document.getElementById(id.ToString()).style.display = "block";
+	}
+
+	void hideScreen(UIName id){
+		UI.document.getElementById(id.ToString()).style.display = "none";
 	}
 	
 	void instructionsGUI(){
@@ -189,9 +283,13 @@ public class MapCameraControl : MonoBehaviour {
 
 		GUI.Box(new Rect(5, 5, Screen.width - 10, 30), resi);
 	}
+
+	void startNavigation(){
+		resetPath(navigateFrom(poiFrom, poiTo));
+	}
 	
 	void poiGUI(){
-		if (poiMarkers == null || poiMarkers.Count == 0){
+		/*if (poiMarkers == null || poiMarkers.Count == 0){
 			//Debug.Log("Oh noes! We ran out of markers! Check back next Tuesday for a refreshing mark. ");
 			return;
 		}
@@ -345,7 +443,7 @@ public class MapCameraControl : MonoBehaviour {
 		//see if you need to do something else
 		if (preFrom != dropDownWhichFrom || preTo != dropDownWhichTo && dropDownWhichFrom != dropDownWhichTo){
 			resetPath(navigateFrom(poiMarkers[dropDownWhichFrom], poiMarkers[dropDownWhichTo]));
-		}
+		}*/
 	}
 
 	List<MapLabel> navigateFrom(MapLabel a, MapLabel b){

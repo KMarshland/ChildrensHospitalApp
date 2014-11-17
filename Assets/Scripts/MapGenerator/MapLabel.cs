@@ -128,8 +128,10 @@ public class MapLabel : MonoBehaviour {
 	}
 
 	public bool termApplies(string term){
+		term = term.Trim().ToLower();
 		for (int i = 0; i < tags.Length; i++){
-			if (tags[i].Trim().Contains(term.Trim()) || term.Trim().Contains(tags[i].Trim())){
+			string comp = tags[i].Trim().ToLower();
+			if (comp.Contains(term) || term.Contains(comp)){
 				return true;
 			}
 		}
@@ -318,7 +320,13 @@ public class MapLabel : MonoBehaviour {
 	}
 
 	public static IEnumerator updateMarkerSave(){
-		WWW www = new WWW("http://marshlandgames.com/HospitalProject/Client/MarkerPlacement/show_formatted_markers.php");
+
+		string url = "http://marshlandgames.com/HospitalProject/Client/MarkerPlacement/show_formatted_markers.php";
+		//byte[] postData = new byte[1];
+		//Dictionary<string, string> headers = new Dictionary<string, string>();
+		//headers["Username"] = "cmh";
+		//headers["Password"] = "Dvz03AD^*quOZc%";
+		WWW www = new WWW(url);
 
 		yield return www;
 

@@ -1,0 +1,67 @@
+<div style='position:fixed;height:100%;width:100%;background:url(background.png);'></div>
+
+<center>
+	<div style='height:10px;'></div>
+	<div style='display:inline-block;width:100px;height:10px;border:1px solid #000000;background:#cc3300;text-align:left;'>
+		<div style='background:#00ff00;height:100%;width:0%;' id='basic-bar-internal'></div>
+	</div>
+	<br>
+	<br>
+	<b>Power Points</b>
+	<br>
+	&Points;
+	<br><br>
+	<div style='padding:20px;width:240px;text-align:justify;text-align-last:center;'>
+		<br>
+		<br>
+		The basic health bar is a green div inside a red one. Its health is set simply by playing around with the width of the green div.
+		<br>
+		<br>
+		The points counter uses the localisation system. This allows you to display it multiple times, and have simple access to it, like this:
+		<br>
+		<br>
+		&Points;
+	</div>
+</center>
+
+
+<img src='uilogo.png' style='position:fixed;bottom:25px;right:25px;'/>
+
+<script type='text/nitro'>
+
+// Note: All of this can be done from outside Nitro if you're not comfortable using it.
+
+// Use UI.document from C#, JS etc.
+
+
+// Sets the health on the basic bar.
+// It does this by simply changing the width of the internal box (which is coloured green).
+// Health is a value from 0->1.
+// This function is called externally using e.g. document.Run("SetBasicBarHealth",0.4f);
+// If this is the main UI, you get hold of "document" with UI.document.
+function SetBasicBarHealth(health:float){
+	// Clip it - make sure the bar doesn't go beyond it's ends:
+	if(health<0f){
+		health=0f;
+	}else if(health>1f){
+		health=1f;
+	}
+	
+	// Now grab the internal bar (the one coloured green) and set it's width:
+	document.getElementById("basic-bar-internal").style.width=(health*100f)+"%";
+}
+
+// A value storing the current basic health.
+var basicHealth:float=0f;
+
+// Increases the health on the basic bar.
+// This function is called externally using e.g. document.Run("SetBasicBarHealth",0.4f);
+// If this is the main UI, you get hold of "document" with UI.document.
+function IncreaseBasicBarHealth(by:float){
+	// Bump up the current value:
+	basicHealth+=by;
+	// Set the bar health:
+	SetBasicBarHealth(basicHealth);
+}
+
+</script>

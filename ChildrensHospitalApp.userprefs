@@ -1,11 +1,10 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\MapGenerator\MapMaker.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\MapGenerator\MapCameraControl.cs">
     <Files>
-      <File FileName="Assets\Scripts\MapGenerator\MapCameraControl.cs" Line="95" Column="12" />
-      <File FileName="Assets\Scripts\MapGenerator\MapLabel.cs" Line="126" Column="3" />
-      <File FileName="Assets\Scripts\MapGenerator\MapMaker.cs" Line="81" Column="4" />
-      <File FileName="Assets\Scripts\MapGenerator\Point.cs" Line="532" Column="31" />
+      <File FileName="Assets\Scripts\MapGenerator\MapCameraControl.cs" Line="34" Column="17" />
+      <File FileName="Assets\Resources\HTML\All.html" Line="77" Column="11" />
+      <File FileName="Assets\Scripts\MapGenerator\MapLabel.cs" Line="279" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

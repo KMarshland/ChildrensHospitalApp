@@ -1,0 +1,232 @@
+
+<style>
+
+	.hid{
+		display: none;
+	}
+
+	.backgroundDiv{
+		position:fixed;
+		height:100%;
+		width:100%;
+		text-align: center;
+	}
+	
+	.backgroundImg{
+		width: 100%;
+		//max-height: 100%;
+		//max-width: 100%;
+	}
+	
+	.mainBox{
+		background:rgba(0,0,0,0.5);
+		border:3px solid #000000;
+		border-radius:60px 30px 30px 60px;
+		color:#FFF;
+		margin:auto;
+		padding: 20px;
+		padding-left: 45px;
+	}
+	
+	.welcome{
+		font-size: 30px;
+	}
+	
+	.swipe{
+		font-size: 55px;
+		margin-left: 45px;
+	}
+	
+	.button{
+		background:rgba(0,0,0,0.95);
+		border:1px solid #000000;
+		text-align: center;
+		border-radius:5px 5px 5px 5px;
+		color: #FFF;
+		margin: auto;
+		padding: 5px;
+		margin-top: 3px;
+		margin-bottom: 3px;
+	}
+	
+	.fromQ{
+		font-size: 40px;
+		margin: auto;
+		margin-bottom: 15px;
+		text-align: center;
+	}
+	
+	.inLobby{
+		font-size: 35px;
+		width: 200px;
+	}
+	
+	.landingButton{
+		width: 220px;
+		font-size:35px;
+		padding: 10px;
+		
+	}
+	
+	#getDirectionsButton{
+		margin: 5px;
+		width: 150px;
+		font-size:15px;
+		border:2px solid #222;
+		position: fixed;
+		bottom: 0px;
+	}
+	
+	.searchBox{
+		margin: auto;
+		text-align: center;
+		font-size: 25px;
+	}
+	
+	.searchBoxInput{
+		height:25px;
+		font-size:20px;
+		width: 70%;
+	}
+	
+	.searchResults{
+		width: 49%;
+		height: 200px;
+		overflow-y: scroll;
+		margin-left: 155px;
+	}
+	
+	.searchResult{
+		width: 105%;
+		//margin-left: 0px;
+		margin-bottom: 5px;
+	}
+	
+	.letsGo{
+		font-size: 35px;
+		width: 200px;
+	}
+	
+	.toConfirm{
+		font-size: 30px;
+	}
+	
+	.confirmLabel{
+		font-size: 40px;
+	}
+</style>
+
+<div id="Map">
+	<div id="getDirectionsButton" class="button">
+		Get directions
+	</div>
+</div>
+
+<div id='Landing'>
+	<div class='backgroundDiv'>
+		<img class="backgroundImg" src="Textures/Carmi_SWIPE.png"/>
+	</div>
+
+	<div class="mainBox" style='margin-top: 10%;width:80%'>
+		<div class="welcome">Welcome to</div>
+		<div class="swipe">SWIPE</div>
+	</div>
+	
+	<div style="height:15%"></div>
+	
+	<div id="browseButton" class="button landingButton" style="">
+		Browse map
+	</div>
+	<div id="startButton" class="button landingButton" style="">
+		Get directions
+	</div>
+</div>
+
+<div id='WhereFrom'>
+	<div class='backgroundDiv'>
+		<img class="backgroundImg" src="Textures/Carmi_SWIPE.png"/>
+	</div>
+
+	<div class="mainBox" style='margin-top: 25px;width:80%'>
+		<div id="backToStartButton" class="button" style="width: 60px;font-size:15px;margin:0px;">
+			Back
+		</div>
+		
+		<div style="height:15px;"></div>
+		
+		<div class="fromQ">
+			Where are you?
+		</div>
+		
+		<div id="fromLobbyButton" class="button inLobby">
+			Lobby
+		</div>
+		
+		<br>
+		
+		<div class="searchBox">
+			Search: <input id="fromSearch" type="text" class="searchBoxInput" style=""/>
+		</div>
+		
+		<div id="fromSearchResults" class="searchResults">
+		
+		</div>
+	</div>
+</div>
+
+<div id='WhereTo'>
+	<div class='backgroundDiv'>
+		<img class="backgroundImg" src="Textures/Carmi_SWIPE.png"/>
+	</div>
+
+	<div class="mainBox" style='margin-top: 25px;width:80%'>
+		<div id="backToFromButton" class="button" style="width: 60px;font-size:15px;margin:0px;">
+			Back
+		</div>
+		
+		<div style="height:15px;"></div>
+		
+		<div class="fromQ">
+			Where to?
+		</div>
+		
+		<br>
+		
+		<div class="searchBox">
+			Search: <input id="toSearch" type="text" class="searchBoxInput" style=""/>
+		</div>
+		
+		<div id="toSearchResults" class="searchResults">
+		
+		</div>
+	</div>
+</div>
+
+<div id='Confirm'>
+	<div class='backgroundDiv'>
+		<img class="backgroundImg" src="Textures/Carmi_SWIPE.png"/>
+	</div>
+
+	<div class="mainBox" style='margin-top: 25px;width:80%'>
+		<div id="backToToButton" class="button" style="width: 60px;font-size:15px;margin:0px;">
+			Back
+		</div>
+		
+		<div style="height:15px;"></div>
+		
+		<div class="fromQ">
+			Confirm
+		</div>
+		
+		<div class="toConfirm">
+			Take me from 
+			<span class="confirmLabel">&fromLabel;</span> 
+			to 
+			<span class="confirmLabel">&toLabel;</span>
+		</div>
+		
+		<div id="goButton" class="button letsGo">
+			Yes, let's go!
+		</div>
+	</div>
+</div>

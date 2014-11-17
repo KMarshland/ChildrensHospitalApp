@@ -19,7 +19,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_4_5_4;UNITY_4_5;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_UNITYEVENTS;ENABLE_NEW_HIERARCHY ;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;INCLUDE_WP8SUPPORT;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;INCLUDE_WP_BLUE_SUPPORT;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_4_5_5;UNITY_4_5;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_UNITYEVENTS;ENABLE_NEW_HIERARCHY ;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;INCLUDE_WP8SUPPORT;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;INCLUDE_WP_BLUE_SUPPORT;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -46,6 +46,21 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\PowerUI\Editor\CreateHtmlFile\CreateHtmlContext.cs" />
+     <Compile Include="Assets\PowerUI\Editor\CreateSimpleUI\CreateSimpleUIContext.cs" />
+     <Compile Include="Assets\PowerUI\Editor\Emoji\EmojiSettings.cs" />
+     <Compile Include="Assets\PowerUI\Editor\GeneralSettings\GeneralSettings.cs" />
+     <Compile Include="Assets\PowerUI\Editor\ImageImport\ImageImport.cs" />
+     <Compile Include="Assets\PowerUI\Editor\ImageImport\ImageImportContext.cs" />
+     <Compile Include="Assets\PowerUI\Editor\NitroSettings\NitroAOT.cs" />
+     <Compile Include="Assets\PowerUI\Editor\NitroSettings\NitroSettings.cs" />
+     <Compile Include="Assets\PowerUI\Editor\PowerUIEditor.cs" />
+     <Compile Include="Assets\PowerUI\Editor\Symbols.cs" />
+     <Compile Include="Assets\PowerUI\Editor\Translations\AutoTranslate.cs" />
+     <Compile Include="Assets\PowerUI\Editor\Translations\TranslationInfo.cs" />
+     <Compile Include="Assets\PowerUI\Editor\Translations\Translations.cs" />
+     <Compile Include="Assets\PowerUI\Editor\WorldUI\CreateWorldUI.cs" />
+     <Compile Include="Assets\PowerUI\Source\Engine\RemoteDebug\Editor\RemoteDebug.cs" />
      <Compile Include="Assets\Resources\AstarPathfindingProject\Editor\AnimationLinkEditor.cs" />
      <Compile Include="Assets\Resources\AstarPathfindingProject\Editor\AstarPathEditor.cs" />
      <Compile Include="Assets\Resources\AstarPathfindingProject\Editor\AstarUpdateWindow.cs" />
@@ -72,7 +87,10 @@
      <None Include="Assets\Resources\PathCaches\Floor6.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\Plugins\DotNetZip\License.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\Plugins\Poly2Tri\License.txt" />
+     <None Include="Assets\PowerUI\GettingStarted\ReadMe.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\Projector Multiply.shader" />
+     <None Include="Assets\PowerUI\Resources\MaskShader.shader" />
+     <None Include="Assets\PowerUI\Editor\Translations\languages.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\DiffuseAlwaysVisible.shader" />
      <None Include="Assets\Resources\AstarPathfindingProject\Plugins\dependencies.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\_Example Scenes.txt" />
@@ -84,11 +102,16 @@
      <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example8_PathTypes\SquareShader.shader" />
      <None Include="Assets\Resources\AstarPathfindingProject\Readme.txt" />
      <None Include="Assets\Resources\Wires\Wire1.xml" />
+     <None Include="Assets\PowerUI\Resources\UIShader.shader" />
      <None Include="Assets\Resources\AstarPathfindingProject\Plugins\JsonFx\License.txt" />
+     <None Include="Assets\PowerUI\Resources\SPAShader.shader" />
      <None Include="Assets\Resources\AstarPathfindingProject\Plugins\JsonFx\Readme.txt" />
      <None Include="Assets\Scripts\Documentation\HUD_docs.txt" />
      <None Include="Assets\Resources\AstarPathfindingProject\link.xml" />
      <None Include="Assets\Resources\PathCaches\Floor3.txt" />
+ <Reference Include="Assembly-UnityScript">
+ <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
+ </Reference>
  <Reference Include="yIRC">
  <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Assets/Plugins/yIRC.dll</HintPath>
  </Reference>

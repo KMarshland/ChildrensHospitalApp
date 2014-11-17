@@ -7,6 +7,8 @@ Project("{BAE0D0E8-C269-EE93-A5A5-F213DFB088DE}") = "ChildrensHospitalApp", "Ass
 EndProject
 Project("{BAE0D0E8-C269-EE93-A5A5-F213DFB088DE}") = "ChildrensHospitalApp", "Assembly-CSharp-Editor.csproj", "{2BFE6849-977B-9C15-53A0-B18362B50C50}"
 EndProject
+Project("{BAE0D0E8-C269-EE93-A5A5-F213DFB088DE}") = "ChildrensHospitalApp", "Assembly-UnityScript.unityproj", "{411D95DB-C994-E6C5-D652-E38E594C94B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,11 +27,15 @@ Global
 		{2BFE6849-977B-9C15-53A0-B18362B50C50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BFE6849-977B-9C15-53A0-B18362B50C50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BFE6849-977B-9C15-53A0-B18362B50C50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{411D95DB-C994-E6C5-D652-E38E594C94B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{411D95DB-C994-E6C5-D652-E38E594C94B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{411D95DB-C994-E6C5-D652-E38E594C94B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{411D95DB-C994-E6C5-D652-E38E594C94B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																																																																																																																																																												GlobalSection(MonoDevelopProperties) = preSolution
+																																																																																																																																																																																	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1

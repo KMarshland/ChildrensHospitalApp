@@ -1,227 +1,658 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>10.0.20506</ProductVersion>
-	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{0090E028-FEF1-DE8A-F6A1-DD6A1BE59A1C}</ProjectGuid>
-	<OutputType>Library</OutputType>
-	<AppDesignerFolder>Properties</AppDesignerFolder>
-	<RootNamespace></RootNamespace>
-	<AssemblyName>Assembly-CSharp</AssemblyName>
-	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-	<FileAlignment>512</FileAlignment>
-	<BaseDirectory>Assets</BaseDirectory>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0090E028-FEF1-DE8A-F6A1-DD6A1BE59A1C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseDirectory>Assets</BaseDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	<DebugSymbols>true</DebugSymbols>
-	<DebugType>full</DebugType>
-	<Optimize>false</Optimize>
-	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_4_5_4;UNITY_4_5;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_UNITYEVENTS;ENABLE_NEW_HIERARCHY ;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;INCLUDE_WP8SUPPORT;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;INCLUDE_WP_BLUE_SUPPORT;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<NoWarn>0169</NoWarn>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_4_5_5;UNITY_4_5;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_UNITYEVENTS;ENABLE_NEW_HIERARCHY ;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_MONO;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;INCLUDE_WP8SUPPORT;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;INCLUDE_WP_BLUE_SUPPORT;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-	<DebugType>pdbonly</DebugType>
-	<Optimize>true</Optimize>
-	<OutputPath>Temp\bin\Release\</OutputPath>
-	<DefineConstants>TRACE</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<NoWarn>0169</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="System" />
-    <Reference Include="System.XML" />
-	<Reference Include="System.Core" />
-	<Reference Include="System.Xml.Linq" />
-	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
-	</Reference>
-	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
-	</Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="UnityEngine">
+      <HintPath>C:\Program Files %28x86%29\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>C:\Program Files %28x86%29\Unity\Editor\Data\Managed\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\AIPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\NavmeshController.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\RichAI.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\RichPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\Seeker.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AstarData.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AstarMath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AstarPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\GraphUpdateScene.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\GraphUpdateShape.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\AnimationLink.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\AstarDebugger.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\BinaryHeap.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\GraphEditorBase.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\GraphModifier.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\Int3.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\ListPool.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\NodeLink.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\NodeLink2.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\NodeLink3.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\ObjectPool.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\PathPool.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\StackPool.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\ThreadControlQueue.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Nodes\GraphNode.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Path.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\PathHandler.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOAgent.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOCoreObstacle.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOCoreSimulator.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOKDTree.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOLine.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Serialization\JsonConverters.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Serialization\JsonSerializer.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Core\astarclasses.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example11_RVO\GroupController.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example11_RVO\LightweightRVO.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example11_RVO\RVOAgentPlacer.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example11_RVO\RVOExampleAgent.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example12_Procedural\ProceduralGridMover.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example12_Procedural\ProceduralWorld.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example13_Moving\BezierMover.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example13_Moving\LocalSpaceGraph.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example13_Moving\LocalSpaceRichAI.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example8_PathTypes\PathTypesDemo.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\AIFollow.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\AstarSmoothFollow2.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\DoorController.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\DynamicGridObstacle.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\LocalAvoidanceMover.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\MineBotAI.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\NavmeshClamp.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\ObjectPlacer.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\TargetMover.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Base.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\GridGenerator.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\LayerGridGraphGenerator.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\NavMeshGenerator.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\NodeClasses\GridNode.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\NodeClasses\PointNode.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\NodeClasses\TriangleMeshNode.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\PointGenerator.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\QuadtreeGraph.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\RecastGenerator.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\BBTree.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\NavMeshRenderer.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\ObjImporter.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\RecastBBTree.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\RecastMeshObj.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\TileHandler.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\DebugUtility.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelClasses.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelContour.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelMesh.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelRasterization.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelRegion.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelUtility.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\LocalAvoidance\LocalAvoidance.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\AdvancedSmooth.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\AlternativePath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\FunnelModifier.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\Modifiers.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\RadiusModifier.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\RaycastModifier.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\SimpleSmoothModifier.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\StartEndModifier.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Navmesh\NavmeshAdd.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Navmesh\NavmeshCut.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Navmesh\RelevantGraphSurface.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Navmesh\TileHandlerHelper.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\ABPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\ConstantPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\FleePath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\FloodPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\FloodPathTracer.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\MultiTargetPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\RandomPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\XPath.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVOController.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVONavmesh.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVOObstacle.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVOSimulator.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVOSquareObstacle.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\AstarChecksum.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\AstarMemory.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\AstarParallel.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\AstarProfiler.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\DotNetReplacements.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\GraphUpdateUtilities.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\LockFreeStack.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\PathUtilities.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\ProfileHelper.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\SizeProfiler.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\UnityReferenceHelper.cs" />
-     <Compile Include="Assets\Resources\AstarPathfindingProject\changelog.cs" />
-     <Compile Include="Assets\Scripts\FRect.cs" />
-     <Compile Include="Assets\Scripts\HUD.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\CubeControl.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\Floor.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\MapCameraControl.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\MapLabel.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\MapMaker.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\ObjectLabel.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\Point.cs" />
-     <Compile Include="Assets\Scripts\MenuItem.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\Elements\ClassElement.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\Elements\PanelElement.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\Elements\TextElement.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\Elements\WireElement.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\UnityFromWire.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\WireAction.cs" />
-     <None Include="Assets\Resources\PathCaches\Floor5.txt" />
-     <None Include="Assets\Resources\PathCaches\Floor2.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\Editor\EditorAssets\Materials\Navmesh2.shader" />
-     <None Include="Assets\Resources\PathCaches\Floor7.txt" />
-     <None Include="Assets\Plugins\yIRC\ReadMe.txt" />
-     <None Include="Assets\Resources\TextAssets\MarkerSave.txt" />
-     <None Include="Assets\Resources\PathCaches\Floor6.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\Plugins\DotNetZip\License.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\Plugins\Poly2Tri\License.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\Projector Multiply.shader" />
-     <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\DiffuseAlwaysVisible.shader" />
-     <None Include="Assets\Resources\AstarPathfindingProject\Plugins\dependencies.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\_Example Scenes.txt" />
-     <None Include="Assets\Plugins\yIRC\GUI\Fonts\Calibri.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\Readme_upgrading.txt" />
-     <None Include="Assets\Resources\PathCaches\Floor1.txt" />
-     <None Include="Assets\Resources\PathCaches\Floor4.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\Projector Light.shader" />
-     <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example8_PathTypes\SquareShader.shader" />
-     <None Include="Assets\Resources\AstarPathfindingProject\Readme.txt" />
-     <None Include="Assets\Resources\Wires\Wire1.xml" />
-     <None Include="Assets\Resources\AstarPathfindingProject\Plugins\JsonFx\License.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\Plugins\JsonFx\Readme.txt" />
-     <None Include="Assets\Scripts\Documentation\HUD_docs.txt" />
-     <None Include="Assets\Resources\AstarPathfindingProject\link.xml" />
-     <None Include="Assets\Resources\PathCaches\Floor3.txt" />
- <Reference Include="yIRC">
- <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Assets/Plugins/yIRC.dll</HintPath>
- </Reference>
- <Reference Include="Pathfinding.ClipperLib">
- <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Assets/Resources/AstarPathfindingProject/Plugins/Clipper/Pathfinding.ClipperLib.dll</HintPath>
- </Reference>
- <Reference Include="Pathfinding.Ionic.Zip.Reduced">
- <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Assets/Resources/AstarPathfindingProject/Plugins/DotNetZip/Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
- </Reference>
- <Reference Include="Pathfinding.JsonFx">
- <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Assets/Resources/AstarPathfindingProject/Plugins/JsonFx/Pathfinding.JsonFx.dll</HintPath>
- </Reference>
- <Reference Include="Pathfinding.Poly2Tri">
- <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Assets/Resources/AstarPathfindingProject/Plugins/Poly2Tri/Pathfinding.Poly2Tri.dll</HintPath>
- </Reference>
+    <Compile Include="Assets\PowerUI\DefaultManager\PoweruiManager.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\10. AdvancedHealth\DynamicTexturesExample.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\10. AdvancedHealth\HealthBar.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\10. AdvancedHealth\PowerBar.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\12. DragToScroll\DragScroller.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\16. AboveHeadText\AboveHeadTextExample.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\3. NitroScripting\NitroExampleClass.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\3. NitroScripting\NitroExampleItem.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\4. InWorldUI\CameraController.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\4. InWorldUI\TVScreen.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\5. CsharpScripting\CSharpExample.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\6. Forms\FormExampleHandler.cs" />
+    <Compile Include="Assets\PowerUI\Examples-RemoveOnPublish\7. SimpleHealthPoints\SimpleHealthPoints.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Ajax.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\BoxRegion.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\CameraMode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\CameraPool.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\CharacterProviders\CharacterProvider.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\CharacterProviders\CharacterProviders.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Clipboard.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\ContentType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Animation\AnimatedProperty.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Animation\UIAnimation.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\BorderStyle.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Calculation.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\ComputedStyle\ComputedStyle-Class.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\ComputedStyle\ComputedStyle-ID.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\ComputedStyle\ComputedStyle-Tag.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\ComputedStyle\ComputedStyle.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\CssFunction.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\CssFunctions.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\CssProperties.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\CssProperty.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\CssUnit.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DirectionType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\BackgroundColour.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\BackgroundImage.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\BorderProperty.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\BorderRadius\RoundCorner.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\BorderRadius\RoundCornerPosition.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\BorderRadius\RoundedCorners.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\DisplayableProperty.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\RoundBorderInverseProperty.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\DisplayableProperties\TextRenderingProperty.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\ElementStyle.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Functions\rgba.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Functions\url.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\HorizontalAlignType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\OverflowType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\PositionType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\backgroundColor.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\backgroundImage.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\backgroundPosition.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\backgroundRepeat.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\backgroundSize.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\borderColor.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\borderImageSlice.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\borderRadius.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\borderStyle.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\borderWidth.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\bottom.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\clip.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\color.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\colorOverlay.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\content.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\direction.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\display.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\filterMode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\fontFamily.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\fontSize.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\fontSpreadover.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\fontStyle.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\fontWeight.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\height.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\left.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\letterSpacing.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\lineHeight.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\margin.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\maxHeight.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\maxWidth.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\minHeight.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\minWidth.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\onAtlas.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\overflow.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\padding.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\position.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\right.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\rotate.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\scale.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\skew.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\textAlign.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\textAlignLast.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\textClip.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\textDecoration.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\top.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\transformOrigin.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\transformOriginPosition.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\translate.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\verticalAlign.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\visibility.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\whiteSpace.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\width.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\wordSpacing.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Properties\zIndex.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Selector.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\SelectorStyle.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\SelectorType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Style.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\StyleSheet.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\TextClipType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\TextLineType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\Value.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\ValueType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\VerticalAlignType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\VisibilityType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Css\WhiteSpaceType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Document.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\DocumentElements.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\DynamicCharSet.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\DynamicCharacter.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\DynamicFont.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\DynamicMesh.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\DynamicTexture.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Element.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Errors\ErrorHandlers.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Errors\ErrorInfo.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Errors\HttpErrorInfo.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Errors\ResourcesErrorInfo.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FilePath.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FileProtocols\CacheProtocol.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FileProtocols\DynamicProtocol.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FileProtocols\FileProtocol.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FileProtocols\FileProtocols.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FileProtocols\HttpProtocol.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FileProtocols\ResourcesProtocol-Callback.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FileProtocols\ResourcesProtocol.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FileProtocols\SceneProtocol.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FixedSizeBuffer.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Focus\Element.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Focus\Focus.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FontSizeCharSet.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\FormData.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\HitResult.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\HtmlTagHandler.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Http\Http.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Http\HttpRequest.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\ImageCache.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\ImagePackage.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Input.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\InputMode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\KeyboardMode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\MeshBlock.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\MouseOverState.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\NitroAOT\NitroCache.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\RenderMode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Renderman.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\ResolutionInfo.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\RightToLeft.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\SPA-Animation\SPA.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\SPA-Animation\SPAInstance.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\SPA-Animation\SPASprite.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\ScreenInfo.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\StandardUpdater.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\Canvas\CanvasArcNode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\Canvas\CanvasContext.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\Canvas\CanvasContext2D.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\Canvas\CanvasPathNode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\Canvas\CanvasStraightLineNode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\InputType.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\a.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\abbr.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\acronym.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\address.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\article.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\aside.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\b.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\base.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\bdi.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\bdo.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\big.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\blockquote.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\body.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\br.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\button.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\camera.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\canvas.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\center.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\cite.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\code.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\comment.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\dd.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\ddbox.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\ddbutton.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\del.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\details.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\dfn.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\dir.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\div.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\dl.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\doctype.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\dt.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\em.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\figcaption.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\figure.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\font.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\footer.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\form.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\h1.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\h2.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\h3.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\h4.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\h5.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\h6.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\head.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\header.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\hr.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\hscrolltab.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\html.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\i.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\iframe.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\img.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\input.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\ins.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\label.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\legend.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\li.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\link.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\main.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\mark.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\meta.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\nav.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\ol.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\option.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\paragraph.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\param.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\pre.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\rp.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\rt.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\ruby.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\s.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\samp.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\script.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\scrolldown.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\scrollleft.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\scrollright.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\scrolltab.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\scrollup.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\section.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\select.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\small.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\source.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\span.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\strike.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\strong.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\style.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\sub.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\summary.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\sup.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\table.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\tbody.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\td.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\textarea.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\tfoot.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\th.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\thead.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\time.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\title.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\tr.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\track.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\ul.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\video.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\vscrolltab.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TagHandlers\wbr.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TextElement.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TextPackage.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TextureAtlasing\AtlasLocation.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TextureAtlasing\DynamicAtlasTexture.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TextureAtlasing\TextureAtlas.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Threading\Callback.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Threading\Callbacks.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Transformation.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\TransformationStack.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\UI.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\UIBatch.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\UICamera.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\UICode.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\UIEvent.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\UITimer.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\VariableElement.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\Window.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\WordElement.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\WorldUI.cs" />
+    <Compile Include="Assets\PowerUI\Source\Engine\WorldUIExpiry.cs" />
+    <Compile Include="Assets\PowerUI\Source\LayerManager\EditorLayerData.cs" />
+    <Compile Include="Assets\PowerUI\Source\LayerManager\LayerManager.cs" />
+    <Compile Include="Assets\PowerUI\Source\UIScriptDomainManager.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\UnityLanguageLoader.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Log.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\MLElement.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\MLLexer.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\MLTextElement.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\MLVariableElement.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Assemblies.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\CodeAssembly.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\CodeReference.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\AddResult.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\BreakPoint.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\ArrayFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\BaseFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\BracketFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\ConstructorFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\ForFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\IfFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\IndexFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\MethodFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\NumberFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\OperationFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\OperatorFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\PropertyFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\StringFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\TypeFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeFragments\VariableFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CodeLexer.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CompilationError.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CompilationServices.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CompiledClass.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CompiledFragment.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\CompiledMethod.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\DynamicMethodCompiler.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Handler.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Handlers.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\KeyWords.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\MethodOverloads.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Modifiers.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\NitroCode.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\NitroIL.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\AddOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\AndOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ArrayOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\BaseOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\BitwiseXOrOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\BoxOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\BreakOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\CastOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ConstructOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ContinueOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\DivideOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\EqualsOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ForOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\GreaterThanOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\IfOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\IndexOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\LessThanOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\MethodOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ModuloOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\MultiplyOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\OrOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\PropertyOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ReturnOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\SetOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ShiftLeftOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ShiftRightOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\SubtractOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\ThisOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\TypeOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operations\UnboxOperation.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operator.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorAdd.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorAddTo.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorBitwiseAnd.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorBitwiseOr.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorBitwiseXOr.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorDecrement.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorDivide.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorDivideInTo.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorGreaterThan.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorGreaterThanOrEql.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorIncrement.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorLShift.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorLessThan.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorLessThanOrEql.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorLogicAnd.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorLogicEql.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorLogicNotEql.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorLogicOr.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorModulo.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorMultiply.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorMultiplyInTo.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorNot.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorRShift.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorSet.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorSubtract.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Operators\OperatorSubtractFrom.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Settable.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Types.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Variable.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\VariableType.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Variables\LocalVariable.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Compiler\Variables\ParameterVariable.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\DynamicMethod.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\NitroDomainManager.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Script.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\SecureName.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\TypeAliases.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\NitroEngine\Void.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\PropertyTextReader.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\StringReader.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\TagHandler.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\TagHandlers.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\TagHandlers\Language.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\TagHandlers\LanguageTagHandler.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\TagHandlers\Variable.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\FullVariableSet.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\Gender.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\LanguageElement.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\LanguageLoader.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\LanguageSet.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\Text.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\VariableSet.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\WhitespaceMode.cs" />
+    <Compile Include="Assets\PowerUI\Wrench\Wrench\TypeData.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\AIPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\NavmeshController.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\RichAI.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\RichPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AI\Seeker.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AstarData.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AstarMath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\AstarPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\GraphUpdateScene.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\GraphUpdateShape.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\AnimationLink.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\AstarDebugger.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\BinaryHeap.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\GraphEditorBase.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\GraphModifier.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\Int3.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\ListPool.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\NodeLink.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\NodeLink2.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\NodeLink3.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\ObjectPool.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\PathPool.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\StackPool.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Misc\ThreadControlQueue.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Nodes\GraphNode.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Path.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\PathHandler.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOAgent.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOCoreObstacle.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOCoreSimulator.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOKDTree.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\RVO\RVOLine.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Serialization\JsonConverters.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\Serialization\JsonSerializer.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Core\astarclasses.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example11_RVO\GroupController.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example11_RVO\LightweightRVO.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example11_RVO\RVOAgentPlacer.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example11_RVO\RVOExampleAgent.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example12_Procedural\ProceduralGridMover.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example12_Procedural\ProceduralWorld.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example13_Moving\BezierMover.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example13_Moving\LocalSpaceGraph.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example13_Moving\LocalSpaceRichAI.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example8_PathTypes\PathTypesDemo.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\AIFollow.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\AstarSmoothFollow2.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\DoorController.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\DynamicGridObstacle.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\LocalAvoidanceMover.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\MineBotAI.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\NavmeshClamp.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\ObjectPlacer.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\ExampleScripts\TargetMover.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Base.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\GridGenerator.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\LayerGridGraphGenerator.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\NavMeshGenerator.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\NodeClasses\GridNode.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\NodeClasses\PointNode.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\NodeClasses\TriangleMeshNode.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\PointGenerator.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\QuadtreeGraph.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\RecastGenerator.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\BBTree.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\NavMeshRenderer.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\ObjImporter.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\RecastBBTree.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\RecastMeshObj.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\TileHandler.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\DebugUtility.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelClasses.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelContour.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelMesh.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelRasterization.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelRegion.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Generators\Utilities\Voxels\VoxelUtility.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\LocalAvoidance\LocalAvoidance.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\AdvancedSmooth.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\AlternativePath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\FunnelModifier.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\Modifiers.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\RadiusModifier.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\RaycastModifier.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\SimpleSmoothModifier.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Modifiers\StartEndModifier.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Navmesh\NavmeshAdd.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Navmesh\NavmeshCut.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Navmesh\RelevantGraphSurface.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Navmesh\TileHandlerHelper.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\ABPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\ConstantPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\FleePath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\FloodPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\FloodPathTracer.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\MultiTargetPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\RandomPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Pathfinders\XPath.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVOController.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVONavmesh.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVOObstacle.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVOSimulator.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\RVO\RVOSquareObstacle.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\AstarChecksum.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\AstarMemory.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\AstarParallel.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\AstarProfiler.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\DotNetReplacements.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\GraphUpdateUtilities.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\LockFreeStack.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\PathUtilities.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\ProfileHelper.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\SizeProfiler.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\Utilities\UnityReferenceHelper.cs" />
+    <Compile Include="Assets\Resources\AstarPathfindingProject\changelog.cs" />
+    <Compile Include="Assets\Scripts\FRect.cs" />
+    <Compile Include="Assets\Scripts\HUD.cs" />
+    <Compile Include="Assets\Scripts\MapGenerator\CubeControl.cs" />
+    <Compile Include="Assets\Scripts\MapGenerator\Floor.cs" />
+    <Compile Include="Assets\Scripts\MapGenerator\MapCameraControl.cs" />
+    <Compile Include="Assets\Scripts\MapGenerator\MapLabel.cs" />
+    <Compile Include="Assets\Scripts\MapGenerator\MapMaker.cs" />
+    <Compile Include="Assets\Scripts\MapGenerator\ObjectLabel.cs" />
+    <Compile Include="Assets\Scripts\MapGenerator\Point.cs" />
+    <Compile Include="Assets\Scripts\MenuItem.cs" />
+    <Compile Include="Assets\Scripts\WireToUnity\Elements\ClassElement.cs" />
+    <Compile Include="Assets\Scripts\WireToUnity\Elements\PanelElement.cs" />
+    <Compile Include="Assets\Scripts\WireToUnity\Elements\TextElement.cs" />
+    <Compile Include="Assets\Scripts\WireToUnity\Elements\WireElement.cs" />
+    <Compile Include="Assets\Scripts\WireToUnity\UnityFromWire.cs" />
+    <Compile Include="Assets\Scripts\WireToUnity\WireAction.cs" />
+    <None Include="Assets\Resources\PathCaches\Floor5.txt" />
+    <None Include="Assets\Resources\PathCaches\Floor2.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\Editor\EditorAssets\Materials\Navmesh2.shader" />
+    <None Include="Assets\Resources\PathCaches\Floor7.txt" />
+    <None Include="Assets\Plugins\yIRC\ReadMe.txt" />
+    <None Include="Assets\Resources\TextAssets\MarkerSave.txt" />
+    <None Include="Assets\Resources\PathCaches\Floor6.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\Plugins\DotNetZip\License.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\Plugins\Poly2Tri\License.txt" />
+    <None Include="Assets\PowerUI\GettingStarted\ReadMe.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\Projector Multiply.shader" />
+    <None Include="Assets\PowerUI\Resources\MaskShader.shader" />
+    <None Include="Assets\PowerUI\Editor\Translations\languages.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\DiffuseAlwaysVisible.shader" />
+    <None Include="Assets\Resources\AstarPathfindingProject\Plugins\dependencies.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\_Example Scenes.txt" />
+    <None Include="Assets\Plugins\yIRC\GUI\Fonts\Calibri.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\Readme_upgrading.txt" />
+    <None Include="Assets\Resources\PathCaches\Floor1.txt" />
+    <None Include="Assets\Resources\PathCaches\Floor4.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Materials\Projector Light.shader" />
+    <None Include="Assets\Resources\AstarPathfindingProject\ExampleScenes\Example8_PathTypes\SquareShader.shader" />
+    <None Include="Assets\Resources\AstarPathfindingProject\Readme.txt" />
+    <None Include="Assets\Resources\Wires\Wire1.xml" />
+    <None Include="Assets\PowerUI\Resources\UIShader.shader" />
+    <None Include="Assets\Resources\AstarPathfindingProject\Plugins\JsonFx\License.txt" />
+    <None Include="Assets\PowerUI\Resources\SPAShader.shader" />
+    <None Include="Assets\Resources\AstarPathfindingProject\Plugins\JsonFx\Readme.txt" />
+    <None Include="Assets\Scripts\Documentation\HUD_docs.txt" />
+    <None Include="Assets\Resources\AstarPathfindingProject\link.xml" />
+    <None Include="Assets\Resources\PathCaches\Floor3.txt" />
+    <Reference Include="yIRC">
+      <HintPath>C:\Users\Kai\Desktop\Programming\Unity\ChildrensHospitalApp\Assets\Plugins\yIRC.dll</HintPath>
+    </Reference>
+    <Reference Include="Pathfinding.ClipperLib">
+      <HintPath>C:\Users\Kai\Desktop\Programming\Unity\ChildrensHospitalApp\Assets\Resources\AstarPathfindingProject\Plugins\Clipper\Pathfinding.ClipperLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Pathfinding.Ionic.Zip.Reduced">
+      <HintPath>C:\Users\Kai\Desktop\Programming\Unity\ChildrensHospitalApp\Assets\Resources\AstarPathfindingProject\Plugins\DotNetZip\Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
+    <Reference Include="Pathfinding.JsonFx">
+      <HintPath>C:\Users\Kai\Desktop\Programming\Unity\ChildrensHospitalApp\Assets\Resources\AstarPathfindingProject\Plugins\JsonFx\Pathfinding.JsonFx.dll</HintPath>
+    </Reference>
+    <Reference Include="Pathfinding.Poly2Tri">
+      <HintPath>C:\Users\Kai\Desktop\Programming\Unity\ChildrensHospitalApp\Assets\Resources\AstarPathfindingProject\Plugins\Poly2Tri\Pathfinding.Poly2Tri.dll</HintPath>
+    </Reference>
+    <None Include="Assets\Resources\HTML\All.html" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{391B820A-FBAC-41E7-C300-F5AA9A4844C7}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+      <Project>{391B820A-FBAC-41E7-C300-F5AA9A4844C7}</Project>
+      <Name>Assembly-CSharp-firstpass</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -231,5 +662,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  
 </Project>

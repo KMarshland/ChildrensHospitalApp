@@ -1,0 +1,63 @@
+<style type='text/css'>
+body{
+	color:#ffffff;
+	overflow:hidden;
+}
+</style>
+
+<div id='screenContent' style='color-overlay:#000000;height:100%;'>
+	<div style='position:fixed;height:100%;width:100%;background:url(background.png);'></div>
+
+	<center style='font-size:30px;v-align:middle;height:100%;'>
+		<br><br>
+		<b>
+			<span id='message'></span>
+		</b>
+	</center>
+
+</div>
+
+<img src='uilogo.png' style='position:fixed;bottom:20px;right:20px;'/>
+
+<script type='text/nitro'>
+
+var message:Element;
+var content:Element;
+var messageID:int=1;
+
+function Start(){
+	message=document.getElementById("message");
+	content=document.getElementById("screenContent");
+	
+	// Lets get things moving! The screen is currently dark, so pretend it was just faded out:
+	fadedOut(null);
+}	
+
+function fadeIn(){
+	// Fades the screen in. When it's done, it pauses.
+	content.animate("color-overlay:#ffffff;",1.4f).onDone(pause);
+}
+
+function pause(a:UIAnimation){
+	// Waits for 2 seconds, then fades the screen out.
+	setTimeout(fadeOut,2000);
+}
+
+function fadeOut(){
+	// Fades the screen out. When it's done, it flips the message.
+	content.animate("color-overlay:#000000;",1.4f).onDone(fadedOut);
+}
+
+function fadedOut(a:UIAnimation){
+	// Flips the message and fades the screen back in.
+	if(messageID==1){
+		message.innerHTML="PowerUI isn't limited to just the games UI..";
+		messageID=2;
+	}else if(messageID==2){
+		message.innerHTML="..It can be used for in game world interfaces too!";
+		messageID=1;
+	}
+	fadeIn();
+}
+
+</script>

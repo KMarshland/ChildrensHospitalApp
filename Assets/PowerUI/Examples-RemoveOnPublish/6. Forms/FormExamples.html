@@ -1,0 +1,232 @@
+<div style='position:fixed;height:100%;width:100%;background:url(background.png);'></div>
+
+<style type='text/css'>
+.padded{
+	padding:20px;
+}
+
+body{
+	overflow-y:auto;
+	text-clip:clip;
+}
+</style>
+
+<div class='padded'>
+	<b><u>Form Examples</u></b>
+	<br><br>
+	Forms can be used to gather information from the player.
+	<br>
+	They can be submitted to a nitro function, a C# function or to a url which in turn can handle them in a custom way if it wants to.
+	<br>
+	<br>
+	<form>
+		<input type='radio' name='exampleVisible' onchange='ChangeExample' value='1' checked /> Nitro Example  
+		<input type='radio' name='exampleVisible' onchange='ChangeExample' value='2'/> Web Example    
+		<input type='radio' name='exampleVisible' onchange='ChangeExample' value='3'/> C# Example
+	</form>
+	<br><br>
+	<div id='nitroExample'>
+		<b><u>Nitro Example</u></b>
+		<br>
+		<br>
+		<form onsubmit='HandleWithNitro'>
+			Your name: <input type='text' name='yourName'/>
+			<br>
+			<br>
+			You are (check all that apply):
+			<br>
+			<br>
+			Awesome <input type='checkbox' name='awesome'/> 
+			Epic <input type='checkbox' name='epic'/> 
+			Pretty <input type='checkbox' name='purdy'/> 
+			<br>
+			<br>
+			Unique <input type='checkbox' name='unique'/> 
+			Wonderful <input type='checkbox' name='wonderful'/> 
+			<br>
+			<br>
+			<b>What's your favourite?</b> 
+			<select name='favourite'>
+				<option value='pizza'>Pizza</option>
+				<option value='cheese'>Cheese</option>
+				<option value='cheese pizza'>A cheesy pizza</option>
+				<option value='pies'>Pies</option>
+				<option value='chocolate'>Chocolate</option>
+			</select>
+			<br>
+			<br>
+			<b>A story about you..</b>
+			<br>
+			<textarea name='myBio'></textarea>
+			<br>
+			<br>
+			<input type='submit' value='Send!'/> <span id='nitroMessage'></span>
+		</form>
+	</div>
+	<div id='webExample' style='display:none;'>
+		<b><u>Web Example</u></b>
+		<br>
+		<br>
+		The following form is submitted to a website for processing. Note that this webpage is for <i><b>example use only</b></i> and doesn't record your input.
+		<br>
+		<br>
+		<form action='http://powerui.kulestar.com/webformexample' ondone='OnFinishedSending' onsubmit='OnSendingToWeb'>
+			<b>Your name:</b> <input type='text' name='yourName'/> <span id='nameMessage' style='color:#ff0000;'></span>
+			<br>
+			<br>
+			<b>Are you awesome?</b> <input type='radio' name='awesome' value='yeah'/> Yeah! <input type='radio' name='awesome' value='obvs'/> Sure am :D
+			<br>
+			<br>
+			<input type='submit' value='Send!' id='webSubmitButton'/> <span id='webMessage'></span>
+		</form>
+	</div>
+	<div id='csExample' style='display:none;'>
+		<b><u>C# Example</u></b>
+		<br>
+		Alternative to Nitro. You can call any C# function from within Nitro too, but this avoids Nitro all together. See FormExampleHandler.cs.
+		<br>
+		<br>
+		<form onsubmit='FormExampleHandler.OnSubmit'>
+			Your name: <input type='text' name='yourName'/>
+			<br>
+			<br>
+			Awesome <input type='checkbox' name='awesome'/> 
+			Epic <input type='checkbox' name='epic'/> 
+			Pretty <input type='checkbox' name='purdy'/> 
+			<br>
+			<br>
+			Unique <input type='checkbox' name='unique'/> 
+			Wonderful <input type='checkbox' name='wonderful'/> 
+			<br>
+			<br>
+			<b>What's your favourite?</b> 
+			<select name='favourite'>
+				<option value='pizza'>Pizza</option>
+				<option value='cheese'>Cheese</option>
+				<option value='cheese pizza'>A cheesy pizza</option>
+				<option value='pies'>Pies</option>
+				<option value='chocolate'>Chocolate</option>
+			</select>
+			<br>
+			<br>
+			<b>A story about you..</b>
+			<br>
+			<textarea name='myBio'></textarea>
+			<br>
+			<br>
+			<input type='submit' value='Send!'/> <span id='csMessage'></span>
+		</form>
+	</div>
+</div>
+
+<script type='text/nitro'>
+	
+	function ChangeExample(){
+		var examples:String[]=new string[]{"nitro","web","cs"};
+		
+		var current:int=int.parse(this.value)-1;
+		
+		for(var i:int=0;i<examples.Length;i++){
+			if(i==current){
+				// Display it.
+				document.getElementById(examples[i]+"Example").style.display='block';
+			}else{
+				// Hide it.
+				document.getElementById(examples[i]+"Example").style.display='none';
+			}
+		}
+	}
+
+	// Nitro example:
+
+	function HandleWithNitro(form:FormData){
+		// This function gets called when the form is submitted.
+		// The form's fields are provided as a neat object
+		// so you don't have to go hunting for values.
+		
+		// Usage is simply form["fieldName"], or form.checked("fieldName") for easily checking if a checkbox is ticked.
+		// You can alternatively use e.g. document.getElementById("aFieldsID").value and manage radio inputs manually.
+		
+		debug.log("handling a form with nitro.");
+		
+		// Give a feedback message to show something's happened:
+		document.getElementById("nitroMessage").innerHTML="Please check the console.";
+		
+		// And simply log all the fields of the form:
+		debug.log("Your name: "+form["yourName"]);
+		debug.log("Awesome? "+form.checked("awesome"));
+		debug.log("Epic? "+form.checked("epic"));
+		debug.log("Pretty? "+form.checked("purdy"));
+		debug.log("Unique? "+form.checked("unique"));
+		debug.log("Wonderful? "+form.checked("wonderful"));
+		debug.log("Your dropdown selection: "+form["favourite"]);
+		debug.log("Your Bio: "+form["myBio"]);
+		
+		
+	}
+	
+	
+	// Web example:
+	
+	// This small switch value prevents double clicking/ multi-sending:
+	var sending:boolean;
+	
+	function OnSendingToWeb(form:FormData):boolean{
+		
+		// This function is called when the form is submitted.
+		
+		// The form's fields are provided as a neat object
+		// so you don't have to go hunting for values.
+		
+		// Usage is simply form["fieldName"], or form.checked("fieldName") for easily checking if a checkbox is ticked.
+		// You can alternatively use e.g. document.getElementById("aFieldsID").value and manage radio inputs manually.
+		
+		
+		if(sending){
+			// This can return true to prevent submission:
+			return true;
+		}
+		
+		if(form["yourName"]==""){
+			document.getElementById("nameMessage").innerHTML="Name missing!";
+			return true;
+		}
+		
+		// Yep, it's alright to go!
+		sending=true;
+		// Clear out the response message:
+		document.getElementById("webMessage").innerHTML="";
+		// Clear out the name missing field:
+		document.getElementById("nameMessage").innerHTML="";
+		// Give some form of feedback that this message is going - we'll just stick it straight on the button:
+		document.getElementById("webSubmitButton").value="Sending..";
+		
+		return false;
+	}
+	
+	function OnFinishedSending(request:HttpRequest):boolean{ 
+		// Boolean return type is optional. Returning false prevents navigation to the "action" page; returning nothing at all navigates there anyway.
+		sending=false;
+		
+		// A useful callback which is run when a web form finished submitting and the server has responded.
+		
+		// Restore the button:
+		document.getElementById("webSubmitButton").value="Send!";
+		// And give out a small message to say where the response is at (notice the debug.log's below).
+		document.getElementById("webMessage").innerHTML="Please check the console.";
+		
+		// If the server has something to say, request.Text is the servers response.
+		
+		// It may not be present though if e.g. the internet dropped or is unavailable.
+		// so it's adviseable to always check request.OK first:
+		
+		if(request.OK){
+			debug.log("Success! The site responded with: "+request.Text);
+		}else{
+			debug.log("Error with request: "+request.Error);
+		}
+		
+		// Returning false here prevents navigation to the action page.
+		return false;
+	}
+</script>
