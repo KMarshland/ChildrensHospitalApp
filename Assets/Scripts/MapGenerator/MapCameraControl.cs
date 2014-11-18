@@ -47,6 +47,7 @@ public class MapCameraControl : MonoBehaviour {
 	};
 
 	UIName activeScreen;
+	Dictionary<string, PowerUI.EventHandler> trackedEvents = new Dictionary<string, PowerUI.EventHandler>();
 
 	// Use this for initialization
 	void Start () {
@@ -67,7 +68,7 @@ public class MapCameraControl : MonoBehaviour {
 		postPos = new Vector3(126,126,-240);
 		postPosM = new Vector3(0,0,0);
 
-		activeScreen = UIName.Map;
+		activeScreen = UIName.Landing;
 		initUI();
 	}
 
@@ -108,20 +109,19 @@ public class MapCameraControl : MonoBehaviour {
 				hideScreen((UIName)u);
 			}
 		}
-		
-		//set up events for the map screen
-		UI.document.getElementById("getDirectionsButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+		trackedEvents["startDirections"] = delegate(PowerUI.UIEvent mouseEvent){
+			resetGUI();
 			ActiveScreen = UIName.WhereFrom;
 		};
+		//set up events for the map screen
+		UI.document.getElementById("getDirectionsButton").OnClick += trackedEvents["startDirections"];
 		
 		//set up events for the landing screen
 		UI.document.getElementById("browseButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.Map;
 		};
 		
-		UI.document.getElementById("startButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
-			ActiveScreen = UIName.WhereFrom;
-		};
+		UI.document.getElementById("startButton").OnClick += trackedEvents["startDirections"];
 		
 		//set up events for the where from? page
 		UI.document.getElementById("backToStartButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
@@ -133,7 +133,7 @@ public class MapCameraControl : MonoBehaviour {
 			ActiveScreen = UIName.WhereTo;
 		};
 		
-		UI.document.getElementById("fromSearch").OnKeyUp += delegate(PowerUI.UIEvent keyEvent){
+		trackedEvents["fromListener"] = delegate(PowerUI.UIEvent keyEvent){
 			//Debug.Log(keyEvent.keyCode);
 			string term = UI.document.getElementById("fromSearch").value;
 			if (term == null){
@@ -141,17 +141,13 @@ public class MapCameraControl : MonoBehaviour {
 			}
 			
 			
-			List<MapLabel> search = new List<MapLabel>();
-			foreach (MapLabel ml in poiMarkers){
-				if (ml.termApplies(term)){
-					search.Add(ml);
-				}
-			}
-			
+			List<MapLabel> search = MapLabel.Search(poiMarkers, term);
+
 			var resultDiv = UI.document.getElementById("fromSearchResults");
 			resultDiv.innerHTML = "";
-			
-			foreach(MapLabel ml in search){
+
+			foreach(MapLabel m in search){
+				MapLabel ml = m;
 				PowerUI.Element nEl = new PowerUI.Element("div");
 				nEl.className = "button searchResult";
 				nEl.textContent = ml.Label;
@@ -164,13 +160,14 @@ public class MapCameraControl : MonoBehaviour {
 				resultDiv.AppendNewChild(nEl);
 			}
 		};
+		UI.document.getElementById("fromSearch").OnKeyUp += trackedEvents["fromListener"];
 		
 		//set up events for the where to? page
 		UI.document.getElementById("backToFromButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.WhereFrom;
 		};
 		
-		UI.document.getElementById("toSearch").OnKeyUp += delegate(PowerUI.UIEvent keyEvent){
+		trackedEvents["toListener"] = delegate(PowerUI.UIEvent keyEvent){
 			//Debug.Log(keyEvent.keyCode);
 			string term = UI.document.getElementById("toSearch").value;
 			if (term == null){
@@ -178,17 +175,13 @@ public class MapCameraControl : MonoBehaviour {
 			}
 			
 			
-			List<MapLabel> search = new List<MapLabel>();
-			foreach (MapLabel ml in poiMarkers){
-				if (ml.termApplies(term)){
-					search.Add(ml);
-				}
-			}
+			List<MapLabel> search = MapLabel.Search(poiMarkers, term);
 			
 			var resultDiv = UI.document.getElementById("toSearchResults");
 			resultDiv.innerHTML = "";
 			
-			foreach(MapLabel ml in search){
+			foreach(MapLabel m in search){
+				MapLabel ml = m;
 				PowerUI.Element nEl = new PowerUI.Element("div");
 				nEl.className = "button searchResult";
 				nEl.textContent = ml.Label;
@@ -201,6 +194,7 @@ public class MapCameraControl : MonoBehaviour {
 				resultDiv.AppendNewChild(nEl);
 			}
 		};
+		UI.document.getElementById("toSearch").OnKeyUp += trackedEvents["toListener"];
 		
 		//set up events for the confirm page
 		UI.document.getElementById("backToToButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
@@ -224,6 +218,9 @@ public class MapCameraControl : MonoBehaviour {
 		foreach (var i in inps){
 			i.value = "";
 		}
+		Debug.Log("1");
+		trackedEvents["fromListener"](null);
+		trackedEvents["toListener"](null);
 	}
 	
 	public UIName ActiveScreen {

@@ -68,13 +68,16 @@
 		
 	}
 	
-	#getDirectionsButton{
+	.mapButton{
 		margin: 5px;
 		width: 150px;
 		font-size:15px;
 		border:2px solid #222;
-		position: fixed;
+	}
+	
+	.mapButtonDiv{
 		bottom: 0px;
+		position: fixed;
 	}
 	
 	.searchBox{
@@ -114,11 +117,18 @@
 	.confirmLabel{
 		font-size: 40px;
 	}
+	
+	.directionsOr{
+		font-size: 25px;
+		padding: 10px;
+	}
 </style>
 
 <div id="Map">
-	<div id="getDirectionsButton" class="button">
-		Get directions
+	<div class="mapButtonDiv">
+		<div id="getDirectionsButton" class="button mapButton">
+			Get Directions
+		</div>
 	</div>
 </div>
 
@@ -135,10 +145,10 @@
 	<div style="height:15%"></div>
 	
 	<div id="browseButton" class="button landingButton" style="">
-		Browse map
+		Browse Map
 	</div>
 	<div id="startButton" class="button landingButton" style="">
-		Get directions
+		Get Directions
 	</div>
 </div>
 
@@ -162,7 +172,9 @@
 			Lobby
 		</div>
 		
-		<br>
+		<center class="directionsOr">
+			or
+		</center>
 		
 		<div class="searchBox">
 			Search: <input id="fromSearch" type="text" class="searchBoxInput" style=""/>

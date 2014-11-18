@@ -374,4 +374,19 @@ public class MapLabel : MonoBehaviour {
 		}
 	}
 
+	public static List<MapLabel> Search(List<MapLabel> list, string term){
+		List<MapLabel> search = new List<MapLabel>();
+		foreach (MapLabel ml in list){
+			if (ml.termApplies(term)){
+				search.Add(ml);
+			}
+		}
+		search.Sort(
+			delegate(MapLabel m1, MapLabel m2){
+				return m1.Label.CompareTo(m2.Label);
+			}
+		);
+		return search;
+	}
+
 }
