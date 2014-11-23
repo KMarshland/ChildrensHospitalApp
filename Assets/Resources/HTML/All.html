@@ -21,7 +21,7 @@
 	.mainBox{
 		background:rgba(0,0,0,0.5);
 		border:3px solid #000000;
-		border-radius:60px 30px 30px 60px;
+		border-radius:30px 30px 30px 30px;
 		color:#FFF;
 		margin:auto;
 		padding: 20px;
@@ -73,6 +73,7 @@
 		width: 150px;
 		font-size:15px;
 		border:2px solid #222;
+		background-color: rgba(0,0,0,0.9);
 	}
 	
 	.mapButtonDiv{
@@ -122,6 +123,21 @@
 		font-size: 25px;
 		padding: 10px;
 	}
+	
+	.floorSelect{
+		position: fixed;
+		bottom: 3px;
+		text-align: right;
+	}
+	
+	.floorSelectButton{
+		margin: 5px;
+		margin-bottom: 2px;
+		width: 80px;
+		font-size:12px;
+		border:1px solid #222;
+		background-color: rgba(0,0,0,0.5);
+	}
 </style>
 
 <div id="Map">
@@ -129,6 +145,14 @@
 		<div id="getDirectionsButton" class="button mapButton">
 			Get Directions
 		</div>
+		
+		<div id="backToLandingButton" class="button mapButton">
+			Back
+		</div>
+	</div>
+	
+	<div id="floorSelectDiv" class="floorSelect">
+		
 	</div>
 </div>
 

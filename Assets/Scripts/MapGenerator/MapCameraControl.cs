@@ -109,13 +109,32 @@ public class MapCameraControl : MonoBehaviour {
 				hideScreen((UIName)u);
 			}
 		}
+
+		//set up events for the map screen
 		trackedEvents["startDirections"] = delegate(PowerUI.UIEvent mouseEvent){
 			resetGUI();
 			ActiveScreen = UIName.WhereFrom;
 		};
-		//set up events for the map screen
+
+
 		UI.document.getElementById("getDirectionsButton").OnClick += trackedEvents["startDirections"];
-		
+
+		UI.document.getElementById("backToLandingButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			ActiveScreen = UIName.Landing;
+		};
+
+		var floorSelectDiv = UI.document.getElementById("floorSelectDiv");
+		for (int i = 0; i < MapMaker.floors.Length; i++){
+			PowerUI.Element nEl = new PowerUI.Element("div");
+			nEl.className = "button floorSelectButton";
+			nEl.textContent = "Floor " + i;
+			var k = i;//we don't want a reference to the old variable gunking up the works
+			nEl.OnClick += delegate(PowerUI.UIEvent mouseEvent){
+				MapMaker.ActiveFloor = MapMaker.floors[k];
+			};
+			floorSelectDiv.AppendNewChild(nEl);
+		}
+
 		//set up events for the landing screen
 		UI.document.getElementById("browseButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.Map;
@@ -218,7 +237,7 @@ public class MapCameraControl : MonoBehaviour {
 		foreach (var i in inps){
 			i.value = "";
 		}
-		Debug.Log("1");
+		//Debug.Log("1");
 		trackedEvents["fromListener"](null);
 		trackedEvents["toListener"](null);
 	}
@@ -267,180 +286,43 @@ public class MapCameraControl : MonoBehaviour {
 		}
 		
 		theta = Mathf.Abs(theta) > 180 ? ((180f - theta)) % 360f : theta % 360f;
-		
-		string resi = pointsPassed >= mapMaker.PathPoints.Length - 1 ? "" : 
+
+		string distanceStr = "";
+		string coordsStr = "";
+		string turnStr = "";
+		string thenStr = "";
+		string finishedStr = "You have reached your destination";
+
+		if (pointsPassed < mapMaker.PathPoints.Length - 1){
+			distanceStr = Vector3.Distance(centralCube.position, mapMaker.PathPoints[pointsPassed+1]).ToString("F1");
+			coordsStr = "(" + 
+				mapMaker.PathPoints[pointsPassed+1].x.ToString("F0") + "," + 
+				mapMaker.PathPoints[pointsPassed+1].y.ToString("F0") + ")";
+
+			if (theta > 0.1f){
+				thenStr = ", then turn " + theta + " degrees " + (theta < 0 ? "right" : "left");
+			} else {
+				thenStr = "";
+			}
+		}
+
+		if (remainingSegments.Count > 1){
+			finishedStr = "Take the elevator to floor " + remainingSegments[1].OnFloor;
+		}
+
+		string resi = pointsPassed >= mapMaker.PathPoints.Length - 1 ? finishedStr : 
 			"Go forward " + 
-			Vector3.Distance(centralCube.position, mapMaker.PathPoints[pointsPassed+1]).ToString("F1") + 
-			" units to the point (" + 
-				mapMaker.PathPoints[pointsPassed+1].x + "," + 
-				mapMaker.PathPoints[pointsPassed+1].y + "), " +
-				"then turn " + /*(int)(Mathf.Abs(theta)) + " degrees to the " +*/ 
-				(theta < 0 ? "right" : "left") + 
-				".";
+			distanceStr + 
+			" units to the point " +
+			coordsStr + "" +
+			thenStr + 
+		".";
 
 		GUI.Box(new Rect(5, 5, Screen.width - 10, 30), resi);
 	}
 
 	void startNavigation(){
 		resetPath(navigateFrom(poiFrom, poiTo));
-	}
-	
-	void poiGUI(){
-		/*if (poiMarkers == null || poiMarkers.Count == 0){
-			//Debug.Log("Oh noes! We ran out of markers! Check back next Tuesday for a refreshing mark. ");
-			return;
-		}
-
-		GUI.Box(new Rect(5, 40, 250, 200), "Directions");
-		
-		int preFrom = dropDownWhichFrom;
-		int preTo = dropDownWhichTo;
-
-		
-
-		//select where you're going from
-		GUI.Label(new Rect(10, 70, 50, 25), "From: ");
-		
-		if (dropDownNFrom == 0){
-			if (GUI.Button(new Rect(60, 70, 100, 25), poiMarkers[dropDownWhichFrom].Label)){
-				
-				if(dropDownNFrom==0){
-					dropDownNFrom = 1;
-					//GUI.SetNextControlName("drop_down_search_from");
-				} else {
-					dropDownNFrom=0;   
-					//GUI.SetNextControlName("drop_down_search_to");
-				}
-				
-			}
-		}
-		
-		
-		
-		if (dropDownNFrom == 1 && dropDownNTo != 1){
-
-			poiSearchFrom = dropDownSearchTermFrom == searchDefault ? poiMarkers : new List<MapLabel>();
-			if (dropDownSearchTermFrom != searchDefault){
-				if (dropDownSearchTermFrom == ""){
-					poiSearchFrom = poiMarkers;
-				} else {
-					foreach (MapLabel ml in poiMarkers){
-						if (ml.termApplies(dropDownSearchTermFrom)){
-							poiSearchFrom.Add(ml);
-						}
-					}
-				}
-			}
-
-			dropDownScrollPosFrom = GUI.BeginScrollView(
-				new Rect (60, 70, ((26 * poiSearchFrom.Count + 26) > 115) ? 170 : 155, 115), dropDownScrollPosFrom, 
-				new Rect (0, 0, 150, 26 * poiSearchFrom.Count + 26)
-			);
-			
-			GUI.Box(new Rect(0,0,300,26 * poiSearchFrom.Count+26), "");  
-
-			GUI.SetNextControlName ("drop_down_search_from");
-			dropDownSearchTermFrom = GUI.TextField(new Rect(2,0,150,25), dropDownSearchTermFrom);
-			if (UnityEngine.Event.current.type == EventType.Repaint){
-
-				if (GUI.GetNameOfFocusedControl () == "drop_down_search_from"){
-					if (dropDownSearchTermFrom == searchDefault){
-						dropDownSearchTermFrom = "";
-					}
-				} else {
-					if (dropDownSearchTermFrom == ""){
-						dropDownSearchTermFrom = searchDefault;
-					}
-				}
-			}
-
-			for(dropDownIFrom=0; dropDownIFrom<poiSearchFrom.Count; dropDownIFrom++){
-				
-				if(GUI.Button(new Rect(2,dropDownIFrom*26 + 26,150,25), poiSearchFrom[dropDownIFrom].Label)){
-					dropDownNFrom=0;
-					dropDownWhichFrom=poiSearchFrom[dropDownIFrom].Id;         
-					
-				}               
-				
-				//GUI.Label(new Rect(5,dropDownI*28,130,25), poiNames[dropDownI]);            
-				
-			}
-			
-			GUI.EndScrollView();         
-			
-		}
-		
-		//select where you're going to
-		GUI.Label(new Rect(10, 110, 50, 25), "To: ");
-		
-		if (dropDownNTo == 0 && dropDownNFrom != 1){
-			if(GUI.Button(new Rect(60, 110, 100, 25), poiMarkers[dropDownWhichTo].Label)){
-				
-				if (dropDownNTo == 0){
-					dropDownNTo = 1;
-				} else {
-					dropDownNTo=0;   
-				}
-				
-			}
-		}
-		
-		
-		
-		if (dropDownNTo == 1 && dropDownNFrom != 1){
-
-			poiSearchTo = dropDownSearchTermTo == searchDefault ? poiMarkers : new List<MapLabel>();
-			if (dropDownSearchTermTo != searchDefault){
-				if (dropDownSearchTermTo == ""){
-					poiSearchTo = poiMarkers;
-				} else {
-					foreach (MapLabel ml in poiMarkers){
-						if (ml.termApplies(dropDownSearchTermTo)){
-							poiSearchTo.Add(ml);
-						}
-					}
-				}
-			}
-			
-			dropDownScrollPosTo = GUI.BeginScrollView(
-				new Rect (60, 110, ((26 * poiSearchTo.Count+26) > 115) ? 170 : 155, 115), dropDownScrollPosTo, 
-				new Rect (0, 0, 150, 26 * poiSearchTo.Count+26)
-				);
-			
-			GUI.Box(new Rect(0,0,300,26 * poiSearchTo.Count+26), "");  
-
-			GUI.SetNextControlName("drop_down_search_to");
-			dropDownSearchTermTo = GUI.TextField(new Rect(2,0,150,25), dropDownSearchTermTo);
-			if (UnityEngine.Event.current.type == EventType.Repaint){
-				if (GUI.GetNameOfFocusedControl() == "drop_down_search_to"){
-					if (dropDownSearchTermTo == searchDefault){
-						dropDownSearchTermTo = "";
-					}
-				} else {
-					if (dropDownSearchTermTo == ""){
-						dropDownSearchTermTo = searchDefault;
-					}
-				}
-			}
-
-			for(dropDownITo=0;dropDownITo<poiSearchTo.Count;dropDownITo++){
-				
-				if(GUI.Button(new Rect(2,dropDownITo*26 + 26,150,25), poiSearchTo[dropDownITo].Label)){
-					dropDownNTo=0;
-					dropDownWhichTo=poiSearchTo[dropDownITo].Id;         
-					
-				}
-				
-			}
-			
-			GUI.EndScrollView();         
-			
-		}
-		
-		//see if you need to do something else
-		if (preFrom != dropDownWhichFrom || preTo != dropDownWhichTo && dropDownWhichFrom != dropDownWhichTo){
-			resetPath(navigateFrom(poiMarkers[dropDownWhichFrom], poiMarkers[dropDownWhichTo]));
-		}*/
 	}
 
 	List<MapLabel> navigateFrom(MapLabel a, MapLabel b){
@@ -688,11 +570,12 @@ public class MapCameraControl : MonoBehaviour {
 	}
 	
 	void finishSegment(){
-		speed = 0f;
+
 		pointsPassed = mapMaker.PathPoints.Length - 1;
 		centralCube.position = mapMaker.PathPoints[pointsPassed];
-		if (remainingSegments.Count > 1){
+		if (remainingSegments.Count > 1 && speed > 0.01f){
 			Debug.Log("Reseting path");
+			speed = 0f;
 			resetPath(remainingSegments);
 		}
 
