@@ -9,6 +9,7 @@ public class MapLabel : MonoBehaviour {
 
 	static GameObject mainParent;
 	static Dictionary<int, MapLabel> mapLabels = new Dictionary<int, MapLabel>();
+	static float rotZ;
 
 	public string label;
 	string[] tags;
@@ -106,11 +107,11 @@ public class MapLabel : MonoBehaviour {
 		//Vector3 realPos = Camera.main.transform.position;// + Camera.main.transform.forward;
 		//transform.LookAt(new Vector3(realPos.x, realPos.y, transform.position.z));
 		//transform.Rotate(new Vector3(180f, 0f, 90f));
-		float theta = Camera.main.transform.rotation.eulerAngles.x;//perpendicular to the direction of the camera
-		//transform.rotation = Quaternion.Euler(theta, 90f, 270f);//look in that direction
+		//float theta = Camera.main.transform.rotation.eulerAngles.x;//perpendicular to the direction of the camera
+		transform.rotation = Quaternion.Euler(0f, 0f, RotZ);//look in that direction
 
 		marker.transform.position = this.transform.position + new Vector3(0f, 0f, 2f);
-		marker.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+		//marker.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
 	}
 
 	public void checkVisible(){
@@ -389,4 +390,11 @@ public class MapLabel : MonoBehaviour {
 		return search;
 	}
 
+	public static float RotZ {
+		get {
+			return rotZ;
+		} set {
+			rotZ = value;
+		}
+	}
 }

@@ -49,6 +49,8 @@ public class MapCameraControl : MonoBehaviour {
 	UIName activeScreen;
 	Dictionary<string, PowerUI.EventHandler> trackedEvents = new Dictionary<string, PowerUI.EventHandler>();
 
+	ElasticConnection elasticConnection;
+
 	// Use this for initialization
 	void Start () {
 
@@ -58,6 +60,7 @@ public class MapCameraControl : MonoBehaviour {
 
 
 		mapMaker = this.gameObject.GetComponent("MapMaker") as MapMaker;
+		elasticConnection = this.gameObject.GetComponent<ElasticConnection>();
 
 		//regularRotation = new Vector3(0f, 65f, 270f);
 		regularRotation = mainCamera.localRotation.eulerAngles;
@@ -86,8 +89,10 @@ public class MapCameraControl : MonoBehaviour {
 
 		move();
 
-		Vector3 transl = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f);
-		transform.position += transl + new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
+		Vector3 transl = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f) + 
+			new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
+		transform.position += transl;
+		elasticConnection.InitialMovementRelation += transl;
 	}
 
 	void OnGUI(){
@@ -539,7 +544,11 @@ public class MapCameraControl : MonoBehaviour {
 		//Debug.Log((direction * speed) + " bork bork " + Time.realtimeSinceStartup);
 
 		centralCube.position += direction * speed;
+		centralCube.LookAt(centralCube.position + direction);
 
+		float theta = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+		elasticConnection.ResetRotationRelation(new Vector3(0, 0, theta));
+		MapLabel.RotZ = theta;
 	}
 
 	void finishStretch(){
@@ -566,7 +575,9 @@ public class MapCameraControl : MonoBehaviour {
 
 		float scaleFactor = -0.75f * (usingHeight ? Screen.height : Screen.width) / 976f;
 
-		this.transform.position = new Vector3(center.x, center.y, maxDistance * scaleFactor + 1f);
+		//this.transform.position = new Vector3(a.x, a.y, maxDistance * scaleFactor + 1f);
+		elasticConnection.ResetMovementRelation(new Vector3(a.x, a.y, maxDistance * scaleFactor + 1f));
+		//elasticConnection.ResetRotationRelation(new Vector3(0, 0, centralCube.rotation.eulerAngles.x + 90f));
 	}
 	
 	void finishSegment(){

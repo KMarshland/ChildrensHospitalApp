@@ -588,6 +588,7 @@
      <Compile Include="Assets\Scripts\FRect.cs" />
      <Compile Include="Assets\Scripts\HUD.cs" />
      <Compile Include="Assets\Scripts\MapGenerator\CubeControl.cs" />
+     <Compile Include="Assets\Scripts\MapGenerator\ElasticConnection.cs" />
      <Compile Include="Assets\Scripts\MapGenerator\Floor.cs" />
      <Compile Include="Assets\Scripts\MapGenerator\MapCameraControl.cs" />
      <Compile Include="Assets\Scripts\MapGenerator\MapLabel.cs" />
