@@ -30,7 +30,7 @@ namespace KaiTools{
 			parent = nparent;
 
 			//check if its occupied
-			occupied = MapMaker.ActiveFloor.isOccupied(this);//use the image to check as this is a TON faster
+			occupied = false;//MapMaker.ActiveFloor.isOccupied(this);//use the image to check as this is a TON faster
 			//checkOccupied();
 		}
 		

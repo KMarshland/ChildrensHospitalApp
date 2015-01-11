@@ -36,10 +36,7 @@ public class Floor {
 		float t = Time.realtimeSinceStartup;
 
 		if (Resources.Load("Prefabs/Floors/Floor " + Id) == null){
-			findOccupiedPoints();
-			Debug.Log("findoccupied: " + (Time.realtimeSinceStartup - t)); //=> 865 ms
-			erodeMapping(2);
-			Debug.Log("erode: " + (Time.realtimeSinceStartup - t)); //=> 1482 ms
+			createOccupied();
 
 			Debug.Log("Building floor " + Id);
 			build();
@@ -70,6 +67,16 @@ public class Floor {
 		makeCubes();
 		makeWaypoints();
 	}
+
+	public void createOccupied(){
+		float t = Time.realtimeSinceStartup;
+		
+		findOccupiedPoints();
+		Debug.Log("findoccupied: " + (Time.realtimeSinceStartup - t)); //=> 865 ms
+		erodeMapping(2);
+		Debug.Log("erode: " + (Time.realtimeSinceStartup - t)); //=> 1482 ms
+
+	}
 	
 	public bool isOccupied(Point p){//check if a point is occupied, based on an image
 		return isOccupied(p.x, p.y);
@@ -80,20 +87,28 @@ public class Floor {
 		if (x < 0 || y < 0){
 			return false;
 		}
-		
+
+		if (occupiedPoints == null){
+			createOccupied();
+		}
+
 		if (x > occupiedPoints.GetLength(0) || y > occupiedPoints.GetLength(1)){
 			return false;
 		}
 		
 		return occupiedPoints[x, y];
 	}
-	
+
+	public Vector3 closestUnnocupiedTo(int x, int y){
+		return closestUnnocupiedTo(new Vector3(x, y, 0));
+	}
+
 	public Vector3 closestUnnocupiedTo(Vector3 v){
 		return Point.pointToVector3(closestUnnocupiedTo(Point.vector3ToPoint(v)));
 	}
 	
 	public Point closestUnnocupiedTo(Point p){
-		
+
 		if (!isOccupied(p)){
 			return p;
 		}
@@ -103,13 +118,13 @@ public class Floor {
 		int x = p.x;
 		int y = p.y;
 		
-		int maxDiameter = 500;
+		//int maxDiameter = 500;
 		
 		int dx = 0;
 		int dy = -1;
 		
-		for (int i = 0; i < maxDiameter * maxDiameter && isOccupied(p); i++){
-			if ((-maxDiameter/2f < x) && (x <= maxDiameter/2f) && (-maxDiameter/2f < y) && (y <= maxDiameter/2f)){
+		for (int i = 0; (i < 500) && isOccupied(p); i++){
+			//if ((-maxDiameter/2f < x) && (x <= maxDiameter/2f) && (-maxDiameter/2f < y) && (y <= maxDiameter/2f)){
 				//Debug.Log(x + ", " + y);
 				//vs.Add(new Vector3(x, y, 0f));
 				p = new Point(x, y, p.z);
@@ -122,9 +137,12 @@ public class Floor {
 				}
 				x += dx;
 				y += dy;
-			}
+			//}
 		}
-		
+		return p;
+
+		/*
+		//No fucking clue what this is for or what I was thinking when writing it.
 		Point[] adj = p.getAdjacentPoints2d();
 		int best = 0;
 		Point bestP = p;
@@ -153,6 +171,7 @@ public class Floor {
 		}
 		
 		return bestP;
+		*/
 	}
 
 	bool[,] findOccupiedPoints(){

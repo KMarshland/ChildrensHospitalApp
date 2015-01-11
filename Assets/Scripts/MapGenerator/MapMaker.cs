@@ -240,4 +240,17 @@ public class MapMaker : MonoBehaviour {
 			);
 	}
 
+	public static Vector3 worldSpaceToMapSpaceFull(Vector3 worldSpace){
+		float pictureWidth = 2289f;
+		float pictureHeight = 1920f;
+		
+		float resolutionConstant = 512f;//image is read at 4096, so divide by 8 (I have no idea why 8 works, but it does)
+		
+		return new Vector3(
+			worldSpace.x * (pictureWidth/resolutionConstant),
+			(pictureHeight / resolutionConstant) * (resolutionConstant - worldSpace.y),
+			worldSpace.z
+		);
+	}
+
 }

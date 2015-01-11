@@ -29,7 +29,7 @@ public class MapCameraControl : MonoBehaviour {
 	
 	//static List<Vector3> pois;//points of interest
 	//static List<string> poiNames;//and their names
-	static List<MapLabel> poiMarkers;
+	static List<MapLabel> poiMarkers = new List<MapLabel>();
 	MapLabel poiFrom;
 	MapLabel poiTo;
 
@@ -37,7 +37,7 @@ public class MapCameraControl : MonoBehaviour {
 	Transform centralCube;
 
 	List<MapLabel> remainingSegments;
-
+	
 	public enum UIName{
 		Map,
 		Landing,

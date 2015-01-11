@@ -71,6 +71,13 @@ public class MapLabel : MonoBehaviour {
 		scanSelf();
 	}
 
+	public void fixPosition(){
+		pathLocation = MapMaker.floors[floor].closestUnnocupiedTo(transform.position);
+		pathLocation = new Vector3(pathLocation.x, pathLocation.y, 0f);
+		transform.position = new Vector3(pathLocation.x, pathLocation.y, transform.position.z);
+		scanSelf();
+	}
+
 	void scanSelf(){
 		if (this.Visible){
 			PointGraph navg = (PointGraph)AstarPath.active.graphs[0];
@@ -275,7 +282,7 @@ public class MapLabel : MonoBehaviour {
 
 		if (!PlayerPrefs.HasKey("MarkerSave")){
 			PlayerPrefs.SetString("MarkerSave", "");
-			Debug.Log("If you see this message twice more than once at the beginning " +
+			Debug.LogWarning("If you see this message twice more than once at the beginning " +
 				"and you have internet access, let me know");
 		}
 
@@ -289,7 +296,6 @@ public class MapLabel : MonoBehaviour {
 			try {//suround in a try catch block in case any one is weirdly formatted
 				string[] pieces = line.Trim().Split(new char[]{'|'});
 				if (pieces.Length >= 6){
-
 					int nid = int.Parse(pieces[0].Trim());
 					string ntext = pieces[1].Trim();
 					float x = float.Parse(pieces[2].Trim());
@@ -356,6 +362,8 @@ public class MapLabel : MonoBehaviour {
 		}
 		loadMarkers();
 		//Debug.Log(PlayerPrefs.GetString("MarkerSave"));
+
+		Debug.Log("Updated markers");
 	}
 
 	public static List<MapLabel> ElevatorsOnFloor(int floor){
@@ -388,6 +396,43 @@ public class MapLabel : MonoBehaviour {
 			}
 		);
 		return search;
+	}
+
+	public static int FixPositionFor(int floor){
+
+		int f = 0;
+
+		if (floor < 0){
+			LogLibrary();
+			for (int i = 0; i < MapMaker.floors.Length; i++){
+				f += FixPositionFor(i);
+			}
+			LogLibrary();
+		} else {
+			foreach (MapLabel m in MapLabel.MapLabels.Values){
+				if (m.isOnFloor(floor)){
+					m.fixPosition();
+					f++;
+				}
+			}
+		}
+		return f;
+	}
+
+	public static void LogLibrary(){
+
+		//float t = Time.realtimeSinceStartup;
+
+		string log = "";
+		foreach (int i in MapLabel.MapLabels.Keys){
+			MapLabel m = MapLabel.MapLabels[i];
+			Vector3 rPos = MapMaker.worldSpaceToMapSpaceFull(m.PathLocation);
+			log += "{id:" + i + ", x:" + (int)rPos.x + ", y:" + (int)rPos.y + "},\n";
+		}
+
+		System.IO.File.WriteAllText("Lib Log " + System.DateTime.Now.ToString("MM-dd-yyyy HHmmss") + ".txt", log);
+
+		//Debug.Log("Time to log: " + (Time.realtimeSinceStartup - t));
 	}
 
 	public static float RotZ {
