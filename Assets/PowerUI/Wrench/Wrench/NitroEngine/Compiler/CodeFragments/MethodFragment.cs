@@ -36,7 +36,11 @@ namespace Nitro{
 		/// <param name="methodName">The name of the method being called.</param>
 		public MethodFragment(BracketFragment brackets,CodeFragment methodName){
 			Brackets=brackets;
-			MethodName=methodName;	
+			MethodName=methodName;
+			
+			// Add them as children such that code tree iterators can visit them:
+			AddChild(Brackets);
+			
 		}
 		
 		public override bool Typeable(){

@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 
 
 namespace PowerUI.Css.Properties{
@@ -34,7 +33,7 @@ namespace PowerUI.Css.Properties{
 			}else{
 				
 				if(value.Text=="hidden"){
-					style.Visibility=VisibilityType.Hidden;
+					style.VisibilityNone();
 				}else{
 					style.Visibility=VisibilityType.Visible;
 				}

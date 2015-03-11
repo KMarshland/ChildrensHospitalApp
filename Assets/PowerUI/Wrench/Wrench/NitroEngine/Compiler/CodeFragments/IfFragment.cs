@@ -41,8 +41,22 @@ namespace Nitro{
 			ApplyElseTo=this;
 			Condition=new BracketFragment(sr);
 			IfTrue=new BracketFragment(sr);
+			
+			// Add them as children such that code tree iterators can visit them:
+			AddChild(Condition);
+			AddChild(IfTrue);
+			
 		}
-
+		
+		public void SetIfFalse(BracketFragment ifFalse){
+			
+			IfFalse=ifFalse;
+			
+			// Add as child such that code tree iterators can visit them:
+			AddChild(IfFalse);
+			
+		}
+		
 		public override AddResult AddTo(CodeFragment to,CodeLexer sr){
 			base.AddTo(to,sr);
 			return AddResult.Stop;
@@ -54,9 +68,11 @@ namespace Nitro{
 		
 		public override string ToString(){
 			string result="if"+Condition.ToString()+IfTrue.ToString();
+			
 			if(IfFalse!=null){
 				result+="else"+IfFalse.ToString();
 			}
+			
 			return result;
 		}
 		

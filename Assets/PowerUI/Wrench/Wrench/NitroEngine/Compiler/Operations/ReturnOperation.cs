@@ -25,6 +25,12 @@ namespace Nitro{
 	
 		public ReturnOperation(CompiledMethod method):base(method){}
 		
+		public override bool RequiresStoring{
+			get{
+				return false;
+			}
+		}
+		
 		public override Type OutputType(out CompiledFragment v){
 			v=this;
 			return Input0.OutputType(out Input0);

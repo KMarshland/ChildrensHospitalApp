@@ -27,7 +27,14 @@ namespace PowerUI{
 	
 	public static class FileProtocols{
 		
+		/// <summary>Http is used for any unrecognised protocols.
+		/// This is useful with e.g. links to apps, such as ms-windows-store://
+		/// When a link like that occurs, and it's not overriden with a custom handler, http will deal with it (and subsequently pop it up externally).</summary>
+		public static string UnrecognisedProtocolHandler="http";
+		
+		/// <summary>The set of available protocols. Use get to access.</summary>
 		public static Dictionary<string,FileProtocol> Protocols;
+		
 		
 		/// <summary>Sets up all available file protocols by scanning around
 		/// for all classes which inherit from the FileProtocol type.
@@ -104,7 +111,14 @@ namespace PowerUI{
 			}
 			
 			FileProtocol result=null;
-			Protocols.TryGetValue(protocol.ToLower(),out result);
+			if(!Protocols.TryGetValue(protocol.ToLower(),out result)){
+				
+				// Get the unrecognised protocol handler:
+				Protocols.TryGetValue(UnrecognisedProtocolHandler,out result);
+				
+			}
+			
+			
 			return result;
 		}
 		

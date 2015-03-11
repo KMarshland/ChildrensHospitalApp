@@ -239,34 +239,44 @@ namespace Nitro{
 		}
 		
 		public void OutputTarget(NitroIL into){
+			
 			if(IsStatic&&(Field!=null || Property!=null)){
 				return;
 			}
+			
 			if(Of==null||(Field==null&&Property==null&&MethodReturnType==null)){
 				Error("Unused or invalid property.");
 			}
+			
 			if(MethodReturnType==null){
 				Of.OutputIL(into);
 			}
+			
 		}
 		
-		public void OutputSet(NitroIL into){
+		public void OutputSet(NitroIL into,Type setting){
+			
 			if(Field!=null){
+				
 				if(IsStatic){
 					into.Emit(OpCodes.Stsfld,Field);
 				}else{
 					into.Emit(OpCodes.Stfld,Field);
 				}
+				
 			}else if(Property!=null){
 				bool useVirtual=!IsStatic && !Property.PropertyType.IsValueType;
 				MethodInfo setMethod=Property.GetSetMethod();
+				
 				if(setMethod==null){
 					Error(Name+" is a readonly property.");
 				}
+				
 				into.Emit(useVirtual?OpCodes.Callvirt:OpCodes.Call,setMethod);
 			}else{
 				Error(Name+" is a function! Unable to set it's value.");
 			}
+			
 		}
 		
 		public override void OutputIL(NitroIL into){
@@ -290,13 +300,19 @@ namespace Nitro{
 					}else{
 						literalValue.OutputIL(into);
 					}
-				}else if(IsStatic){
-					into.Emit(OpCodes.Ldsfld,Field);
 				}else if(ParentFragment!=null && ParentFragment.IsMemberAccessor() && Field.FieldType.IsValueType){
 					// Are we followed by another PropertyOperation?
 					// A following operation in this sitation ends up being the parent.
 					// If we are, and we output a valuetype, Ldflda must be used.
-					into.Emit(OpCodes.Ldflda,Field);
+					
+					if(IsStatic){
+						into.Emit(OpCodes.Ldsflda,Field);
+					}else{
+						into.Emit(OpCodes.Ldflda,Field);
+					}
+					
+				}else if(IsStatic){
+					into.Emit(OpCodes.Ldsfld,Field);
 				}else{
 					into.Emit(OpCodes.Ldfld,Field);
 				}
@@ -305,6 +321,12 @@ namespace Nitro{
 				into.Emit(useVirtual?OpCodes.Callvirt:OpCodes.Call,Property.GetGetMethod());
 			}else{
 				DynamicMethodCompiler.Compile(Method,Name,MethodReturnType,Of).OutputIL(into);
+			}
+		}
+		
+		public override bool EmitsAddress{
+			get{
+				return (Field!=null && !Field.IsLiteral);
 			}
 		}
 		

@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 
 
 namespace PowerUI.Css.Properties{
@@ -51,10 +50,10 @@ namespace PowerUI.Css.Properties{
 				style.InnerHeight=value.PX;
 			}
 			
+			style.SetSize();
+			
 			// Fire percent pass:
 			style.Element.SetHeightForKids(style);
-			
-			style.SetSize();
 			
 			style.RequestLayout();
 		}

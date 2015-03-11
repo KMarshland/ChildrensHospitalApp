@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
@@ -167,6 +166,18 @@ namespace PowerUI{
 		}
 		
 		public override void OnBlur(){
+			// Is the new focused element a child of ddbox?
+			Element current=Input.Focusing;
+			
+			while(current!=null){
+				
+				if(current.Tag=="ddbox"){
+					return;
+				}
+				
+				current=current.parentNode;
+			}
+			
 			Hide();
 		}
 		
@@ -312,6 +323,36 @@ namespace PowerUI{
 				
 			}
 			
+		}
+		
+	}
+	
+	
+	public partial class Element{
+		
+		/// <summary>Updates the current selected element in a dropdown menu.</summary>
+		public int selectedIndex{
+			get{
+				
+				SelectTag tag=Handler as SelectTag;
+				
+				if(tag==null){
+					return -1;
+				}
+				
+				return tag.SelectedIndex;
+			}
+			set{
+				
+				SelectTag tag=Handler as SelectTag;
+				
+				if(tag==null){
+					return;
+				}
+				
+				tag.SetSelected(value);
+				
+			}
 		}
 		
 	}

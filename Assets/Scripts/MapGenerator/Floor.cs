@@ -43,6 +43,7 @@ public class Floor {
 		}
 
 		buildTime = Time.realtimeSinceStartup - t;
+		buildTime = buildTime + 0f;//stop it from telling me it's never used
 		made = true;
 	}
 

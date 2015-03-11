@@ -11,6 +11,8 @@
 
 using System;
 using UnityEngine;
+using Blaze;
+
 
 namespace PowerUI{
 	
@@ -21,17 +23,16 @@ namespace PowerUI{
 	/// </summary>
 	
 	public class MeshBlock{
-	
+		
+		private static UVBlock BlankUV=new UVBlock(2f,2f,2f,2f);
+		
 		/// <summary>The colour of the whole block. Applied to vertex colours.</summary>
 		public Color Colour;
-		/// <summary>The uv coordinate for the top left corner.</summary>
-		public Vector2 UVTopLeft;
-		/// <summary>The uv coordinate for the top right corner.</summary>
-		public Vector2 UVTopRight;
-		/// <summary>The uv coordinate for the bottom left corner.</summary>
-		public Vector2 UVBottomLeft;
-		/// <summary>The uv coordinate for the bottom right corner.</summary>
-		public Vector2 UVBottomRight;
+		/// <summary>The UV coordinate block for a letter off the atlas.</summary>
+		public UVBlock TextUV;
+		/// <summary>The UV coordinate for an image off the atlas.</summary>
+		public UVBlock ImageUV;
+		
 		/// <summary>The vertex in the top left corner.</summary>
 		public Vector3 VertexTopLeft;
 		/// <summary>The vertex in the top right corner.</summary>
@@ -56,6 +57,30 @@ namespace PowerUI{
 		public MeshBlock(DynamicMesh parentMesh){
 			ParentMesh=parentMesh;
 			Colour=Color.white;
+		}
+		
+		public bool Overlaps(MeshBlock block){
+			
+			// Check if any of blocks 4 corners are within this square.
+			
+			Vector3[] vertBuffer=block.ParentMesh.Vertices.Buffer;
+			
+			// Apply inverse transform to blocks corners:
+			for(int i=0;i<4;i++){
+				
+				// Map it:
+				Vector3 point=Transform.ApplyInverse(vertBuffer[block.VertexIndex+i]);
+				
+				// Simple box test:
+				if(point.x<VertexBottomLeft.x || point.x>VertexBottomRight.x || point.y<VertexBottomLeft.y || point.y>VertexTopLeft.y){
+					continue;
+				}
+				
+				return true;
+				
+			}
+			
+			return false;
 		}
 		
 		/// <summary>Adds this block to the parent meshes linked list.
@@ -121,7 +146,7 @@ namespace PowerUI{
 		/// <param name="renderer">The renderer that will render this block.</param>
 		/// <param name="zIndex">The depth of the vertices.</param>
 		/// <param name="imgLocation">The location of the image on the meshes atlas.</param>
-		public void SetClipped(BoxRegion boundary,BoxRegion block,Renderman renderer,float zIndex,AtlasLocation imgLocation){
+		public UVBlock SetClipped(BoxRegion boundary,BoxRegion block,Renderman renderer,float zIndex,AtlasLocation imgLocation,UVBlock uvBlock){
 			
 			// Image defines how big we want the image to be in pixels on the screen.
 			// So firstly we need to find the ratio of how scaled our image actually is:
@@ -133,40 +158,75 @@ namespace PowerUI{
 			float blockX=block.X;
 			float blockY=block.Y;
 			
-			block.ClipBy(boundary);
+			if(block.ClipByChecked(boundary)){
+				
+				// It actually got clipped - time to do some UV clipping too.
+				
+				// Apply the verts:
+				ApplyVertices(block,renderer,zIndex);
+				
+				block.X-=blockX;
+				block.Y-=blockY;
+				block.MaxX-=blockX;
+				block.MaxY-=blockY;
+				
+				// Flip the gaps (the clipped and now 'missing' sections) - UV's are inverted relative to the vertices.
+				
+				// Bottom gap is just block.Y:
+				float bottomGap=block.Y;
+				
+				// Top gap is the original height - the new maximum; write it to the bottom gap:
+				block.Y=originalHeight-block.MaxY;
+				
+				// Update the top gap:
+				block.MaxY=originalHeight-bottomGap;
+				
+				// Image was in terms of real screen pixels, so now we need to scale it to being in 'actual image' pixels.
+				// From there, the region 
+				block.X*=scaleX;
+				block.MaxX*=scaleX;
+				
+				block.Y*=scaleY;
+				block.MaxY*=scaleY;
+				
+				if(uvBlock==null || uvBlock.Shared){
+					
+					// Create the UV block:
+					uvBlock=new UVBlock();
+					
+				}
+				
+				// Get the new max/min values:
+				uvBlock.MinX=imgLocation.GetU(block.X+0.2f);
+				uvBlock.MaxX=imgLocation.GetU(block.MaxX-0.2f);
+				uvBlock.MaxY=imgLocation.GetV(block.MaxY-0.2f);
+				uvBlock.MinY=imgLocation.GetV(block.Y+0.2f);
+				
+			}else{
+				
+				// Apply the verts:
+				ApplyVertices(block,renderer,zIndex);
+				
+				// Globally share the UV!
+				uvBlock=imgLocation;
+				
+			}
 			
-			// Apply the verts:
-			ApplyVertices(block,renderer,zIndex);
+			return uvBlock;
 			
-			block.X-=blockX;
-			block.Y-=blockY;
-			block.MaxX-=blockX;
-			block.MaxY-=blockY;
+		}
+		
+		/// <summary>Applies the SDF outline "location", essentially the thickness of an outline, to this block.</summary>
+		public void ApplyOutline(float location){
 			
-			// Flip the gaps (the clipped and now 'missing' sections) - UV's are inverted relative to the vertices.
+			// Apply the values to the tangents:
+			Vector4[] buffer=ParentMesh.Tangents.Buffer;
 			
-			// Bottom gap is just block.Y:
-			float bottomGap=block.Y;
+			Vector4 tangent=new Vector4(location,location,0f,0f);
 			
-			// Top gap is the original height - the new maximum; write it to the bottom gap:
-			block.Y=originalHeight-block.MaxY;
-			
-			// Update the top gap:
-			block.MaxY=originalHeight-bottomGap;
-			
-			// Image was in terms of real screen pixels, so now we need to scale it to being in 'actual image' pixels.
-			// From there, the region 
-			block.X*=scaleX;
-			block.MaxX*=scaleX;
-			
-			block.Y*=scaleY;
-			block.MaxY*=scaleY;
-			
-			// We have an image. Set UV's too:
-			UVTopLeft=new Vector2(imgLocation.GetU(block.X+0.2f),imgLocation.GetV(block.MaxY-0.2f));
-			UVTopRight=new Vector2(imgLocation.GetU(block.MaxX-0.2f),imgLocation.GetV(block.MaxY-0.2f));
-			UVBottomLeft=new Vector2(imgLocation.GetU(block.X+0.2f),imgLocation.GetV(block.Y+0.2f));
-			UVBottomRight=new Vector2(imgLocation.GetU(block.MaxX-0.2f),imgLocation.GetV(block.Y+0.2f));
+			for(int i=0;i<4;i++){
+				buffer[VertexIndex+i]=tangent;
+			}
 			
 		}
 		
@@ -175,34 +235,51 @@ namespace PowerUI{
 		/// <param name="renderer">The renderer used when rendering this block.</param>
 		/// <param name="zIndex">The depth of the vertices.</param>
 		private void ApplyVertices(BoxRegion block,Renderman renderer,float zIndex){
-			VertexTopLeft=renderer.PixelToWorldUnit(block.X,block.Y,zIndex);
-			VertexTopRight=renderer.PixelToWorldUnit(block.MaxX,block.Y,zIndex); 
-			VertexBottomLeft=renderer.PixelToWorldUnit(block.X,block.MaxY,zIndex);
-			VertexBottomRight=renderer.PixelToWorldUnit(block.MaxX,block.MaxY,zIndex);
+		
+			// Compute the min/max pixels:
+			Vector3 min=renderer.PixelToWorldUnit(block.X,block.Y,zIndex);
+			Vector3 max=renderer.PixelToWorldUnit(block.MaxX,block.MaxY,zIndex);
+			
+			// Get the 4 corners:
+			VertexTopLeft=min;
+			VertexBottomRight=max;
+			VertexTopRight=new Vector3(max.x,min.y,min.z); 
+			VertexBottomLeft=new Vector3(min.x,max.y,min.z);
+			
 		}
 		
 		/// <summary>Sets the UV and image on this block to that of the solid colour pixel.</summary>
 		public void SetSolidColourUV(){
+			
 			// Set the UVs - solid colour is always at y>1:
-			UVTopRight=UVBottomLeft=UVBottomRight=UVTopLeft=new Vector2(0f,2f);
+			ImageUV=null;
+			TextUV=null;
+			
 		}
 		
 		/// <summary>Writes out the UV and vertex colours to the meshes buffers.</summary>
 		public void Paint(){
-			// The UV:
-			// Top Left:
-			ParentMesh.UV.Buffer[VertexIndex]=UVTopLeft;
-			// Top Right:
-			ParentMesh.UV.Buffer[VertexIndex+1]=UVTopRight;
-			// Bottom Left:
-			ParentMesh.UV.Buffer[VertexIndex+2]=UVBottomLeft;
-			// Bottom Right:
-			ParentMesh.UV.Buffer[VertexIndex+3]=UVBottomRight;
+			// The UVs:
+			
+			if(ImageUV!=null){
+				ImageUV.Write(ParentMesh.UV.Buffer,VertexIndex);
+			}else{
+				BlankUV.Write(ParentMesh.UV.Buffer,VertexIndex);
+			}
+			
+			if(TextUV!=null){
+				TextUV.Write(ParentMesh.UV2.Buffer,VertexIndex);
+			}else{
+				BlankUV.Write(ParentMesh.UV2.Buffer,VertexIndex);
+			}
 			
 			// Apply the colour:
+			Color[] buffer=ParentMesh.Colours.Buffer;
+			
 			for(int i=0;i<4;i++){
-				ParentMesh.Colours.Buffer[VertexIndex+i]=Colour;
+				buffer[VertexIndex+i]=Colour;
 			}
+			
 		}
 		
 	}

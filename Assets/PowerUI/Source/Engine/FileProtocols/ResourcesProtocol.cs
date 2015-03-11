@@ -9,6 +9,10 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+	#define MOBILE
+#endif
+
 using System;
 using PowerUI.Css;
 using UnityEngine;
@@ -53,11 +57,11 @@ namespace PowerUI{
 				
 				if(binary!=null){
 					// Apply it now:
-					package.GotGraphic(new SPA(path.Path,binary));
+					package.GotGraphic(new SPA(path.Url,binary));
 					return;
 				}
 				
-			#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+			#if !MOBILE
 			}else if(ContentType.IsVideo(path.Filetype)){
 				// Video
 				MovieTexture movie=(MovieTexture)Resources.Load(path.Directory+path.Filename,typeof(MovieTexture));
@@ -80,6 +84,43 @@ namespace PowerUI{
 			}
 			
 			package.GotGraphic("Image not found in resources ("+path.Directory+path.Filename+" from URL '"+path.Url+"').");
+			
+		}
+		
+		public override void OnGetData(DataPackage package,FilePath path){
+			
+			if(Callback.WillDelay){
+				
+				// Buffer this call until later - we're not on the main thread.
+				
+				// Create the callback:
+				ResourcesProtocolCallback callback=new ResourcesProtocolCallback(package,path);
+				
+				// Hook up the protocol handler for speed later:
+				callback.Protocol=this;
+				
+				// Request it to run:
+				callback.Go();
+				
+				return;
+			}
+			
+			// Getting a files text content from resources.
+			byte[] data=null;
+			string error=null;
+			string resPath=path.Path;
+			
+			TextAsset asset=(TextAsset)Resources.Load(resPath);
+			
+			if(asset==null){
+				
+				error="File not found in resources ("+path.Directory+path.Filename+" from URL '"+path.Url+"'). Does your file in Unity end with .bytes?";
+				
+			}else{
+				data=asset.bytes;
+			}
+			
+			package.GotData(data,error);
 			
 		}
 		

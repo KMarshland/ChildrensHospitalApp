@@ -139,6 +139,13 @@ namespace Nitro{
 			}
 		}
 		
+		/// <summary>Does this fragment emit an address?</summary>
+		public virtual bool EmitsAddress{
+			get{
+				return(Value!=null && Types.IsSubclass(Value,typeof(Variable)));
+			}
+		}
+		
 	}
 	
 }

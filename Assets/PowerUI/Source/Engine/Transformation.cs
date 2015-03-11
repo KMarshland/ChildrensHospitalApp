@@ -90,7 +90,7 @@ namespace PowerUI{
 			
 			// Map origin to world space:
 			Renderman renderer=relativeTo.Element.Document.Renderer;
-			_Origin=renderer.PixelToWorldUnit(_Origin.x,_Origin.y,0f);
+			_Origin=renderer.PixelToWorldUnit(_Origin.x,_Origin.y,relativeTo.ZIndex);
 			
 			if(Parent!=null){
 				_Origin=Parent.Apply(_Origin);
@@ -214,6 +214,14 @@ namespace PowerUI{
 		public Vector3 Apply(Vector4 point){
 			point.w=1f;
 			return _Matrix*point;
+		}
+		
+		/// <summary>Applies this transformation to the given vertex.</summary>
+		/// <param name="point">The vertex to transform.</param>
+		/// <returns>The transformed vertex.</returns>
+		public Vector3 ApplyInverse(Vector4 point){
+			point.w=1f;
+			return _Matrix.inverse*point;
 		}
 		
 	}

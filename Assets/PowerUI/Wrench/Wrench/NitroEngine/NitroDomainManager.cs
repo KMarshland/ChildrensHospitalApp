@@ -44,6 +44,7 @@ namespace Nitro{
 		public NitroDomainManager(){
 			AddReference(".Nitro");
 			AddReference("System.System");
+			AddReference("mscorlib.System");
 			
 			Allow("Nitro");
 			Allow("System");
@@ -148,7 +149,7 @@ namespace Nitro{
 		/// <param name="protocol">The protocol:// of the remote location. Lowercase and usually e.g. http(s).</param>
 		/// <param name="host">The first part of the location after the protocol. E.g. www.kulestar.com.</param>
 		/// <param name="fullPath">The whole path requesting access. E.g. http://www.kulestar.com/.</param>
-		public bool AllowAccess(string protocol,string host,string fullPath){
+		public virtual bool AllowAccess(string protocol,string host,string fullPath){
 			return false;
 		}
 		

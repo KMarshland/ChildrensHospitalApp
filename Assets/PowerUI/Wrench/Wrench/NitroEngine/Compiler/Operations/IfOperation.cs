@@ -32,22 +32,34 @@ namespace Nitro{
 		/// <summary>The set of conditions that must be true. Note that only 1 (the first) is considered at the moment.</summary>
 		public CompiledFragment[] Conditions;
 		
+		
 		public IfOperation(CompiledMethod method,BracketFragment condition,BracketFragment ifTrue,BracketFragment ifFalse):base(method){
 			IfTrue=ifTrue;
 			IfFalse=ifFalse;
+			
 			Conditions=CompilationServices.CompileParameters(condition,method);
+			
 			if(Conditions==null||Conditions.Length==0){
 				Error("An if was defined but with nothing to check (e.g. if(this is empty!){..} )");
+			}
+			
+		}
+		
+		public override bool RequiresStoring{
+			get{
+				return false;
 			}
 		}
 		
 		public override Type OutputType(out CompiledFragment v){
 			v=this;
+			
 			for(int i=0;i<Conditions.Length;i++){
 				CompiledFragment cond=Conditions[i];
 				cond.OutputType(out cond);
 				Conditions[i]=cond;
 			}
+			
 			return null;
 		}
 		
@@ -62,12 +74,14 @@ namespace Nitro{
 			AllRoutesReturn=IfTrue.CompileBody(Method);
 			into.Emit(OpCodes.Br,End);
 			into.MarkLabel(Else);
+			
 			if(IfFalse!=null){
 				bool returns=IfFalse.CompileBody(Method);
 				AllRoutesReturn=(AllRoutesReturn&&returns);
 			}else{
 				AllRoutesReturn=false;
 			}
+			
 			into.MarkLabel(End);
 		}
 		

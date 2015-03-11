@@ -41,41 +41,37 @@ namespace PowerUI.Css.Properties{
 			}
 			
 			// Get the standard space size for this text property:
-			float standardSize=text.FontSize/3f;
+			float standardSize=text.StandardSpaceSize();
 			
 			// Apply the property:
 			if(value==null){
 				
 				// Standard space size:
 				text.SpaceSize=standardSize;
-			
-			}else if(value.Type==ValueType.Em){
-			
-				// Em value:
-				text.SpaceSize=(float)text.FontSize*value.Single;
-			
-			}else if(value.Type==ValueType.Pixels){
-				
-				// Straight pixel size:
-				text.SpaceSize=(float)value.PX;
 				
 			}else if(value.Single!=0f){
 				
 				// Relative, e.g. 200%
 				text.SpaceSize=standardSize*value.Single;
+			
+			}else if(value.PX!=0){
+				
+				// Straight pixel size:
+				text.SpaceSize=(float)value.PX;
 				
 			}else{
 				
-				// Standard space size:
+				// Standard space size (will be overwritten):
 				text.SpaceSize=standardSize;
 				
 			}
 			
+			// Prompt the renderer to recalculate the width of the words:
+			text.SetDimensions();
+			
 			// Apply:
 			text.RequestLayout();
 			
-			// Prompt the renderer to recalculate the width of the words:
-			text.NoTextChange=false;
 		}
 		
 	}

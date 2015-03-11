@@ -16,14 +16,14 @@ public class MapCameraControl : MonoBehaviour {
 	bool detatched;
 
 	bool birdsEye;
-	Vector3 prePos;
+	/*Vector3 prePos;
 	Vector3 prePosM;
 	Vector3 postPos;
 	Vector3 postPosM;
 	Vector3 birdsRotation;
 	Vector3 regularRotation;
 	Vector3 birdsRotationM;
-	Vector3 regularRotationM;
+	Vector3 regularRotationM;*/
 
 	string[] instructions;
 	
@@ -33,7 +33,7 @@ public class MapCameraControl : MonoBehaviour {
 	MapLabel poiFrom;
 	MapLabel poiTo;
 
-	Transform mainCamera;
+	//Transform mainCamera;
 	Transform centralCube;
 
 	List<MapLabel> remainingSegments;
@@ -55,7 +55,7 @@ public class MapCameraControl : MonoBehaviour {
 	void Start () {
 
 		//MapCameraControl.main = this;
-		mainCamera = this.transform.FindChild("PrimaryRotator").FindChild("Main Camera");
+		//mainCamera = this.transform.FindChild("PrimaryRotator").FindChild("Main Camera");
 		centralCube = GameObject.Find("CentralCube").transform;//this.transform.FindChild("CentralCube");
 
 
@@ -63,16 +63,17 @@ public class MapCameraControl : MonoBehaviour {
 		elasticConnection = this.gameObject.GetComponent<ElasticConnection>();
 
 		//regularRotation = new Vector3(0f, 65f, 270f);
-		regularRotation = mainCamera.localRotation.eulerAngles;
+		/*regularRotation = mainCamera.localRotation.eulerAngles;
 		regularRotationM = transform.localRotation.eulerAngles;
 		birdsRotation = new Vector3(0f, 0f, 0f);
 		birdsRotationM = new Vector3(0f, 0f, 0f);
 
 		postPos = new Vector3(126,126,-240);
-		postPosM = new Vector3(0,0,0);
+		postPosM = new Vector3(0,0,0);*/
 
 		activeScreen = UIName.Landing;
 		initUI();
+		MapMaker.ActiveFloor = MapMaker.floors[0];
 	}
 
 	// Update is called once per frame
@@ -122,13 +123,13 @@ public class MapCameraControl : MonoBehaviour {
 		};
 
 
-		UI.document.getElementById("getDirectionsButton").OnClick += trackedEvents["startDirections"];
+		PowerUI.UI.document.getElementById("getDirectionsButton").OnClick += trackedEvents["startDirections"];
 
-		UI.document.getElementById("backToLandingButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+		PowerUI.UI.document.getElementById("backToLandingButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.Landing;
 		};
 
-		var floorSelectDiv = UI.document.getElementById("floorSelectDiv");
+		var floorSelectDiv = PowerUI.UI.document.getElementById("floorSelectDiv");
 		for (int i = 0; i < MapMaker.floors.Length; i++){
 			PowerUI.Element nEl = new PowerUI.Element("div");
 			nEl.className = "button floorSelectButton";
@@ -141,25 +142,25 @@ public class MapCameraControl : MonoBehaviour {
 		}
 
 		//set up events for the landing screen
-		UI.document.getElementById("browseButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+		PowerUI.UI.document.getElementById("browseButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.Map;
 		};
 		
-		UI.document.getElementById("startButton").OnClick += trackedEvents["startDirections"];
+		PowerUI.UI.document.getElementById("startButton").OnClick += trackedEvents["startDirections"];
 		
 		//set up events for the where from? page
-		UI.document.getElementById("backToStartButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+		PowerUI.UI.document.getElementById("backToStartButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.Landing;
 		};
 		
-		UI.document.getElementById("fromLobbyButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+		PowerUI.UI.document.getElementById("fromLobbyButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			poiFrom = poiMarkers[0];
 			ActiveScreen = UIName.WhereTo;
 		};
 		
 		trackedEvents["fromListener"] = delegate(PowerUI.UIEvent keyEvent){
 			//Debug.Log(keyEvent.keyCode);
-			string term = UI.document.getElementById("fromSearch").value;
+			string term = PowerUI.UI.document.getElementById("fromSearch").value;
 			if (term == null){
 				term = "";
 			}
@@ -167,7 +168,7 @@ public class MapCameraControl : MonoBehaviour {
 			
 			List<MapLabel> search = MapLabel.Search(poiMarkers, term);
 
-			var resultDiv = UI.document.getElementById("fromSearchResults");
+			var resultDiv = PowerUI.UI.document.getElementById("fromSearchResults");
 			resultDiv.innerHTML = "";
 
 			foreach(MapLabel m in search){
@@ -175,25 +176,25 @@ public class MapCameraControl : MonoBehaviour {
 				PowerUI.Element nEl = new PowerUI.Element("div");
 				nEl.className = "button searchResult";
 				nEl.textContent = ml.Label;
-				nEl.style.width = (UI.document.getElementById("fromSearch").pixelWidth - 50) + "px";
+				nEl.style.width = (PowerUI.UI.document.getElementById("fromSearch").pixelWidth - 50) + "px";
 				nEl.OnClick += delegate(PowerUI.UIEvent mouseEvent){
 					poiFrom = ml;
 					ActiveScreen = UIName.WhereTo;
-					UI.Variables["fromLabel"] = ml.Label;
+					PowerUI.UI.Variables["fromLabel"] = ml.Label;
 				};
 				resultDiv.AppendNewChild(nEl);
 			}
 		};
-		UI.document.getElementById("fromSearch").OnKeyUp += trackedEvents["fromListener"];
+		PowerUI.UI.document.getElementById("fromSearch").OnKeyUp += trackedEvents["fromListener"];
 		
 		//set up events for the where to? page
-		UI.document.getElementById("backToFromButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+		PowerUI.UI.document.getElementById("backToFromButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.WhereFrom;
 		};
 		
 		trackedEvents["toListener"] = delegate(PowerUI.UIEvent keyEvent){
 			//Debug.Log(keyEvent.keyCode);
-			string term = UI.document.getElementById("toSearch").value;
+			string term = PowerUI.UI.document.getElementById("toSearch").value;
 			if (term == null){
 				term = "";
 			}
@@ -201,7 +202,7 @@ public class MapCameraControl : MonoBehaviour {
 			
 			List<MapLabel> search = MapLabel.Search(poiMarkers, term);
 			
-			var resultDiv = UI.document.getElementById("toSearchResults");
+			var resultDiv = PowerUI.UI.document.getElementById("toSearchResults");
 			resultDiv.innerHTML = "";
 			
 			foreach(MapLabel m in search){
@@ -209,23 +210,23 @@ public class MapCameraControl : MonoBehaviour {
 				PowerUI.Element nEl = new PowerUI.Element("div");
 				nEl.className = "button searchResult";
 				nEl.textContent = ml.Label;
-				nEl.style.width = (UI.document.getElementById("toSearch").pixelWidth - 50) + "px";
+				nEl.style.width = (PowerUI.UI.document.getElementById("toSearch").pixelWidth - 50) + "px";
 				nEl.OnClick += delegate(PowerUI.UIEvent mouseEvent){
 					poiTo = ml;
 					ActiveScreen = UIName.Confirm;
-					UI.Variables["toLabel"] = ml.Label;
+					PowerUI.UI.Variables["toLabel"] = ml.Label;
 				};
 				resultDiv.AppendNewChild(nEl);
 			}
 		};
-		UI.document.getElementById("toSearch").OnKeyUp += trackedEvents["toListener"];
+		PowerUI.UI.document.getElementById("toSearch").OnKeyUp += trackedEvents["toListener"];
 		
 		//set up events for the confirm page
-		UI.document.getElementById("backToToButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+		PowerUI.UI.document.getElementById("backToToButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.WhereTo;
 		};
 		
-		UI.document.getElementById("goButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+		PowerUI.UI.document.getElementById("goButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.Map;
 			resetGUI();
 			startNavigation();
@@ -233,12 +234,12 @@ public class MapCameraControl : MonoBehaviour {
 	}
 	
 	void resetGUI(){
-		var reses = UI.document.getElementsByClassName("searchResults");
+		var reses = PowerUI.UI.document.getElementsByClassName("searchResults");
 		foreach (var r in reses){
 			r.innerHTML = "";
 		}
 		
-		var inps = UI.document.getElementsByClassName("searchBoxInput");
+		var inps = PowerUI.UI.document.getElementsByClassName("searchBoxInput");
 		foreach (var i in inps){
 			i.value = "";
 		}
@@ -263,11 +264,11 @@ public class MapCameraControl : MonoBehaviour {
 	}
 
 	void showScreen(UIName id){
-		UI.document.getElementById(id.ToString()).style.display = "block";
+		PowerUI.UI.document.getElementById(id.ToString()).style.display = "block";
 	}
 
 	void hideScreen(UIName id){
-		UI.document.getElementById(id.ToString()).style.display = "none";
+		PowerUI.UI.document.getElementById(id.ToString()).style.display = "none";
 	}
 	
 	void instructionsGUI(){
@@ -294,7 +295,7 @@ public class MapCameraControl : MonoBehaviour {
 
 		string distanceStr = "";
 		string coordsStr = "";
-		string turnStr = "";
+		//string turnStr = "";
 		string thenStr = "";
 		string finishedStr = "You have reached your destination";
 
@@ -518,7 +519,7 @@ public class MapCameraControl : MonoBehaviour {
 			return;
 		}
 
-		if (direction == null || Vector3.Distance(centralCube.position, mapMaker.LinePoints[instructionsPassed+1]) < 2f * speed){
+		if (Vector3.Distance(centralCube.position, mapMaker.LinePoints[instructionsPassed+1]) < 2f * speed){
 			instructionsPassed = (instructionsPassed + 1) % (mapMaker.LinePoints.Length - 1);
 			direction = (mapMaker.LinePoints[instructionsPassed + 1] - mapMaker.LinePoints[instructionsPassed]).normalized;
 			centralCube.position = mapMaker.LinePoints[instructionsPassed];
@@ -527,7 +528,7 @@ public class MapCameraControl : MonoBehaviour {
 
 		float distance = Vector3.Distance(centralCube.position, mapMaker.PathPoints[pointsPassed+1]);
 
-		if (direction == null || distance < speed || pDistance < distance){
+		if (distance < speed || pDistance < distance){
 			distance = 10000f;
 			finishStretch();
 		}
@@ -568,7 +569,7 @@ public class MapCameraControl : MonoBehaviour {
 	}
 
 	void moveToView(Vector3 a, Vector3 b){
-		Vector2 center = new Vector2((a.x + b.x)/2f, (a.y + b.y)/2f);
+		//Vector2 center = new Vector2((a.x + b.x)/2f, (a.y + b.y)/2f);
 		float maxDistance = Vector3.Distance(a, b) + 15;
 
 		bool usingHeight = Mathf.Abs(a.x - b.x)/Mathf.Abs(a.y - b.y) > ((0f + Screen.width) / (0f + Screen.height));

@@ -100,7 +100,7 @@ namespace PowerUI{
 				Input.MouseOn(HitElement,mouseEvent);
 			}else{
 				// Nope - Do the mouseover event here with the WorldUI:
-				OnWorldUI.document.html.RunMouseOver(mouseEvent);
+				OnWorldUI.document.RunMouseMove(mouseEvent);
 			}
 			
 		}

@@ -1,4 +1,9 @@
-<div style='position:fixed;height:100%;width:100%;background:url(background.png);'></div>
+<!-- Background (The blue noise part - PowerUI is actually transparent) -->
+<div style='position:fixed;height:100%;width:100%;background:url(noise-background.png);'></div>
+
+<!-- The PowerUI logo in the middle of the screen. -->
+<div style='background:url(powerUI-logo.png) no-repeat;background-position:center;height:100%;position:fixed;'></div>
+
 
 <style type='text/css'>
 .padded{
@@ -12,8 +17,13 @@ body{
 </style>
 
 <div class='padded'>
-	<b><u>Form Examples</u></b>
-	<br><br>
+	<b>
+		<u>
+			Form Examples
+		</u>
+	</b>
+	<br>
+	<br>
 	Forms can be used to gather information from the player.
 	<br>
 	They can be submitted to a nitro function, a C# function or to a url which in turn can handle them in a custom way if it wants to.
@@ -24,9 +34,14 @@ body{
 		<input type='radio' name='exampleVisible' onchange='ChangeExample' value='2'/> Web Example    
 		<input type='radio' name='exampleVisible' onchange='ChangeExample' value='3'/> C# Example
 	</form>
-	<br><br>
+	<br>
+	<br>
 	<div id='nitroExample'>
-		<b><u>Nitro Example</u></b>
+		<b>
+			<u>
+				Nitro Example
+			</u>
+		</b>
 		<br>
 		<br>
 		<form onsubmit='HandleWithNitro'>
@@ -55,7 +70,9 @@ body{
 			</select>
 			<br>
 			<br>
-			<b>A story about you..</b>
+			<b>
+				A story about you..
+			</b>
 			<br>
 			<textarea name='myBio'></textarea>
 			<br>
@@ -63,8 +80,13 @@ body{
 			<input type='submit' value='Send!'/> <span id='nitroMessage'></span>
 		</form>
 	</div>
+	
 	<div id='webExample' style='display:none;'>
-		<b><u>Web Example</u></b>
+		<b>
+			<u>
+				Web Example
+			</u>
+		</b>
 		<br>
 		<br>
 		The following form is submitted to a website for processing. Note that this webpage is for <i><b>example use only</b></i> and doesn't record your input.
@@ -80,8 +102,13 @@ body{
 			<input type='submit' value='Send!' id='webSubmitButton'/> <span id='webMessage'></span>
 		</form>
 	</div>
+	
 	<div id='csExample' style='display:none;'>
-		<b><u>C# Example</u></b>
+		<b>
+			<u>
+				C# Example
+			</u>
+		</b>
 		<br>
 		Alternative to Nitro. You can call any C# function from within Nitro too, but this avoids Nitro all together. See FormExampleHandler.cs.
 		<br>

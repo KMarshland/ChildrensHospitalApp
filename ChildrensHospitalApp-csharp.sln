@@ -1,8 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2008
 
-Project("{BAE0D0E8-C269-EE93-A5A5-F213DFB088DE}") = "ChildrensHospitalApp", "Assembly-CSharp-firstpass-vs.csproj", "{391B820A-FBAC-41E7-C300-F5AA9A4844C7}"
-EndProject
 Project("{BAE0D0E8-C269-EE93-A5A5-F213DFB088DE}") = "ChildrensHospitalApp", "Assembly-CSharp-vs.csproj", "{0090E028-FEF1-DE8A-F6A1-DD6A1BE59A1C}"
 EndProject
 Project("{BAE0D0E8-C269-EE93-A5A5-F213DFB088DE}") = "ChildrensHospitalApp", "Assembly-CSharp-Editor-vs.csproj", "{2BFE6849-977B-9C15-53A0-B18362B50C50}"
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{391B820A-FBAC-41E7-C300-F5AA9A4844C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{391B820A-FBAC-41E7-C300-F5AA9A4844C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{391B820A-FBAC-41E7-C300-F5AA9A4844C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{391B820A-FBAC-41E7-C300-F5AA9A4844C7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0090E028-FEF1-DE8A-F6A1-DD6A1BE59A1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0090E028-FEF1-DE8A-F6A1-DD6A1BE59A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0090E028-FEF1-DE8A-F6A1-DD6A1BE59A1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -29,7 +23,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																																																																																																																																																																																			GlobalSection(MonoDevelopProperties) = preSolution
+																																																																																																																																																																																																																									GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1

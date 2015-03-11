@@ -51,12 +51,16 @@ namespace PowerUI{
 		public ScrollTabTag ScrollTab;
 		/// <summary>The maximum length of text in this box.</summary>
 		public int MaxLength=int.MaxValue;
-		
+		/// <summary>Set this true in an overriding class to receive scrolling progress. See OnScrolled.</summary>
+		public bool DivertOutput;
 		
 		public InputTag(){
 			// Make sure this tag is focusable:
 			IsFocusable=true;
 		}
+		
+		/// <summary>Used by e.g. sliders. This receives the scrolling progress if DivertOutput is true.</summary>
+		public virtual void OnScrolled(float progress){}
 		
 		public override string[] GetTags(){
 			return new string[]{"input"};
@@ -131,12 +135,34 @@ namespace PowerUI{
 				TargetName=Element["target"];
 				TargetElement=null;
 				return true;
+			
 			}else if(property=="checked"){
-				if(string.IsNullOrEmpty(Element["checked"])){
-					Unselect();
-				}else{
+				
+				// Get the checked state:
+				string state=Element["checked"];
+				
+				// Awkwardly, null/ empty is checked.
+				// 0 or false are not checked, anything else is!
+				
+				if( string.IsNullOrEmpty(state) ){
+					
 					Select();
+					
+				}else{
+					state=state.ToLower().Trim();
+					
+					if(state=="0" || state=="false"){
+						
+						Unselect();
+						
+					}else{
+						
+						Select();
+						
+					}
+					
 				}
+				
 				RequestLayout();
 				return true;
 			}else if(property=="value"){
@@ -168,7 +194,7 @@ namespace PowerUI{
 			Checked=false;
 			
 			// Clear checked:
-			Element["checked"]=null;
+			Element["checked"]="0";
 			
 			if(Type==InputType.Checkbox){
 				SetValue(null);
@@ -190,27 +216,41 @@ namespace PowerUI{
 			if(Type==InputType.Radio){
 				// Firstly, unselect all other radio elements with this same name:
 				string name=Element["name"];
+				
 				if(Element.form!=null){
+					
 					List<Element> allInputs=Element.form.GetAllInputs();
+					
 					foreach(Element element in allInputs){
 						if(element==Element){
 							// Skip this element
 							continue;
 						}
+						
 						if(element["type"]=="radio"){
 							// Great, got one - same name?
+							
 							if(element["name"]==name){
 								// Yep; unselect it.
 								((InputTag)(element.Handler)).Unselect();
 							}
+							
 						}
+						
 					}
+					
 				}
+				
 				Element.Run("onchange");
+				
+				Element.innerHTML="<div style='width:60%;height:60%;background:#ffffff;border-radius:4px;'></div>";
+				
 			}else if(Type==InputType.Checkbox){
 				SetValue("1");
+				
+				Element.innerHTML="x";
 			}
-			Element.innerHTML="x";
+			
 		}
 		
 		public override void OnTagLoaded(){
@@ -225,6 +265,22 @@ namespace PowerUI{
 		public void ScrollBy(int pixels){
 			if(ScrollTab!=null){
 				ScrollTab.ScrollBy(pixels);
+			}
+		}
+		
+		/// <summary>Scrolls a scrollbar to the given location in pixels.</summary>
+		/// <param name="location">The number of pixels the scrollbar tab will try to locate at.</param>
+		public void ScrollTo(int location){
+			if(ScrollTab!=null){
+				ScrollTab.ScrollTo(location,true);
+			}
+		}
+		
+		/// <summary>Scrolls a scrollbar to the given 0-1 location along the bar.</summary>
+		/// <param name="position">The 0-1 location along the bar that the tab will locate at.</param>
+		public void ScrollTo(float position){
+			if(ScrollTab!=null){
+				ScrollTab.ScrollTo(position,true);
 			}
 		}
 		
@@ -255,13 +311,17 @@ namespace PowerUI{
 		}
 		
 		/// <summary>Recalculates the tab size of a scroll bar.</summary>
-		public void RecalculateTab(){
+		public virtual void RecalculateTab(){
 			if(ScrollTab==null){
-				Element scrollTab=Element.childNodes[1];
-				if(scrollTab!=null){
-					ScrollTab=((ScrollTabTag)scrollTab.Handler);
+				if(Element.childNodes.Count>1){
+					Element scrollTab=Element.childNodes[1];
+					
+					if(scrollTab!=null){
+						ScrollTab=((ScrollTabTag)scrollTab.Handler);
+					}
 				}
 			}
+			
 			if(ScrollTab!=null){
 				
 				Element target=GetTarget();
@@ -285,7 +345,7 @@ namespace PowerUI{
 					// Hide the bar by directly setting it's display style if the whole thing is visible - i.e. visible = 1(00%).
 					ComputedStyle barStyle=Element.Style.Computed;
 					if(visible==1f){
-						barStyle.Display=DisplayType.None;
+						barStyle.DisplayNone();
 					}else if(barStyle.Display==DisplayType.None){
 						// Make it visible again:
 						barStyle.Display=DisplayType.InlineBlock;
@@ -603,8 +663,10 @@ namespace PowerUI{
 			if(Element.childNodes.Count>1){
 				// Note: If it's equal to 1, ele[0] is the cursor.
 				TextElement text=(TextElement)(Element.childNodes[0]);
+				int index=CursorIndex;
+				
 				if(text!=null){
-					Vector2 fullPosition=text.GetPosition(CursorIndex);
+					Vector2 fullPosition=text.GetPosition(ref index);
 					position=fullPosition.x;
 				}
 			}
@@ -634,7 +696,7 @@ namespace PowerUI{
 			}
 			// Add a cursor.
 			Element.appendInnerHTML("<div class='cursor'></div>");
-			Cursor=Element.getElementWithProperty("class","cursor");
+			Cursor=Element.getElementByAttribute("class","cursor");
 			CursorIndex=0;
 		}
 		
@@ -697,6 +759,38 @@ namespace PowerUI{
 			clickEvent.stopPropagation();
 			
 			return true;
+		}
+		
+	}
+	
+	
+	public partial class Element{
+		
+		
+		/// <summary>Gets or sets the value of this element. Input/Select elements only.</summary>
+		public string value{
+			get{
+				if(Tag=="select"){
+					return ((SelectTag)Handler).GetValue();
+				}
+				return this["value"];
+			}
+			set{
+				this["value"]=value;
+			}
+		}
+		
+		/// <summary>Gets or sets the value as html for this element. Input/Select elements only.</summary>
+		public string content{
+			get{
+				if(Tag=="select"){
+					return ((SelectTag)Handler).GetValue();
+				}
+				return this["content"];
+			}
+			set{
+				this["content"]=value;
+			}
 		}
 		
 	}

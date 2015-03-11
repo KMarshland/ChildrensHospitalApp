@@ -1,18 +1,64 @@
-<div style='position:fixed;height:100%;width:100%;background:url(background.png);'></div>
 
-<div style='background:#fff;border:3px solid #000000;border-radius:70px 30px 30px 30px;width:300px;padding:20px;color:#000000;margin:auto;'>
-	<center>
-		<u>Welcome to PowerUI!</u><br><br>
-		<img src='anImage.png'/>
+<!-- Time for a little CSS! -->
+<style type='text/css'>
+
+.background-noise{
+	
+	position:fixed;
+	height:100%;
+	width:100%;
+	background:url(noise-background.png);
+	
+}
+
+#content-box{
+	
+	background:#e7e8ee;
+	border:6px solid #cccccc;
+	border-radius:70px 30px 70px 30px;
+	width:300px;
+	padding:40px;
+	text-align:justify;
+	color:#000000;
+	margin-top:auto;
+	margin-bottom:auto;
+	left:10%;
+	
+}
+
+</style>
+
+
+<!-- Background (The blue noise part - PowerUI is actually transparent). Gets its style from the CSS above. -->
+<div class='background-noise'></div>
+
+<!-- The PowerUI logo off to the right. We're using direct style here. -->
+<div style='vertical-align:middle;right:10%;width:140px;height:100%;position:fixed;'>
+	
+	<!-- The logo itself. -->
+	<img src='powerUI-logo.png'/>
+
+</div>
+
+<!-- The rounded box containing the welcome info. Gets its style from the CSS above. -->
+<div id='content-box'>
+		<b>Welcome to PowerUI!</b>
 		<br>
 		<br>
-		Check out the .html file called Basics sitting alongside this scene in your project. It's attached to a "PowerUIManager" component on a gameobject called PowerUI-Example.
-		<br><br>
-			<a href=scene://NitroExample/>Click here</a> to go to the Nitro (Javascript-like) example. 
+		The HTML for this example is in a file called Basics.html sitting alongside this scene in your project.
 		<br>
 		<br>
-			<i>For this link to work, the Nitro Example scene must be added to your build settings.</i>
+		<b>To add a UI to a new scene..</b>
+		<br>
+		Go to GameObject &gt; Create Other &gt; Simple Main UI. This creates a gameobject which you can attach a .HTML file to.
 		<br>
 		<br>
-	</center>
+		<b>To quickly make a .HTML file..</b>
+		<br>
+		Right click in your project and go to PowerUI &gt; New HTML File.
+		<br>
+		<br>
+		<b>Need help? No problem!</b>
+		<br>
+		PowerUI can do a vast amount of stuff so make sure you check out our <a href='http://powerui.kulestar.com/getting-started/' target='_blank'>help guides</a> or if you're stuck please do get in touch!
 </div>

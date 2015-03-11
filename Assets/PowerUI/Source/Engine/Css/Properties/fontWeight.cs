@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 
 
 namespace PowerUI.Css.Properties{
@@ -41,10 +40,14 @@ namespace PowerUI.Css.Properties{
 			}
 			
 			// Apply the property:
-			if(value==null){
-				text.Bold=false;
+			if(value==null || value.Text=="normal"){
+				text.Weight=400;
+			}else if(value.Text=="bold"){
+				text.Weight=700;
+			}else if(value.PX!=0){
+				text.Weight=value.PX;
 			}else{
-				text.Bold=(value.Text=="bold");
+				text.Weight=400;
 			}
 			
 			// Apply the changes:

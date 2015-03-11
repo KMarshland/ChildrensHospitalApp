@@ -34,6 +34,10 @@ namespace Nitro{
 		public ArrayFragment(TypeFragment arrayType,BracketFragment defaults){
 			ArrayType=arrayType;
 			Defaults=defaults;
+			
+			// Add them as children such that code tree iterators can visit them:
+			AddChild(Defaults);
+			
 		}
 		
 		public override CompiledFragment Compile(CompiledMethod parent){
@@ -42,9 +46,11 @@ namespace Nitro{
 		
 		public override string ToString(){
 			string result="new "+ArrayType.ToString();
+			
 			if(Defaults!=null){
 				result+=Defaults.ToString();
 			}
+			
 			return result;
 		}
 		

@@ -39,7 +39,7 @@ namespace Nitro{
 			return ParameterType;
 		}
 		
-		public override void OutputSet(NitroIL into){
+		public override void OutputSet(NitroIL into,Type setting){
 			into.Emit(OpCodes.Starg,Builder.Position);
 		}
 		

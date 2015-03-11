@@ -9,6 +9,10 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+	#define MOBILE
+#endif
+
 using System;
 using UnityEngine;
 using System.Collections;
@@ -33,6 +37,8 @@ namespace PowerUI{
 		public static int MouseY;
 		/// <summary>The currently focused element.</summary>
 		public static Element Focused;
+		/// <summary>The currently focusing element.</summary>
+		public static Element Focusing;
 		/// <summary>The position of the mouse in pixels from the top left corner.</summary>
 		public static Vector2 MousePosition;
 		/// <summary>If WorldUI's receive input, a ray must be fired from CameraFor3DInput to attempt input.
@@ -57,7 +63,7 @@ namespace PowerUI{
 		/// More than one because it's possible to click on a whole bunch of elements at the same time.</summary>
 		public static List<Element> LastMouseDown=new List<Element>();
 		
-		#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
+		#if MOBILE
 		/// <summary>True if autocorrect should be enabled.</summary>
 		public static bool Autocorrect;
 		/// <summary>This flag prevents mouseover from firing when a finger is released from the screen.</summary>
@@ -77,7 +83,7 @@ namespace PowerUI{
 			}
 		}
 		
-		#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
+		#if MOBILE
 		/// <summary>Handles if the mobile keyboard should get displayed/hidden.</summary>
 		/// <param name="mode">The state that defines how the keyboard should open.</param>
 		public static bool HandleKeyboard(KeyboardMode mode){
@@ -96,7 +102,7 @@ namespace PowerUI{
 		}
 		#endif
 		
-		#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
+		#if MOBILE
 		/// <summary>The mobile keyboard text.</summary>
 		public static string KeyboardText{
 			get{
@@ -175,7 +181,7 @@ namespace PowerUI{
 			// Handle MouseMove:
 			if(Focused!=null){
 				
-				#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
+				#if MOBILE
 					// Handle mobile keyboard:
 					if(MobileKeyboard!=null && MobileKeyboard.active){
 						// Did the text change? If so, update the value of Focused.
@@ -238,9 +244,11 @@ namespace PowerUI{
 				return false;
 			}
 			
-			if(!Focused.isInDocument){
+			if(!Focused.isRooted){
+				
 				// It got removed.
 				Focused.Unfocus();
+				
 				return false;
 			}
 			
@@ -261,7 +269,7 @@ namespace PowerUI{
 				Focused.Unfocus();
 			}
 			
-			#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
+			#if MOBILE
 			MouseoverActive=true;
 			#endif
 			
@@ -281,7 +289,7 @@ namespace PowerUI{
 				Focused.Handler.OnClick(uiEvent);
 			}
 			
-			#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
+			#if MOBILE
 			MouseoverActive=false;
 			ClearMouseOvers(uiEvent,0);
 			#endif
@@ -423,7 +431,7 @@ namespace PowerUI{
 				return false;
 			}
 			
-			#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
+			#if MOBILE
 			if(!MouseoverActive){
 				return false;
 			}
@@ -435,19 +443,26 @@ namespace PowerUI{
 			int invertedY=ScreenInfo.ScreenY-1-y;
 			
 			if(Mode==InputMode.Screen){
-				result=UI.document.html.RunMouseOver(mouseEvent);
+				
+				// Run the mouse over on the main UI:
+				result=UI.document.RunMouseMove(mouseEvent);
+				
 			}else if(Mode==InputMode.Physics){
 				// Screen physics cast here. 
 				RaycastHit uiHit;
+				
 				if(Physics.Raycast(UI.GUICamera.ScreenPointToRay(new Vector2(x,invertedY)),out uiHit)){
 					HitResult hit=HandleUIHit(uiHit);
 					result=hit.Success;
+					
 					if(result){
 						// Great! As this is the main UI, We have a HitElement available.
 						// Start from that and bubble the event to the root.
 						MouseOn(hit.HitElement,mouseEvent);
 					}
+					
 				}
+				
 			}
 			
 			if(!result && WorldInputMode!=InputMode.None){

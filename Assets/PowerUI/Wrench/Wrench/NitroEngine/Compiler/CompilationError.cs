@@ -21,21 +21,24 @@ namespace Nitro{
 	public class CompilationException:Exception{
 		
 		/// <summary>The line number the error occurred on.</summary>
-		public int LineNumber;
+		public int LineNumber=-1;
 		
 		/// <summary>Creates a new compilation exception with the given line number the error occured on and a message to show.</summary>
 		/// <param name="lineNumber">The line number the error occured on.</param>
 		/// <param name="errorMessage">A message stating why this error has occured.</param>
-		public CompilationException(int lineNumber,string errorMessage):base(errorMessage){
-			LineNumber=lineNumber;	
+		public CompilationException(string errorMessage):base(errorMessage){	
 		}
 		
 		public override string ToString(){
 			// Intentionally hides the full stack trace.
-			string line=LineNumber.ToString();
+			string line;
+			
 			if(LineNumber==-1){
 				line="Unknown";
+			}else{
+				line=LineNumber.ToString();
 			}
+			
 			return "Line "+line+": "+Message;
 		}
 		

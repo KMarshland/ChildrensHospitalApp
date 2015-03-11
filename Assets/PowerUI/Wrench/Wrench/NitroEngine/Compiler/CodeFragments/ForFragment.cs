@@ -39,6 +39,11 @@ namespace Nitro{
 			Value=name;
 			Parameters=new BracketFragment(sr);
 			Body=new BracketFragment(sr);
+			
+			// Add them as children such that code tree iterators can visit them:
+			AddChild(Parameters);
+			AddChild(Body);
+			
 		}
 		
 		public override AddResult AddTo(CodeFragment to,CodeLexer sr){

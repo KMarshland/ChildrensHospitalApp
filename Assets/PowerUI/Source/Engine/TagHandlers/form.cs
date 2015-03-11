@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -186,6 +185,55 @@ namespace PowerUI{
 				}
 			}
 		}
+		
+	}
+	
+	
+	public partial class Element{
+		
+		
+		/// <summary>Internal use only. <see cref="PowerUI.Element.formElement"/>.
+		/// Scans up the DOM to find the parent form element.</summary>
+		/// <returns>The parent form element, if found.</returns>
+		public Element GetForm(){
+			if(Tag=="form"){
+				return this;
+			}
+			if(ParentNode==null){
+				return null;
+			}
+			return ParentNode.GetForm();
+		}
+		
+		/// <summary>Submits the form this element is in.</summary>
+		public void submit(){
+			FormTag elementForm=form;
+			
+			if(elementForm!=null){
+				elementForm.submit();
+			}
+		}
+		
+		/// <summary>Scans up the DOM to find the parent form element.
+		/// Note: <see cref="PowerUI.Element.form"/> may be more useful than the element iself.</summary>
+		public Element formElement{
+			get{
+				return GetForm();
+			}
+		}
+		
+		/// <summary>Scans up the DOM to find the parent form element's handler.
+		/// The object returned provides useful methods such as <see cref="PowerUI.FormTag.submit"/>. </summary>
+		public FormTag form{
+			get{
+				Element formElement=GetForm();
+				if(formElement==null){
+					return null;
+				}
+				return ((FormTag)(formElement.Handler));
+			}
+		}
+		
 		
 	}
 	

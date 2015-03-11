@@ -14,6 +14,8 @@ using System.Collections;
 using System.Collections.Generic;
 using PowerUI.Css;
 using Wrench;
+using System.Text;
+
 
 namespace PowerUI{
 
@@ -35,14 +37,17 @@ namespace PowerUI{
 		public override void OnParseContent(MLLexer lexer){
 			lexer.Literal=true;
 			// Keep reading until we hit </style>.
-			string styleText="";
+			StringBuilder styleText=new StringBuilder();
+			
 			while(!AtEnd(lexer)){
-				styleText+=lexer.Read();
+				styleText.Append(lexer.Read());
 			}
+			
 			// Great, good stuff. Add to the document's style:
-			if(styleText!=""){
-				Element.Document.AddStyle(styleText);
+			if(styleText.Length!=0){
+				Element.Document.AddStyle(styleText.ToString());
 			}
+			
 			lexer.Literal=false;
 		}
 		

@@ -23,6 +23,8 @@ namespace Wrench{
 		
 		/// <summary>Set this to true if the lexer should be in literal mode. This prevents it stripping any junk such as tabs.</summary>
 		public bool Literal;
+		/// <summary>The current line number.</summary>
+		public int LineNumber=1;
 		/// <summary>True if the lexer read some junk such as tabs from the string.</summary>
 		public bool DidReadJunk;
 		
@@ -63,6 +65,10 @@ namespace Wrench{
 			char read=base.Read();
 			DidReadJunk=false;
 			
+			if(read=='\n'){
+				LineNumber++;
+			}
+			
 			if(!Literal){
 				
 				if(Text.Whitespace==WhitespaceMode.Normal){
@@ -76,7 +82,12 @@ namespace Wrench{
 					DidReadJunk=true;
 				}
 			}
+			
 			return read;
+		}
+		
+		public override int GetLineNumber(){
+			return LineNumber;
 		}
 		
 		/// <summary>Call this to exit literal mode.</summary>
@@ -128,13 +139,29 @@ namespace Wrench{
 					return (c!=StringReader.NULL);
 				}
 				
-			}else if(c=='\n'||c=='\r'||c=='\t'){
+			}else if(c=='\t'){
+				Advance();
+				
+				return true;
+			}else if(c=='\n'){
 				Advance();
 				
 				if(Text.Whitespace==WhitespaceMode.Normal){
 					// Skip spaces on the newline.
 					SkipSpaces();
 				}
+				
+				LineNumber++;
+				
+				return true;
+			}else if(c=='\r'){
+				Advance();
+				
+				if(Text.Whitespace==WhitespaceMode.Normal){
+					// Skip spaces on the newline.
+					SkipSpaces();
+				}
+				
 				return true;
 			}
 			

@@ -38,6 +38,10 @@ namespace Nitro{
 		public ConstructorFragment(TypeFragment type,BracketFragment brackets){
 			NewType=type;
 			Brackets=brackets;
+			
+			// Add them as children such that code tree iterators can visit them:
+			AddChild(Brackets);
+			
 		}
 		
 		public override CompiledFragment Compile(CompiledMethod parent){
@@ -46,9 +50,11 @@ namespace Nitro{
 		
 		public override string ToString(){
 			string result="new "+NewType.ToString();
+			
 			if(Brackets!=null){
 				result+=Brackets.ToString();
 			}
+			
 			return result;
 		}
 		

@@ -23,6 +23,74 @@ namespace PowerUI.Css{
 
 	public class Value{
 		
+		/// <summary>Gets a colour from a hex HTML string.</summary>
+		public static Color GetColour(string valueText){
+			
+			if(valueText[0]=='#'){
+				valueText=valueText.Substring(1);
+			}
+			
+			float r;
+			float g;
+			float b;
+			float a;
+			GetColour(valueText,out r,out g,out b,out a);
+			
+			return new Color(r,g,b,a);
+			
+		}
+		
+		public static void GetColour(string valueText,out float r,out float g,out float b,out float a){
+			
+			int temp;
+			
+			if(valueText.Length==3){
+				// Shorthand hex colour, e.g. #f0f. Each character is essentially duplicated.
+				
+				// R:
+				int.TryParse(valueText.Substring(0,1),NumberStyles.HexNumber,null,out temp);
+				r=DoubleNibble(temp)/255f;
+				// G:
+				int.TryParse(valueText.Substring(1,1),NumberStyles.HexNumber,null,out temp);
+				g=DoubleNibble(temp)/255f;
+				// B:
+				int.TryParse(valueText.Substring(2,1),NumberStyles.HexNumber,null,out temp);
+				b=DoubleNibble(temp)/255f;
+				
+				a=1f;
+			}else{
+				// Full hex colour, possibly also including alpha.
+				
+				if(valueText.Length>=2){
+					int.TryParse(valueText.Substring(0,2),NumberStyles.HexNumber,null,out temp);
+					r=temp/255f;
+				}else{
+					r=0f;
+				}
+				
+				if(valueText.Length>=4){
+					int.TryParse(valueText.Substring(2,2),NumberStyles.HexNumber,null,out temp);
+					g=temp/255f;
+				}else{
+					g=0f;
+				}
+				
+				if(valueText.Length>=6){
+					int.TryParse(valueText.Substring(4,2),NumberStyles.HexNumber,null,out temp);
+					b=temp/255f;
+				}else{
+					b=0f;
+				}
+				
+				if(valueText.Length>=8){
+					int.TryParse(valueText.Substring(6,2),NumberStyles.HexNumber,null,out temp);
+					a=temp/255f;
+				}else{
+					a=1f;
+				}
+			}
+			
+		}
 		
 		public static int GetInnerIndex(ref string property){
 			int innerIndex=-1;
@@ -318,7 +386,8 @@ namespace PowerUI.Css{
 					bool useWidth=(Type==ValueType.Point); //x is first for a point.
 					
 					// Don't include padding in the value.
-					int padding=useWidth?computed.PaddingLeft+computed.PaddingRight:computed.PaddingTop+computed.PaddingBottom;
+					int paddingWidth=computed.PaddingLeft+computed.PaddingRight;
+					int paddingHeight=computed.PaddingTop+computed.PaddingBottom;
 					
 					// The cached fontsize if any of these use EM; Chances are more than one will.
 					int parentFontSize=-1;
@@ -327,18 +396,30 @@ namespace PowerUI.Css{
 						Value innerValue=InnerValues[i];
 						
 						if(innerValue.Type==ValueType.Em){
+							
 							if(parentFontSize==-1){
 								parentFontSize=ParentFontSize(parentStyle);
 							}
+							
 							innerValue.BakePX(parentFontSize);
 						}else{
 							// Whats the block size?
-							int value=useWidth?parentStyle.InnerWidth:parentStyle.InnerHeight;
-							// Bake a percentage based on the size:
-							innerValue.BakePX(value-padding);
+							
+							if(useWidth){
+								
+								innerValue.BakePX(parentStyle.InnerWidth-paddingWidth);
+							
+							}else{
+								
+								innerValue.BakePX(parentStyle.InnerHeight-paddingHeight);
+								
+							}
+							
 						}
+						
 						// And flip useWidth:
 						useWidth=!useWidth;
+						
 					}
 				
 				break;
@@ -375,7 +456,7 @@ namespace PowerUI.Css{
 			}
 			
 			if(style.Text!=null){
-				return style.Text.FontSize;
+				return (int)style.Text.FontSize;
 			}
 			
 			// Note that most of the following is actually the namespace; this is just a single static var.
@@ -587,48 +668,14 @@ namespace PowerUI.Css{
 						}
 						
 					}else{
-						int temp;
 						
 						if(valueText.Contains(" ")){
 							string[] pieces=valueText.Split(' ');
 							valueText=pieces[0];
 						}
 						
-						if(valueText.Length==3){
-							// Shorthand hex colour, e.g. #f0f. Each character is essentially duplicated.
-							
-							// R:
-							int.TryParse(valueText.Substring(0,1),NumberStyles.HexNumber,null,out temp);
-							r=DoubleNibble(temp)/255f;
-							// G:
-							int.TryParse(valueText.Substring(1,1),NumberStyles.HexNumber,null,out temp);
-							g=DoubleNibble(temp)/255f;
-							// B:
-							int.TryParse(valueText.Substring(2,1),NumberStyles.HexNumber,null,out temp);
-							b=DoubleNibble(temp)/255f;
-						}else{
-							// Full hex colour, possibly also including alpha.
-							
-							if(valueText.Length>=2){
-								int.TryParse(valueText.Substring(0,2),NumberStyles.HexNumber,null,out temp);
-								r=temp/255f;
-							}
-							
-							if(valueText.Length>=4){
-								int.TryParse(valueText.Substring(2,2),NumberStyles.HexNumber,null,out temp);
-								g=temp/255f;
-							}
-							
-							if(valueText.Length>=6){
-								int.TryParse(valueText.Substring(4,2),NumberStyles.HexNumber,null,out temp);
-								b=temp/255f;
-							}
-							
-							if(valueText.Length>=8){
-								int.TryParse(valueText.Substring(6,2),NumberStyles.HexNumber,null,out temp);
-								a=temp/255f;
-							}
-						}
+						GetColour(valueText,out r,out g,out b,out a);
+						
 					}
 					
 					SetInnerValues(4);
@@ -658,8 +705,30 @@ namespace PowerUI.Css{
 							// Attempt to parse it out:
 							int.TryParse(valueText.Replace("fpx",""),out PX);
 							
-						}else if(int.TryParse(valueText.Replace("px",""),out PX)){
-							PX=(int)(PX*ScreenInfo.ResolutionScale);
+						}else{
+							
+							string trimmed=valueText.Replace("px","");
+							
+							if(int.TryParse(trimmed,out PX)){
+								
+								// Apply resolution:
+								PX=(int)(PX*ScreenInfo.ResolutionScale);
+								
+							}else{
+								
+								// It's possibly a decimal.
+								
+								float decimalValue;
+								
+								if(float.TryParse(trimmed,out decimalValue)){
+									// It was a decimal.
+									
+									// Apply resolution:
+									PX=(int)(decimalValue * ScreenInfo.ResolutionScale);
+									
+								}
+								
+							}
 						}
 					}
 					
@@ -721,7 +790,7 @@ namespace PowerUI.Css{
 					}
 				break;
 				case ValueType.Boolean:
-					Boolean=(valueText=="1");
+					Boolean=(valueText=="1" || valueText=="true" || valueText=="on");
 				break;
 				case ValueType.Calc:
 					Calculation=new Calculation(valueText.Substring(5,valueText.Length-5-1));
@@ -811,7 +880,7 @@ namespace PowerUI.Css{
 		/// <summary>Duplicates the given nibble (4 bit number) and places the result alongside in the same byte.
 		/// E.g. c in hex becomes cc.</summary>
 		/// <param name="nibble">The nibble to duplicate.</param>
-		private int DoubleNibble(int nibble){
+		private static int DoubleNibble(int nibble){
 			return ((nibble<<4) | nibble);
 		}
 		

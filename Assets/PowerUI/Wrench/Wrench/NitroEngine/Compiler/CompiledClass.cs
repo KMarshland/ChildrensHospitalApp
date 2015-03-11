@@ -185,9 +185,11 @@ namespace Nitro{
 		/// <returns>A FieldInfo object if the field exists; null otherwise.</returns>
 		public FieldInfo GetField(string name){
 			FieldInfo fInfo=null;
+			
 			if(Fields.TryGetValue(name,out fInfo)){
 				return fInfo;
 			}
+			
 			return Builder.BaseType.GetField(name,BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
 		}
 		
@@ -200,72 +202,96 @@ namespace Nitro{
 			while(child!=null){
 				next=child.NextChild;
 				
-				if(child.IsParent()){
+				if(child.IsParent){
 					
 					if(child.GetType()==typeof(OperationFragment)){
-						// Is it private? Note that if it is, "private" is removed.
-						bool isPublic=!Modifiers.Check(child.FirstChild,"private");
 						
-						// Grab the property name:
-						CodeFragment propName=child.FirstChild;
-						
-						if(propName==null){
-							child.Error("This value must be followed by something.");
-						}
-						
-						if(propName.GetType()!=typeof(VariableFragment)){
-							propName.Error("Didn't recognise this as a property. Please note that all code you'd like to run immediately should be inside a function called Start, or in the constructor of a class.");
-						}
-						
-						VariableFragment vfrag=((VariableFragment)child.FirstChild);
-						
-						if(vfrag.IsKeyword()){
-							propName.Error("Can't use keywords as property names.");
-						}
-						
-						string Name=vfrag.Value;
-						
-						if(Fields.ContainsKey(Name)){
-							propName.Error("This property already exists in this class.");
-						}
-						
-						CodeFragment defaultValue=null;
-						
-						if(vfrag.NextChild==null){
-						}else if(vfrag.NextChild!=null&&!Types.IsTypeOf(vfrag.NextChild,typeof(OperatorFragment))){
-							// No type OR default, or the block straight after isn't : or =
-							propName.Error("Invalid property '"+Name+"' - missing a type or default value.");
-						}else{
+						try{
+							// Is it private? Note that if it is, "private" is removed.
+							bool isPublic=!Modifiers.Check(child.FirstChild,"private");
 							
-							OperatorFragment opFrag=(OperatorFragment)vfrag.NextChild;
-							// It must be a set otherwise it's invalid.
-							if(opFrag.Value==null||opFrag.Value.GetType()!=typeof(OperatorSet)){
-								propName.Error("Invalid default value provided for '"+Name+"'.");
+							// Grab the property name:
+							CodeFragment propName=child.FirstChild;
+							
+							if(propName==null){
+								child.Error("This value must be followed by something.");
 							}
 							
-							defaultValue=child;
+							if(propName.GetType()!=typeof(VariableFragment)){
+								child.Error("Didn't recognise this as a property. Please note that all code you'd like to run immediately should be inside a function called Start, or in the constructor of a class.");
+							}
+							
+							VariableFragment vfrag=((VariableFragment)child.FirstChild);
+							
+							// These are never local:
+							vfrag.AfterVar=false;
+							
+							string Name=vfrag.Value;
+							
+							if(vfrag.IsKeyword()){
+								child.Error("Can't use "+Name+" as a property because it's a keyword.");
+							}
+							
+							if(Fields.ContainsKey(Name)){
+								child.Error(Name+" has been defined twice.");
+							}
+							
+							CodeFragment defaultValue=null;
+							
+							if(vfrag.NextChild==null){
+							}else if(vfrag.NextChild!=null&&!Types.IsTypeOf(vfrag.NextChild,typeof(OperatorFragment))){
+								
+								// No type OR default, or the block straight after isn't : or =
+								child.Error(Name+" is missing a type or default value.");
+								
+							}else{
+								
+								OperatorFragment opFrag=(OperatorFragment)vfrag.NextChild;
+								
+								// It must be a set otherwise it's invalid.
+								if(opFrag.Value==null||opFrag.Value.GetType()!=typeof(OperatorSet)){
+									child.Error("Invalid default value provided for '"+Name+"'.");
+								}
+								
+								defaultValue=opFrag.NextChild;
+							}
+							
+							DefineField(Name,vfrag,isPublic,defaultValue);
+							
+							child.Remove();
+							
+							if(defaultValue!=null){
+								GetInit().CodeBlock.AddChild(child);
+							}
+						
+						}catch(CompilationException e){
+							
+							if(e.LineNumber==-1 && child!=null){
+								// Setup line number:
+								e.LineNumber=child.GetLineNumber();
+							}
+							
+							// Rethrow:
+							throw e;
+							
 						}
 						
-						DefineField(Name,vfrag,isPublic,ref defaultValue);
-						
-						child.Remove();
-						
-						if(defaultValue!=null){
-							GetInit().CodeBlock.AddChild(defaultValue);
-						}
 					}else{
 						FindProperties(child);
 					}
+					
 				}
+				
 				child=next;
 			}
+			
 		}
 		
 		/// <summary>Defines a new field on this class.</summary>
 		/// <param name="name">The name of the field.</param>
 		/// <param name="type">The type of the value held by this field.</param>
 		/// <returns>A new FieldBuilder.</returns>
-		protected virtual void DefineField(string name,VariableFragment nameFragment,bool isPublic,ref CodeFragment defaultValue){
+		protected virtual void DefineField(string name,VariableFragment nameFragment,bool isPublic,CodeFragment defaultValue){
 			
 			Type type=null;
 			
@@ -277,7 +303,17 @@ namespace Nitro{
 					nameFragment.Error(name+" has a type that was not recognised.");
 				}
 				
-			}else{
+			}else if(defaultValue!=null){
+				
+				// Try and compile it:
+				CompiledFragment frag=defaultValue.Compile(GetInit());
+				
+				// Get the output type:
+				type=frag.OutputType(out frag);
+				
+			}
+			
+			if(type==null){
 				nameFragment.Error(name+"'s type isn't given. Should be e.g. "+name+":String if it has no default value.");
 			}
 			
@@ -290,7 +326,7 @@ namespace Nitro{
 		private CompiledMethod GetStartMethod(){
 			MethodOverloads set=MakeOrFind("OnScriptReady",null);
 			if(set.Methods.Count==0){
-				set.AddMethod(new CompiledMethod(this,"OnScriptReady",null,new BracketFragment(),null,0,true));
+				set.AddMethod(new CompiledMethod(this,"OnScriptReady",null,new BracketFragment(),null,true));
 			}
 			CompiledMethod method=set.Methods[0];
 			method.GloballyScoped=true;
@@ -302,7 +338,7 @@ namespace Nitro{
 		private CompiledMethod GetInit(){
 			MethodOverloads set=MakeOrFind(".init",null);
 			if(set.Methods.Count==0){
-				set.AddMethod(new CompiledMethod(this,".init",null,new BracketFragment(),null,0,true));
+				set.AddMethod(new CompiledMethod(this,".init",null,new BracketFragment(),null,true));
 			}
 			return set.Methods[0];
 		}
@@ -313,32 +349,43 @@ namespace Nitro{
 			CodeFragment child=fragment.FirstChild;
 			while(child!=null){
 				CodeFragment next=child.NextChild;
-				if(child.IsParent()){
+				
+				if(child.IsParent){
+					
 					FindMethods(child);
-				}else if(child.GetType()==typeof(VariableFragment)){
+					
+				}
+				
+				try{
+				
+				if(child.GetType()==typeof(VariableFragment)){
+					
 					VariableFragment vfrag=((VariableFragment)child);
 					CodeFragment toRemove=null;
 					string Value=vfrag.Value;
+					
 					if(Value=="function"){
 						// Found a function.
 						bool isPublic;
 						Modifiers.Handle(vfrag,out isPublic);
 						
-						int line=vfrag.LineNumber;
 						// The return type could be on the function word (function:String{return "hey!";})
 						TypeFragment returnType=child.GivenType;
 						
 						toRemove=child;
 						child=child.NextChild;
+						
 						if(child==null){
 							fragment.Error("Keyword 'function' can't be used on its own.");
 						}
+						
 						toRemove.Remove();
 						string name="";
 						bool anonymous=false;
 						BracketFragment parameters=null;
 						
 						if(child.GetType()==typeof(MethodFragment)){
+							
 							MethodFragment method=(MethodFragment)child;
 							name=((VariableFragment)(method.MethodName)).Value;
 							parameters=method.Brackets;
@@ -346,19 +393,26 @@ namespace Nitro{
 							child=child.NextChild;
 							toRemove.Remove();
 							returnType=method.GivenType;
+							
 						}else if(child.GetType()==typeof(VariableFragment)){
+							
 							// Found the name
 							vfrag=(VariableFragment)child;
+							
 							if(vfrag.IsKeyword()){
 								vfrag.Error("Keywords cannot be used as function names ("+vfrag.Value+").");
 							}
+							
 							name=vfrag.Value;
+							
 							if(returnType==null){
 								returnType=child.GivenType;
 							}
+							
 							toRemove=child;
 							child=child.NextChild;
 							toRemove.Remove();
+							
 							if(child==null){
 								fragment.Error("Invalid function definition ("+name+"). All brackets are missing or arent valid.");
 							}
@@ -367,32 +421,57 @@ namespace Nitro{
 							anonymous=true;
 						}
 						
-						next=AddFoundMethod(fragment,child,name,anonymous,parameters,returnType,line,isPublic);
+						next=AddFoundMethod(fragment,child,name,anonymous,parameters,returnType,isPublic);
 						
 					}
+					
 				}else if(child.GetType()==typeof(MethodFragment)){
+					
 					// Looking for anonymous methods ( defined as function() )
 					MethodFragment method=(MethodFragment)child;
+					
 					if(method.MethodName.GetType()==typeof(VariableFragment)){
+						
 						VariableFragment methodName=((VariableFragment)(method.MethodName));
 						string name=methodName.Value;
+						
 						if(name=="function"){
+							
 							// Found an anonymous function, function():RETURN_TYPE{}.
 							// Note that function{}; is also possible and is handled above.
 							CodeFragment toRemove=child;
 							child=child.NextChild;
 							toRemove.Remove();
 							
-							next=AddFoundMethod(fragment,child,null,true,method.Brackets,method.GivenType,methodName.LineNumber,true);
+							next=AddFoundMethod(fragment,child,null,true,method.Brackets,method.GivenType,true);
+							
 						}else if(method.Brackets!=null){
+							
 							FindMethods(method.Brackets);
+							
 						}
+						
 					}else if(method.Brackets!=null){
 						FindMethods(method.Brackets);
 					}
+					
 				}
+				
+				}catch(CompilationException e){
+			
+					if(e.LineNumber==-1 && child!=null){
+						// Setup line number:
+						e.LineNumber=child.GetLineNumber();
+					}
+					
+					// Rethrow:
+					throw e;
+					
+				}
+				
 				child=next;
 			}
+			
 		}
 		
 		/// <summary>Adds a method that was found into this classes set of methods to compile.</summary>
@@ -402,10 +481,10 @@ namespace Nitro{
 		/// <param name="anonymous">True if this method is an anonymous one and requires a name.</param>
 		/// <param name="parameters">The set of parameters for this method.</param>
 		/// <param name="returnType">The type that this method returns.</param>
-		/// <param name="line">The line number of the method.</param>
 		/// <param name="isPublic">True if this is a public method; false for private.</param>
 		/// <returns>The first fragment following the method, if there is one.</returns>
-		protected virtual CodeFragment AddFoundMethod(CodeFragment fragment,CodeFragment body,string name,bool anonymous,BracketFragment parameters,TypeFragment returnType,int line,bool isPublic){
+		protected virtual CodeFragment AddFoundMethod(CodeFragment fragment,CodeFragment body,string name,bool anonymous,BracketFragment parameters,TypeFragment returnType,bool isPublic){
+			
 			if(body==null){
 				fragment.Error("Invalid function definition ("+name+"). The content block {} is missing or isnt valid.");
 			}
@@ -417,17 +496,21 @@ namespace Nitro{
 			
 			// The following is the explicit code block for this function:
 			BracketFragment codeBlock=(BracketFragment)body;
-			CompiledMethod cMethod=new CompiledMethod(this,name,parameters,codeBlock,returnType,line,isPublic);
+			CompiledMethod cMethod=new CompiledMethod(this,name,parameters,codeBlock,returnType,isPublic);
 			MethodOverloads set=MakeOrFind(name,cMethod.Builder.ReturnType);
 			CodeFragment next=body.NextChild;
+			
 			if(anonymous){
 				CodeFragment newChild=DynamicMethodCompiler.Compile(cMethod,name,set.ReturnType,new ThisOperation(cMethod));
 				newChild.AddAfter(body);
 			}
+			
 			body.Remove();
 			set.AddMethod(cMethod);
 			FindMethods(codeBlock);
+			
 			return next;
+			
 		}
 		
 	}

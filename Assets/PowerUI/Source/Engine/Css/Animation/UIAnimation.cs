@@ -93,6 +93,8 @@ namespace PowerUI{
 			return null;
 		}
 		
+		/// <summary>A custom data object.</summary>
+		public object Data;
 		/// <summary>True if this animation decelerates.</summary>
 		public bool Decelerate;
 		/// <summary>The total time in seconds that this animation lasts for.</summary>
@@ -232,7 +234,7 @@ namespace PowerUI{
 				CssProperty property=CssProperties.Get(key);
 				
 				if(property==null){
-					Wrench.Log.Add("Warning: CSS property '"+keyValue[0]+"' not found.");
+					Wrench.Log.Add("Warning: CSS property '"+keyValue[0]+"' not found during animate.");
 					continue;
 				}
 				
@@ -291,12 +293,15 @@ namespace PowerUI{
 				if(Done!=null){
 					Done.Run(this);
 				}
+				
 				if(OnComplete!=null){
 					OnComplete(this);
 				}
+				
 			}catch(Exception e){
 				Wrench.Log.Add("Error running animation OnDone method: "+e);
 			}
+			
 		}
 		
 		/// <summary>Starts animating the named property and target value. Must not be composite properties.

@@ -48,10 +48,51 @@ namespace PowerUI{
 			SerializedObject manager=new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
 			
 			// Grab the first property:
-			SerializedProperty property=manager.GetIterator();
+			#if UNITY_5
 			
-			// User layers start at 8:
-			int newLayerID=8;
+			SerializedProperty property=manager.FindProperty("layers");
+			
+			for(int i=8;i<property.arraySize;i++){
+				
+				// Get the entry:
+				SerializedProperty prop=property.GetArrayElementAtIndex(i);
+				
+				if(prop.stringValue==""){
+					
+					// Got an empty layer (ID i).
+					
+					if(EditorApplication.isPlaying){
+						
+						// Push to layer data:
+						if(LayersToAdd==null){
+							LayersToAdd=new List<EditorLayerData>();
+						}
+						
+						// Push it in there:
+						LayersToAdd.Add(new EditorLayerData(manager,prop,layerName,i,hideFromCameras));
+						
+						// Hook up an on state changed delegate now:
+						EditorApplication.playmodeStateChanged+=PlayModeStateChanged;
+						
+						if(hideFromCameras){
+							// Must also apply at runtime:
+							HideFromAllCameras(i);
+						}
+						
+					}else{
+						// Great - run immediately!
+						ApplyNewLayer(manager,prop,layerName,i,hideFromCameras);
+					}
+					
+					return i;
+					
+				}
+				
+			}
+			
+			#else
+			
+			SerializedProperty property=manager.GetIterator();
 			
 			// What's the last assigned layer?
 			while(property.Next(true)){
@@ -67,7 +108,7 @@ namespace PowerUI{
 					int layerID=LayerNumber(property.name);
 					
 					// Is it a builtin layer?
-					if(layerID>=newLayerID){
+					if(layerID>=8){
 						// Nope it's not - Is this layer actually empty?
 						
 						if(property.stringValue!=""){
@@ -76,7 +117,7 @@ namespace PowerUI{
 						}
 						
 						// Yes it is - grab the ID:
-						newLayerID=layerID;
+						int newLayerID=layerID;
 						
 						if(EditorApplication.isPlaying){
 							
@@ -107,6 +148,8 @@ namespace PowerUI{
 				}
 				
 			}
+			
+			#endif
 			
 			// No layers available!
 			return 0;

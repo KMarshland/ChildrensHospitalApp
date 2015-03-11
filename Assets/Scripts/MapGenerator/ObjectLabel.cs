@@ -16,6 +16,7 @@ public class ObjectLabel : MonoBehaviour {
 	{
 		thisTransform = transform;
 		cam = Camera.main;
+		camTransform = cam.transform;
 	}
 	
 	

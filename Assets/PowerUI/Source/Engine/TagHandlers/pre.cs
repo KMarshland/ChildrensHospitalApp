@@ -10,6 +10,7 @@
 //--------------------------------------
 
 using Wrench;
+using System.Text;
 
 
 namespace PowerUI{
@@ -31,7 +32,7 @@ namespace PowerUI{
 		public override void OnParseContent(MLLexer lexer){
 			lexer.Literal=true;
 			// Keep reading until we hit </pre>.
-			string text="";
+			StringBuilder text=new StringBuilder();
 			
 			while(!AtEnd(lexer)){
 				char read=lexer.Read();
@@ -43,22 +44,22 @@ namespace PowerUI{
 						continue;
 					}
 					
-					text+="<br>";
+					text.Append("<br>");
 				}else if(read=='<'){
-					text+="&gt;";
+					text.Append("&gt;");
 				}else if(read=='&'){
-					text+="&amp;";
+					text.Append("&amp;");
 				}else if(read=='\n'){
-					text+="<br>";
+					text.Append("<br>");
 				}else{
-					text+=read;
+					text.Append(read);
 				}
 				
 			}
 			
 			// Great, good stuff! Apply to its text content (literally):
-			if(text!=""){
-				Element.innerHTML=text;
+			if(text.Length!=0){
+				Element.innerHTML=text.ToString();
 			}
 			
 			lexer.Literal=false;
@@ -67,7 +68,7 @@ namespace PowerUI{
 		/// <summary>Checks if the given lexer has reached the end of the inline pre content.</summary>
 		/// <param name="lexer">The lexer to check if it's reached the &lt;/pre&gt; tag.</param>
 		/// <returns>True if the lexer has reached the end pre tag; false otherwise.</returns>
-		public virtual bool AtEnd(MLLexer lexer){
+		protected virtual bool AtEnd(MLLexer lexer){
 			// Three will do; we're certainly at the end by that point.
 			return (lexer.Peek()=='<'&&
 					lexer.Peek(1)=='/'&&

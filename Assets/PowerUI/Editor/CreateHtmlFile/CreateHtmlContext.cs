@@ -28,26 +28,43 @@ namespace PowerUI{
 		[MenuItem("Assets/PowerUI/New HTML File")]
 		public static void CreateHtmlFile(){
 			
-			// Grab the path:
-			string path=AssetDatabase.GetAssetPath(Selection.activeObject);
+			// Get the selection:
+			UnityEngine.Object[] assets=Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets);
 			
-			if(string.IsNullOrEmpty(path)){
-				return;
-			}
-			
-			if(!File.Exists(path+"/MyNewHtml.html")){
-				// Write a blank file:
-				File.WriteAllText(path+"/MyNewHtml.html","");
-			}else{
-				// Count until we hit one that doesn't exist.
-				int count=1;
+			foreach(UnityEngine.Object obj in assets){
 				
-				while(File.Exists(path+"/MyNewHtml-"+count+".html")){
-					count++;
+				// Grab the path:
+				string path=AssetDatabase.GetAssetPath(obj);
+				
+				if(string.IsNullOrEmpty(path)){
+					continue;
 				}
-				
-				// Write it out now:
-				File.WriteAllText(path+"/MyNewHtml-"+count+".html","");
+			
+				// Dir or file?
+				FileAttributes attribs=File.GetAttributes(path);
+
+				// Is it a directory?
+				if((attribs & FileAttributes.Directory)==FileAttributes.Directory){
+					
+					if(!File.Exists(path+"/MyNewHtml.html")){
+						// Write a blank file:
+						File.WriteAllText(path+"/MyNewHtml.html","");
+					}else{
+						// Count until we hit one that doesn't exist.
+						int count=1;
+						
+						while(File.Exists(path+"/MyNewHtml-"+count+".html")){
+							count++;
+						}
+						
+						// Write it out now:
+						File.WriteAllText(path+"/MyNewHtml-"+count+".html","");
+						
+					}
+					
+					break;
+					
+				}
 				
 			}
 			

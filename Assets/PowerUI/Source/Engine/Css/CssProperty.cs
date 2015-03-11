@@ -54,7 +54,7 @@ namespace PowerUI.Css{
 			
 		}
 		
-		/// <summary>Call this if the current property requies a background image object.</summary>
+		/// <summary>Call this if the current property requires a background image object.</summary>
 		public BackgroundImage GetBackground(ComputedStyle style){
 			
 			BackgroundImage image=style.BGImage;

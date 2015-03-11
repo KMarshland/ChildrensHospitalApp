@@ -22,13 +22,20 @@ namespace PowerUI{
 		
 		/// <summary>The path of the file to load.</summary>
 		public FilePath Path;
-		/// <summary>A text package for the actively loading image.</summary>
+		/// <summary>A text package for the actively loading text.</summary>
 		public TextPackage Text;
+		/// <summary>A data package for the actively loading raw data.</summary>
+		public DataPackage Data;
 		/// <summary>An image package for the actively loading image.</summary>
 		public ImagePackage Images;
 		/// <summary>Fast reference to the resources:// protocol handler. Could alternatively use FileProtocols.Get.</summary>
 		public FileProtocol Protocol;
 		
+		
+		public ResourcesProtocolCallback(DataPackage package,FilePath path){
+			Data=package;
+			Path=path;
+		}
 		
 		public ResourcesProtocolCallback(TextPackage package,FilePath path){
 			Text=package;
@@ -42,16 +49,21 @@ namespace PowerUI{
 		
 		public override void OnRun(){
 			
-			if(Images==null){
+			// Simply run it again - we know for sure we're on the main thread, so this can't go recursive.
+			
+			if(Text!=null){
 				
 				// This was a text callback.
-				// Simply run it again - we know for sure we're on the main thread, so this can't go recursive.
 				Protocol.OnGetText(Text,Path);
+			
+			}else if(Data!=null){
+				
+				// This was a data callback.
+				Protocol.OnGetData(Data,Path);
 				
 			}else{
 				
 				// This is an image callback.
-				// Simply run it again - we know for sure we're on the main thread, so this can't go recursive.
 				Protocol.OnGetGraphic(Images,Path);
 				
 			}

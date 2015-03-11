@@ -9,11 +9,16 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+	#define MOBILE
+#endif
+
 using System;
 using Wrench;
+using PowerUI;
 using PowerUI.Css;
-using UnityEngine;
 using UnityHttp;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -23,6 +28,7 @@ namespace PowerUI{
 	/// <summary>
 	/// Handles the http:// protocol.
 	/// Downloads files and text from the web and also handles web links.
+	/// Note that this protocol (and many others) have been designed to be removeable - just delete the file.
 	/// </summary>
 	
 	public class HttpProtocol:FileProtocol{
@@ -58,7 +64,7 @@ namespace PowerUI{
 		}
 		
 		public override string[] GetNames(){
-			return new string[]{"http","web","https"};
+			return new string[]{"http","web","https","ws"};
 		}
 		
 		public override void OnGetGraphic(ImagePackage package,FilePath path){
@@ -93,8 +99,35 @@ namespace PowerUI{
 		
 		public override void OnFollowLink(Element linkElement,FilePath path){
 			
-			// Resolve the link elements target:
-			Document targetDocument=ResolveTarget(linkElement);
+			// Grab the protocol:
+			string protocol=path.Protocol;
+			
+			// Is it actually a web one?
+			string[] names=GetNames();
+			
+			bool web=false;
+			
+			for(int i=0;i<names.Length;i++){
+				
+				if(protocol==names[i]){
+					
+					web=true;
+					break;
+					
+				}
+				
+			}
+			
+			Document targetDocument=null;
+			
+			if(web){
+				
+				// Otherwise it's e.g. an app link. No target there - always external.
+				
+				// Resolve the link elements target:
+				targetDocument=ResolveTarget(linkElement);
+				
+			}
 			
 			if(targetDocument==null){
 				
@@ -125,6 +158,7 @@ namespace PowerUI{
 				if(document.location!=null){
 					target=document.location.target;
 				}
+				
 			}
 			
 			// Null target is the same as _self.
@@ -269,6 +303,18 @@ namespace PowerUI{
 			
 		}
 		
+		public override void OnGetData(DataPackage package,FilePath path){
+			HttpRequest request=new HttpRequest(path.Url,GotDataResult);
+			request.ExtraData=package;
+			request.Send();
+		}
+		
+		private void GotDataResult(HttpRequest request){
+			DataPackage package=(DataPackage)request.ExtraData;
+			
+			package.GotData(request.Bytes,request.Error);
+		}
+		
 		private void GotTextResult(HttpRequest request){
 			TextPackage package=(TextPackage)request.ExtraData;
 			
@@ -297,7 +343,7 @@ namespace PowerUI{
 			if(type=="spa"){
 				// Animation
 				package.GotGraphic(new SPA(request.Url,request.Bytes));
-			#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+			#if !MOBILE
 			}else if(ContentType.IsVideo(type)){
 				// Video
 				package.GotGraphic(request.Video);
@@ -308,6 +354,28 @@ namespace PowerUI{
 			}else{
 				package.GotGraphic(request.Text);
 			}
+		}
+		
+	}
+	
+}
+
+namespace UnityHttp{
+	
+	public partial class HttpRequest{
+		
+		/// <summary>Caches the image in this HTTP request. Useful for preloading images with ajax.</summary>
+		public void CacheImage(){
+			
+			// Create a package:
+			ImagePackage package=new ImagePackage(Url,"");
+			
+			// Hook up the image:
+			package.Image=Image;
+			
+			// Cache it:
+			HttpProtocol.AddToCache(Url,package);
+			
 		}
 		
 	}

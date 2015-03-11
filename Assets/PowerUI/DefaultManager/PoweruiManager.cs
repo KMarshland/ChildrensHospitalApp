@@ -7,7 +7,7 @@ using PowerUI;
 /// a gameobject in the scene.
 /// </summary>
 
-public class PoweruiManager : MonoBehaviour {
+public class PoweruiManager : UnityEngine.MonoBehaviour {
 	
 	/// <summary>A File containing the html/css/nitro of your UI.</summary>
 	public TextAsset HtmlFile;
@@ -31,7 +31,7 @@ public class PoweruiManager : MonoBehaviour {
 			Debug.Log("Please provide a HTML file for your UI. "+
 				"If you're stuck, please see the Getting Started guide on the website (http://powerUI.kulestar.com/)"+
 				", in the GettingStarted folder, or feel free to contact us! We're always happy to help :)");
-				
+			
 		}else{
 			
 			// Write the html:
@@ -41,7 +41,7 @@ public class PoweruiManager : MonoBehaviour {
 		
 	}
 	
-	// OnDisable is called when the manager script component is disabled.
+	// OnDisable is called when the manager script component is disabled. You don't need this.
 	void OnDisable () {
 		UI.Destroy();
 	}

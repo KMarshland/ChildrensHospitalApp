@@ -9,10 +9,16 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+	#define MOBILE
+#endif
+
 using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Blaze;
+
 
 namespace PowerUI{
 	
@@ -24,7 +30,7 @@ namespace PowerUI{
 	/// such as animations, videos (pro only) and textures.
 	/// </summary>
 	
-	public class ImagePackage{
+	public class ImagePackage:AtlasEntity{
 		
 		/// <summary>The animation that is in use, if any.</summary>
 		public SPA SPAFile;
@@ -45,7 +51,7 @@ namespace PowerUI{
 		/// <summary>A custom data object for passing anything else when the callback runs.</summary>
 		public object ExtraData;
 		
-		#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+		#if !MOBILE
 		/// <summary>The video retrieved.</summary>
 		public MovieTexture Video;
 		#endif
@@ -105,12 +111,12 @@ namespace PowerUI{
 		public Material ImageMaterial{
 			get{
 				if(_VideoMaterial==null){
-					_VideoMaterial=new Material(Shader.Find("PowerUI Animation Shader"));
+					_VideoMaterial=new Material(SPA.IsolationShader);
 					if(Image!=null){
 						_VideoMaterial.SetTexture("_Sprite",Image);
 					}else if(DynamicImage!=null){
 						_VideoMaterial.SetTexture("_Sprite",DynamicImage.GetTexture());
-						#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+						#if !MOBILE
 					}else if(Video!=null){
 						_VideoMaterial.SetTexture("_Sprite",Video);
 						#endif
@@ -125,6 +131,49 @@ namespace PowerUI{
 			get{
 				return File.Url;
 			}
+		}
+		
+		public bool MultiThreadDraw(){
+			// When drawn to an atlas, the draw function can't be used on another thread.
+			return false;
+		}
+		
+		public void GetDimensionsOnAtlas(out int width,out int height){
+			
+			width=Width();
+			height=Height();
+			
+		}
+		
+		public bool DrawToAtlas(TextureAtlas atlas,AtlasLocation location){
+			
+			// Only ever called with a static image:
+			Color32[] pixelBlock=Image.GetPixels32();
+			
+			int index=0;
+			int atlasIndex=location.BottomLeftPixel();
+			
+			int height=Image.height;
+			int width=Image.width;
+			
+			// How many pixels must we add on to the end of the row to get to
+			// the start of the row above? This is simply the dimension of the atlas:
+			int rowDelta=atlas.Dimension;
+			
+			for(int h=0;h<height;h++){
+				
+				Array.Copy(pixelBlock,index,atlas.Pixels,atlasIndex,width);
+				index+=width;
+				atlasIndex+=rowDelta;
+				
+			}
+			
+			return true;
+			
+		}
+		
+		public int GetAtlasID(){
+			return Image.GetInstanceID();
 		}
 		
 		/// <summary>Sets up the filepath to the given url which may be relative to a given location.</summary>
@@ -224,7 +273,7 @@ namespace PowerUI{
 			ImageReady(this);
 		}
 		
-		#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+		#if !MOBILE
 		/// <summary>Called by the file handler when a video was retrieved successfully.</summary>
 		/// <param name="video">The video received.</param>
 		public void GotGraphic(MovieTexture movie){
@@ -263,7 +312,7 @@ namespace PowerUI{
 			// Clear any animation:
 			GoingOffDisplay();
 			Error=null;
-			#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+			#if !MOBILE
 			Video=null;
 			#endif
 			Image=null;
@@ -277,7 +326,7 @@ namespace PowerUI{
 		/// <summary>Checks if this package contains something loaded and useable.</summary>
 		/// <returns>True if there is a useable graphic in this package.</returns>
 		public bool Loaded(){
-			#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+			#if !MOBILE
 			return (DynamicImage!=null||Image!=null||SPAFile!=null||Video!=null);
 			#else
 			return (DynamicImage!=null||Image!=null||SPAFile!=null);
@@ -293,7 +342,7 @@ namespace PowerUI{
 			}else if(Animated){
 				// We want the width of a frame:
 				return SPAFile.FrameWidth;
-			#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+			#if !MOBILE
 			}else if(IsVideo){
 				return Video.width;
 			#endif
@@ -311,7 +360,7 @@ namespace PowerUI{
 			}else if(Animated){
 				// We want the height of a frame:
 				return SPAFile.FrameHeight;
-			#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+			#if !MOBILE
 			}else if(IsVideo){
 				return Video.height;
 			#endif

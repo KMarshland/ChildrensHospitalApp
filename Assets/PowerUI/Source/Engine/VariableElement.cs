@@ -133,6 +133,12 @@ namespace PowerUI{
 			return "&"+Name+";";
 		}
 		
+		public override void ToString(System.Text.StringBuilder builder){
+			builder.Append("&");
+			builder.Append(Name);
+			builder.Append(";");
+		}
+		
 	}
 	
 }

@@ -69,9 +69,9 @@ namespace Nitro{
 		
 		/// <summary>Compiles the parameter block for all methods in this set.</summary>
 		public void CompileParameters(){
-			foreach(CompiledMethod method in Methods){
+			/*foreach(CompiledMethod method in Methods){
 				method.ParseParameters();
-			}
+			}*/
 		}
 		
 		/// <summary>Compiles the body of all methods in this set.</summary>
@@ -93,7 +93,7 @@ namespace Nitro{
 				MethodOverloads set=tempMethod.Parent.FindMethodSet("new");
 				if(set==null){
 					set=new MethodOverloads(typeof(Void));
-					set.AddMethod(new CompiledMethod(tempMethod.Parent,"new",null,new BracketFragment(),null,0,true));
+					set.AddMethod(new CompiledMethod(tempMethod.Parent,"new",null,new BracketFragment(),null,true));
 					set.CompileBody();
 				}
 			}
@@ -141,18 +141,25 @@ namespace Nitro{
 		/// <returns>True if base.new is in this fragment.</returns>
 		private bool NewBaseCall(CodeFragment fragment){
 			CodeFragment child=fragment.FirstChild;
+			
 			while(child!=null){
-				if(child.IsParent()){
-					if(NewBaseCall(child)){
-						return true;
-					}
-				}else if(child.GetType()==typeof(MethodFragment)){
+				
+				if(child.GetType()==typeof(MethodFragment)){
+					
 					CodeFragment name=((MethodFragment)child).MethodName;
 					
 					if(name.GetType()==typeof(PropertyFragment) && (((PropertyFragment)name).Value)=="new"){
 						return true;
 					}
+					
+				}else if(child.IsParent){
+				
+					if(NewBaseCall(child)){
+						return true;
+					}
+					
 				}
+				
 				child=child.NextChild;
 			}
 			

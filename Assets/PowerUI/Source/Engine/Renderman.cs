@@ -14,6 +14,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using PowerUI.Css;
+using Blaze;
+
 
 namespace PowerUI{
 	
@@ -28,8 +30,6 @@ namespace PowerUI{
 		public int PenX;
 		/// <summary>The current y location of the renderer in screen pixels from the top.</summary>
 		public int PenY;
-		/// <summary>True if a layout event was requested.</summary>
-		public bool DoLayout;
 		/// <summary>The height of the current line being processed.</summary>
 		public int LineHeight;
 		/// <summary>The current depth the rendering is occuring at.</summary>
@@ -38,48 +38,16 @@ namespace PowerUI{
 		public float MaxDepth=0f;
 		/// <summary>Set to true when an element has been placed in the depth buffer.</summary>
 		public bool DepthUsed;
-		/// <summary>How far apart along z elements are placed on the UI.</summary>
-		public float DepthResolution=0.05f;
-		/// <summary>The x value that must not be exceeded by elements on a line. Used if the parent has fixed width.</summary>
-		public int MaxX;
-		/// <summary>The position of the text baseline.</summary>
-		public int Baseline;
-		/// <summary>The unity layer that all meshes should go into.</summary>
-		public int RenderLayer;
-		/// <summary>The tail of the batch linked list.</summary>
-		public UIBatch LastBatch;
-		/// <summary>The head of the batch linked list.</summary>
-		public UIBatch FirstBatch;
-		/// <summary>The length of the longest line so far.</summary>
-		public int LargestLineWidth;
-		/// <summary>Batches are pooled to prevent destroying and recreating meshes. This is the last in the pool linked list.</summary>
-		public UIBatch LastPoolBatch;
-		/// <summary>The base document being rendered.</summary>
-		public Document RootDocument;
-		/// <summary>Batches are pooled to prevent destroying and recreating meshes. This is the first in the pool linked list.</summary>
-		public UIBatch FirstPoolBatch;
-		/// <summary>The start of a linked list of styles that need to be painted.
-		/// This linked list helps prevent layouts occuring as many updates only affect the appearance.</summary>
-		public ElementStyle StylesToPaint;
-		/// <summary>The start of a linked list of styles that need to be recomputed.</summary>
-		public ElementStyle StylesToRecompute;
 		/// <summary>A stack of transformations to apply to elements. Updated during a layout event.</summary>
 		public TransformationStack Transformations=new TransformationStack();
 		/// <summary>A linked list of elements on a line are kept. This is the last element on the current line.</summary>
 		public ComputedStyle LastOnLine;
 		/// <summary>A linked list of elements on a line are kept. This is the first element on the current line.</summary>
 		public ComputedStyle FirstOnLine;
-		
-		/// <summary>The size the texture atlas should be when it gets created.</summary>
-		public int AtlasSize=1024;
-		/// <summary>A flag which notes if the vital parts of a layout are occuring. During this, the DOM delays updates.</summary>
-		public bool LayoutOccuring;
 		/// <summary>True if the rendering direction is left. This originates from the direction: css property.</summary>
 		public bool GoingLeftwards;
 		/// <summary>The batch that we are currently rendering to.</summary>
 		public UIBatch CurrentBatch;
-		/// <summary>A global atlas for non-isolated batches.</summary>
-		public TextureAtlas SharedAtlas;
 		/// <summary>The last child element of an element to be packed onto any line. Tracked for valign.</summary>
 		public ComputedStyle LastPacked;
 		/// <summary>The first child element of an element to be packed onto any line. Tracked for valign.</summary>
@@ -88,47 +56,62 @@ namespace PowerUI{
 		public BoxRegion ClippingBoundary;
 		/// <summary>Essentially counts how many batches were issued. Used to define the render order.</summary>
 		public int BatchDepth;
+		/// <summary>The point at which lines begin at.</summary>
+		public int LineStart=0;
+		/// <summary>The set of active floated elements for the current line being rendered.</summary>
+		private List<ComputedStyle> ActiveFloats;
+		/// <summary>The x value that must not be exceeded by elements on a line. Used if the parent has fixed width.</summary>
+		public int MaxX;
+		/// <summary>The position of the text baseline.</summary>
+		public int Baseline;
+		/// <summary>The length of the longest line so far.</summary>
+		public int LargestLineWidth;
+		/// <summary>The current font aliasing value.</summary>
+		public float FontAliasing;
+		/// <summary>The unity layer that all meshes should go into.</summary>
+		public int RenderLayer;
+		/// <summary>A flag which notes if the vital parts of a layout are occuring. During this, the DOM delays updates.</summary>
+		public bool LayoutOccuring;
+		/// <summary>The tail of the batch linked list.</summary>
+		public UIBatch LastBatch;
+		/// <summary>The head of the batch linked list.</summary>
+		public UIBatch FirstBatch;
+		/// <summary>The base document being rendered.</summary>
+		public Document RootDocument;
+		/// <summary>How far apart along z elements are placed on the UI.</summary>
+		public float DepthResolution=0.05f;
+		/// <summary>True if a layout event was requested.</summary>
+		public bool DoLayout;
+		/// <summary>The current shader override, if there is one.</summary>
+		public Shader CustomShader;
+		/// <summary>The start of a linked list of styles that need to be painted.
+		/// This linked list helps prevent layouts occuring as many updates only affect the appearance.</summary>
+		public ElementStyle StylesToPaint;
+		/// <summary>The start of a linked list of styles that need to be recomputed.</summary>
+		public ElementStyle StylesToRecompute;
 		/// <summary>An optional gameobject to parent all content to.</summary>
 		public GameObject Node;
+		/// <summary>True if the screen should clip this renderer.</summary>
+		public bool ScreenClip=true;
 		/// <summary>Used if this renderer is generating a UI in the game world (e.g. on a billboard).</summary>
 		public WorldUI InWorldUI;
-		/// <summary>True if InWorldUI is not null and this renderer is generating a UI in the game world.</summary>
-		public bool RenderingInWorld;
 		/// <summary>The transform of a gameobject containing a cube collider.</summary>
 		public Transform PhysicsModeCollider;
-		/// <summary>A set of all fonts available to this renderer, indexed by font name.</summary>
-		public Dictionary<string,DynamicFont> ActiveFonts;
-		/// <summary>The filtering mode used by all fonts of this renderer.</summary>
-		private FilterMode FontFilterMode=FilterMode.Point;
+		/// <summary>The default filtering mode used by all images of this renderer.</summary>
+		private FilterMode ImageFilterMode=FilterMode.Point;
 		/// <summary>How this renderman renders images; either on an atlas or with them 'as is'.</summary>
 		private static RenderMode UIRenderMode=RenderMode.Atlas;
 		
 		
 		/// <summary>Creates a new renderer for rendering in the world.</summary>
-		/// <param name="atlasSize">The starting size of the texture atlas.
-		/// A size of zero causes the RenderMode to be automatically set to NoAtlas.</param>
-		public Renderman(WorldUI worldUI,int atlasSize):this(atlasSize){}
-		
-		/// <summary>Creates a new renderer for rendering in the world.</summary>
 		public Renderman(WorldUI worldUI):this(){
 			Node=worldUI.gameObject;
-			RenderingInWorld=true;
 			InWorldUI=worldUI;
-		}
-		
-		/// <summary>Creates a new renderer and a new document.</summary>
-		/// <param name="atlasSize">The starting size of the texture atlas.</param>
-		public Renderman(int atlasSize):this(){
-			AtlasSize=atlasSize;
-			if(AtlasSize==0){
-				UIRenderMode=RenderMode.NoAtlas;
-			}
 		}
 		
 		/// <summary>Creates a new renderer and a new document.</summary>
 		public Renderman(){
 			ClippingBoundary=new BoxRegion(0,0,Screen.width,Screen.height);
-			ActiveFonts=new Dictionary<string,DynamicFont>();
 			RootDocument=new Document(this);
 			RootDocument.location=new FilePath("resources://","",false);
 		}
@@ -136,6 +119,13 @@ namespace PowerUI{
 		/// <summary>Creates a renderman for use in the Editor with AOT compiling Nitro.</summary>
 		public Renderman(bool aot){}
 		
+		
+		/// <summary>Is this a renderer for a WorldUI?</summary>
+		public bool RenderingInWorld{
+			get{
+				return (InWorldUI!=null);
+			}
+		}
 		
 		/// <summary>Gets the parent gameobject for this renderman, if there is one.</summary>
 		public GameObject Parent{
@@ -147,39 +137,32 @@ namespace PowerUI{
 			}
 		}
 		
-		/// <summary>Creates the texture atlas when it's first needed.</summary>
-		public void CreateAtlas(){
-			if(SharedAtlas!=null){
-				return;
-			}
-			// Setup our shared atlas:
-			SharedAtlas=new TextureAtlas(AtlasSize);
-			
-			// Next, any existing batches that are not isolated will now be given the shared atlas:
-			UIBatch current=FirstBatch;
-			while(current!=null){
-				current.AtlasCreated(SharedAtlas);
-				current=current.BatchAfter;
-			}
-		}
-		
 		/// <summary>Called when the physics input mode changes. 
 		/// Ensures all batches in this renderer are on the correct new input mode.</summary>
 		/// <param name="mode">The new input mode to use.</param>
 		public void SetInputMode(InputMode mode){
+			
+			bool isPhysics=(mode==InputMode.Physics);
+			
 			UIBatch current=FirstBatch;
 			while(current!=null){
-				current.SetInputMode(mode);
+				current.SetPhysicsMode(isPhysics);
 				current=current.BatchAfter;
 			}
 			
-			current=FirstPoolBatch;
+			// Change InputMode in the pool too:
+			current=UIBatchPool.First;
+			
 			while(current!=null){
-				current.SetInputMode(mode);
+				
+				if(current.Renderer==this){
+					current.SetPhysicsMode(isPhysics);
+				}
+				
 				current=current.BatchAfter;
 			}
 			
-			if(RenderingInWorld && mode==InputMode.Screen){
+			if(InWorldUI!=null && mode==InputMode.Screen){
 				if(PhysicsModeCollider==null){
 					GameObject colliderGameObject=new GameObject();
 					colliderGameObject.name="PowerUI-BatchBox";
@@ -207,29 +190,34 @@ namespace PowerUI{
 			}
 		}
 		
-		/// <summary>The text filter mode. If you're using lots of WorldUI's its best to have this on Bilinear.</summary>
-		public FilterMode TextFilterMode{
+		/// <summary>The image filter mode. If you're using lots of WorldUI's or animations its best to have this on bilinear.</summary>
+		public FilterMode FilterMode{
 			get{
-				return FontFilterMode;
+				return ImageFilterMode;
 			}
 			set{
-				if(value==FontFilterMode){
+				if(value==ImageFilterMode){
 					return;
 				}
 
-				FontFilterMode=value;
-				
-				if(ActiveFonts!=null){
-					foreach(KeyValuePair<string,DynamicFont> kvp in ActiveFonts){
-						kvp.Value.FilterMode=value;
-					}
-				}
+				ImageFilterMode=value;
+				AtlasStacks.Graphics.FilterMode=value;
+			}
+		}
+		
+		/// <summary>The text filter mode. If you're using lots of WorldUI's its best to have this on Bilinear.</summary>
+		public FilterMode TextFilterMode{
+			get{
+				return AtlasStacks.Text.FilterMode;
+			}
+			set{
+				AtlasStacks.Text.FilterMode=value;
 			}
 		}
 		
 		/// <summary>Figures out where the box collider should be if we're in physics mode.</summary>
 		public void RelocateCollider(){
-			if(PhysicsModeCollider==null || !RenderingInWorld){
+			if(PhysicsModeCollider==null || InWorldUI==null){
 				return;
 			}
 			
@@ -255,22 +243,16 @@ namespace PowerUI{
 		
 		/// <summary>Clears all batches from this renderer.</summary>
 		public void Clear(){
-			UIBatch current=FirstBatch;
-			FirstBatch=LastBatch=null;
 			
-			while(current!=null){
-				current.Destroy();
-				current=current.BatchAfter;
+			if(FirstBatch!=null){
+				// Pool:
+				UIBatchPool.AddAll(FirstBatch,LastBatch);
+				
+				// Hide:
+				UIBatchPool.HideAll();
 			}
 			
-			current=FirstPoolBatch;
-			FirstPoolBatch=LastPoolBatch=null;
-			while(current!=null){
-				current.Destroy();
-				current=current.BatchAfter;
-			}
-			
-			if(!RenderingInWorld && UI.MainCameraPool!=null){
+			if(InWorldUI==null && UI.MainCameraPool!=null){
 				// It's the main UI and it has a camera pool. Destroy it too.
 				UI.MainCameraPool.Destroy();
 				UI.MainCameraPool=null;
@@ -282,32 +264,14 @@ namespace PowerUI{
 		/// <summary>Destroys this renderman when it's no longer needed.</summary>
 		public void Destroy(){
 			Clear();
-			
-			if(SharedAtlas!=null){
-				SharedAtlas.Destroy();
-				SharedAtlas=null;
-			}
-		}
-		
-		/// <summary>Adds a texture to the texture atlas.</summary>
-		/// <param name="texture">The texture to add.</param>
-		public void AddTexture(Texture2D texture){
-			CreateAtlas();
-			SharedAtlas.Add(texture);
-		}
-		
-		/// <summary>Sets up the current batch based on the isolation settings requested by a property.</summary>
-		/// <param name="property">The displayable property which wants the batch.</param>
-		public void SetupBatch(DisplayableProperty property){
-			SetupBatch(property,null);
 		}
 		
 		/// <summary>Sets up the current batch based on the isolation settings requested by a property.</summary>
 		/// <param name="property">The displayable property which wants the batch.</param>
 		/// <param name="fontTexture">The font texture to use with this batch.</param>
-		public void SetupBatch(DisplayableProperty property,Texture2D fontTexture){
+		public void SetupBatch(DisplayableProperty property,TextureAtlas graphics,TextureAtlas font){
 			
-			if(UI.MainCameraPool!=null && !RenderingInWorld){
+			if(UI.MainCameraPool!=null && InWorldUI==null){
 				// This is the main UI and it also has a camera pool.
 				// Are we now attempting to create a batch on top of an inline camera?
 				
@@ -326,7 +290,7 @@ namespace PowerUI{
 				}
 				
 				// Isolated properties always get a new batch every time.
-				CurrentBatch=GetPooledBatch();
+				CurrentBatch=UIBatchPool.Get(this);
 				
 				if(CurrentBatch==null){
 					CurrentBatch=new UIBatch(this);
@@ -337,26 +301,47 @@ namespace PowerUI{
 				// And push it to the active stack:
 				AddBatch(CurrentBatch);
 				
-				// Make sure it knows if it is isolated or not:
-				CurrentBatch.SetIsolation(property);
+				// Make sure it knows it's isolated:
+				CurrentBatch.IsIsolated(property);
+				
 			}else{
 				
 				if(CurrentBatch!=null && !CurrentBatch.Isolated){
-					// Re-use existing batch.
+					// Re-use existing batch?
 					
-					if(fontTexture==null || fontTexture==CurrentBatch.FontTexture ){
-						// Font didn't change either.
-						return;
-					}else if(CurrentBatch.FontTexture==null){
-						// Apply the font texture right away:
-						CurrentBatch.ChangeFontTexture(fontTexture);
+					if(font!=null){
+						
+						if(CurrentBatch.FontAtlas==null){
+							// Didn't have one assigned before. Assign now:
+							CurrentBatch.SetFontAtlas(font,FontAliasing);
+						}else if(font!=CurrentBatch.FontAtlas){
+							// Font atlas changed. Can't share.
+							CurrentBatch=null;
+						}
+						
+					}
+					
+					if(graphics!=null){
+						
+						if(CurrentBatch.GraphicsAtlas==null){
+							// Didn't have one assigned before. Assign now:
+							CurrentBatch.SetGraphicsAtlas(graphics);
+						}else if(graphics!=CurrentBatch.GraphicsAtlas){
+							// Atlas changed. Can't share.
+							CurrentBatch=null;
+						}
+						
+					}
+					
+					if(CurrentBatch!=null){
+						// Yep - reuse it.
 						return;
 					}
 					
 				}
 				
 				// Pull a batch from the pool and set it to currentbatch. May need to generate a new one.
-				CurrentBatch=GetPooledBatch();
+				CurrentBatch=UIBatchPool.Get(this);
 				
 				if(CurrentBatch==null){
 					CurrentBatch=new UIBatch(this);
@@ -365,27 +350,14 @@ namespace PowerUI{
 				// And push it to the active stack:
 				AddBatch(CurrentBatch);
 				
-				// Make sure it knows if it is isolated or not:
-				CurrentBatch.SetIsolation(null);
+				// Make sure it knows it's not isolated:
+				CurrentBatch.NotIsolated(graphics,font,FontAliasing);
 				
-				// Apply the current font texture:
-				CurrentBatch.ChangeFontTexture(fontTexture);
 			}
 			
 			// Finally, prepare it for layout:
 			CurrentBatch.PrepareForLayout();
-		}
-		
-		/// <summary>Gets a batch from the pool. Null if the pool is empty.</summary>
-		public UIBatch GetPooledBatch(){
-			if(FirstPoolBatch==null){
-				return null;
-			}
 			
-			UIBatch result=FirstPoolBatch;
-			FirstPoolBatch=result.BatchAfter;
-			result.BatchAfter=null;
-			return result;
 		}
 		
 		/// <summary>Adds the given batch to the main linked list for processing.</summary>
@@ -395,63 +367,6 @@ namespace PowerUI{
 			}else{
 				LastBatch=LastBatch.BatchAfter=batch;
 			}
-		}
-		
-		/// <summary>Called when the given dynamic fonts atlas gets rebuilt.</summary>
-		/// <param name="font">The font whose atlas was rebuilt.</param>
-		public void OnFontAtlasRebuild(DynamicFont font){
-			if(ActiveFonts==null || font==null || font.Renderer==this){
-				return;
-			}
-			
-			// Does this renderer use this fonts Font?
-			// This is important as a DynamicFont is Renderer specific.
-			Font rawFont=font.RawFont;
-			
-			foreach(KeyValuePair<string,DynamicFont> kvp in ActiveFonts){
-				if(kvp.Value.RawFont==rawFont){
-					// Yes it does - let's redraw:
-					RequestLayout();
-					break;
-				}
-			}
-		}
-		
-		/// <summary>Gets the font with the given name. May load it from the cache or generate a new one.</summary>
-		/// <param name="fontName">The name of the font to find.</param>
-		/// <returns>A dynamic font if found; null otherwise.</returns>
-		public DynamicFont GetOrCreateFont(string fontName){
-			if(fontName==null){
-				return null;
-			}
-			
-			DynamicFont result;
-			ActiveFonts.TryGetValue(fontName,out result);
-			
-			if(result==null){
-				result=DynamicFont.LoadFrom(fontName,this);
-				
-				if(result!=null){
-					result.FilterMode=FontFilterMode;
-					ActiveFonts[fontName]=result;
-				}
-				
-			}
-			
-			return result;
-		}
-		
-		/// <summary>Gets the font with the given name.</summary>
-		/// <param name="fontName">The name of the font to find.</param>
-		/// <returns>A dynamic font if found; null otherwise.</returns>
-		public DynamicFont GetFont(string fontName){
-			if(fontName==null){
-				return null;
-			}
-			
-			DynamicFont result;
-			ActiveFonts.TryGetValue(fontName,out result);
-			return result;
 		}
 		
 		/// <summary>Sets up this renderer so that it's ready to start packing child elements of
@@ -482,6 +397,7 @@ namespace PowerUI{
 			// Kids of elements that don't line pack are packed into the lines of the first parent which does.
 			PenX=0;
 			PenY=0;
+			LineStart=0;
 			LargestLineWidth=0;
 			computed.ContentWidth=0;
 			computed.ContentHeight=0;
@@ -507,6 +423,8 @@ namespace PowerUI{
 				return;
 			}
 			
+			int lineSpace=computed.InnerWidth;
+			
 			int lineWidth=0;
 			int elementsOnLine=0;
 			
@@ -516,28 +434,116 @@ namespace PowerUI{
 			while(current!=null){
 				// Find if this child is on a new line.
 				// If it is, align everything.
-				lineWidth+=current.PixelWidth;
+				
+				if(current.Float==FloatType.None){
+					
+					lineWidth+=current.PixelWidth;
+				
+				}else{
+					
+					// Left/ Right float.
+					
+					if(ActiveFloats==null){
+						ActiveFloats=new List<ComputedStyle>(1);
+					}
+					
+					// Add it to the active set:
+					ActiveFloats.Add(current);
+					
+					// Reduce space:
+					lineSpace-=current.PixelWidth;
+					
+				}
+				
 				elementsOnLine++;
 				
 				if(current.NextOnLine==null){
+					
 					// This is the last element on the line.
-					AlignLine(firstOnLine,current,elementsOnLine,lineWidth,computed);
+					AlignLine(firstOnLine,current,lineSpace,elementsOnLine,lineWidth,computed);
 					elementsOnLine=0;
 					lineWidth=0;
+					
+					// Deactivate floats if needed:
+					if(ActiveFloats!=null){
+						
+						// Where's the bottom of the line?
+						// Compare it to each floated element to see if it must no longer be considered.
+						int bottomOfLine;
+						
+						if(current.Float==FloatType.None){
+							
+							// Grab the bottom from the last element on the line:
+							bottomOfLine=current.ParentOffsetTop + current.PixelHeight;
+							
+						}else if(firstOnLine.Float==FloatType.None){
+							
+							// Grab it from the first element on the line:
+							bottomOfLine=firstOnLine.ParentOffsetTop + firstOnLine.PixelHeight;
+							
+						}else{
+							
+							// We need to find an element on the line that allows us to find the line height.
+							// If there isn't one then it doesn't matter as there's nothing being aligned anyway.
+							
+							// Set an initial value:
+							bottomOfLine=current.ParentOffsetTop + current.PixelHeight;
+							
+							ComputedStyle currentBottom=firstOnLine;
+							
+							while(currentBottom!=null){
+								
+								if(currentBottom.Float==FloatType.None){
+									
+									// Got one!
+									bottomOfLine=currentBottom.ParentOffsetTop + currentBottom.PixelHeight;
+									
+									break;
+									
+								}
+								
+								// Hop to the next one:
+								currentBottom=currentBottom.NextOnLine;
+							}
+							
+						}
+						
+						// For each one..
+						for(int i=ActiveFloats.Count-1;i>=0;i--){
+							
+							// Grab it:
+							ComputedStyle activeFloat=ActiveFloats[i];
+							
+							if(bottomOfLine>=(activeFloat.ParentOffsetTop + activeFloat.PixelHeight)){
+								
+								// Yep! Deactivate and reduce our size:
+								lineSpace+=activeFloat.PixelWidth;
+								
+								// Remove it as an active float:
+								ActiveFloats.RemoveAt(i);
+								
+							}
+							
+						}
+						
+					}
+					
 					firstOnLine=current.NextPacked;
 				}
 				
 				current=current.NextPacked;
-			}	
+			}
+			
 		}
 		
 		/// <summary>Horizontally aligns a line based on alignment settings in the given computed style.</summary>
 		/// <param name="first">The style of the first element on the line.</param>
 		/// <param name="last">The style of the last element on the line.</param>
+		/// <param name="lineSpace">The amount of space available to the line.</param>
 		/// <param name="elementCount">The number of elements on this line.</param>
 		/// <param name="lineLength">The width of the line in pixels.</param>
 		/// <param name="parent">The style which defines the alignment.</param>
-		private void AlignLine(ComputedStyle first,ComputedStyle last,int elementCount,int lineLength,ComputedStyle parent){
+		private void AlignLine(ComputedStyle first,ComputedStyle last,int lineSpace,int elementCount,int lineLength,ComputedStyle parent){
 			if(elementCount==0){
 				return;
 			}
@@ -578,31 +584,33 @@ namespace PowerUI{
 			}
 			
 			// How many pixels each element will be moved over:
-			int offsetBy=0;
+			float offsetBy=0f;
 			// True if the text is going to be justified.
 			bool justify=false;
 			// How many pixels we add to offsetBy each time we shift an element over:
-			int justifyDelta=0;
+			float justifyDelta=0f;
 			
 			if(align==HorizontalAlignType.Center){
 				// We're centering - shift by half the 'spare' pixels on this row.
 				
 				// How many pixels of space this line has left / 2:
-				offsetBy=(parent.InnerWidth-lineLength)/2;
+				offsetBy=(float)(lineSpace-lineLength)/2f;
 				
 			}else if(align==HorizontalAlignType.Right){
 				// How many pixels of space this line has left:
-				offsetBy=parent.InnerWidth-lineLength;
+				offsetBy=(float)(lineSpace-lineLength);
 				
 			}else if(align==HorizontalAlignType.Justify){
+				
 				// Justify. This is where the total spare space on the line gets shared out evenly
 				// between the elements on this line.
 				// So, we take the spare space and divide it up by the elements on this line:
-				justifyDelta=(parent.InnerWidth-lineLength)/elementCount;
+				justifyDelta=(float)(lineSpace-lineLength)/(float)elementCount;
 				
 				if(GoingLeftwards){
 					// Make sure the first word starts in the correct spot if we're going leftwards:
-					lineLength=parent.InnerWidth;
+					lineLength=lineSpace;
+					
 					// And also we actually want to be taking a little less each time, so invert justifyDelta:
 					justifyDelta=-justifyDelta;
 				}
@@ -622,16 +630,21 @@ namespace PowerUI{
 			
 			while(current!=null&&counter<elementCount){
 				
-				// Shift the element over by the offset.
-				current.ParentOffsetLeft+=offsetBy;
-				
-				if(justify){
-					offsetBy+=justifyDelta;
+				if(current.Float==FloatType.None){
+					
+					// Shift the element over by the offset.
+					current.ParentOffsetLeft+=(int)offsetBy;
+					
+					if(justify){
+						offsetBy+=justifyDelta;
+					}
+					
 				}
 				
 				counter++;
 				current=current.NextPacked;
 			}
+			
 		}
 		
 		/// <summary>Lets the renderer know that the given parent element has finished
@@ -644,6 +657,12 @@ namespace PowerUI{
 			if(!computed.FixedHeight){
 				computed.InnerHeight=PenY;
 				computed.SetPixelHeight(true);
+				
+				if(element.VScrollbar){
+					// This if is an optimisation.
+					// We don't normally have e.g. 100% high in a non-fixed height element - only scrollbars do that.
+					element.SetHeightForKids(computed);
+				}
 			}
 			
 			computed.ContentHeight=PenY;
@@ -660,6 +679,11 @@ namespace PowerUI{
 			if(!computed.FixedWidth&&computed.Display!=DisplayType.Block){
 				computed.InnerWidth=LargestLineWidth;
 				computed.SetPixelWidth(true);
+				
+				if(element.HScrollbar){
+					// This IF is an optimisation. See reason above.
+					element.SetWidthForKids(computed);
+				}
 			}
 			
 			if(element.VerticalScrollbar!=null){
@@ -673,8 +697,21 @@ namespace PowerUI{
 			}
 			
 			// Next, perform any horizontal alignment.
+			
+			// Clear active floating element set:
+			if(ActiveFloats!=null){
+				
+				// Got a set - clear it:
+				ActiveFloats.Clear();
+				
+			}
+			
 			// This must be done here as we don't know the full width/height of the element until after EndLinePack.
 			HorizontalAlign(element);
+			
+			// Remove the active float set:
+			ActiveFloats=null;
+			
 		}
 		
 		/// <summary>Lets the renderer know the current line doesn't fit anymore elements
@@ -688,17 +725,6 @@ namespace PowerUI{
 			
 			// Compute some alignment next.
 			// Firstly, place the Pen on the line:
-			
-			if(PenY!=0 && parentStyle!=null){
-				// Not the first line. Apply the parent computed style's line-height.
-				float lineHeight=parentStyle.LineHeight;
-				
-				if(lineHeight!=1f){
-					LineHeight=(int)(LineHeight*lineHeight);
-				}
-				
-			}
-			
 			PenY+=LineHeight;
 			
 			// Next, align the elements and apply their top offset.
@@ -706,15 +732,80 @@ namespace PowerUI{
 			
 			while(current!=null){
 				// Calculate the offset to where the top left corner is:
-				current.ParentOffsetTop=PenY-Baseline+current.Baseline-current.PixelHeight;
+				
+				if(current.Float==FloatType.None){
+					
+					current.ParentOffsetTop=PenY+Baseline-current.PixelHeight;
+					
+				}else{
+					
+					current.ParentOffsetTop=PenY+Baseline-LineHeight;
+					
+				}
+				
 				current=current.NextOnLine;
+			}
+			
+			if(ActiveFloats!=null){
+				
+				// Are any now going to be "deactivated"?
+				
+				for(int i=ActiveFloats.Count-1;i>=0;i--){
+					
+					// Grab the style:
+					ComputedStyle activeFloat=ActiveFloats[i];
+					
+					// Is the current render point now higher than this floating object?
+					// If so, we must reduce LineStart/ increase MaxX depending on which type of float it is.
+					
+					if(PenY>=(activeFloat.ParentOffsetTop + activeFloat.PixelHeight)){
+						
+						// Yep! Deactivate and reduce our size:
+						if(activeFloat.Float==FloatType.Right){
+							
+							if(GoingLeftwards){
+								
+								// Decrease LineStart:
+								LineStart-=activeFloat.PixelWidth;
+								
+							}else{
+								
+								// Increase max x:
+								MaxX+=activeFloat.PixelWidth;
+								
+							}
+							
+						}else{
+							
+							if(GoingLeftwards){
+								
+								// Increase max x:
+								MaxX+=activeFloat.PixelWidth;
+								
+							}else{
+								
+								// Decrease LineStart:
+								LineStart-=activeFloat.PixelWidth;
+								
+							}
+							
+						}
+						
+						// Remove it as an active float:
+						ActiveFloats.RemoveAt(i);
+						
+					}
+					
+				}
+				
 			}
 			
 			FirstOnLine=null;
 			LastOnLine=null;
 			LineHeight=0;
 			Baseline=0;
-			PenX=0;
+			PenX=LineStart;
+			
 		}
 		
 		/// <summary>Puts the given element onto the current line.</summary>
@@ -747,6 +838,7 @@ namespace PowerUI{
 				// We don't want to add fixed or absolute objects as they should be placed seperately.
 				AddToLine(computed,element.parentNode);
 			}
+			
 		}
 		
 		/// <summary>Adds the given style to the current line.</summary>
@@ -755,23 +847,144 @@ namespace PowerUI{
 			// Don't call with inline elements - block or inline-block only.
 			ComputedStyle parentStyle=(parentNode==null)?null:parentNode.Style.Computed;
 			
-			if( (style.Display==DisplayType.Block) || ((parentStyle==null || parentStyle.WhiteSpace==WhiteSpaceType.Normal) && ((PenX+style.PixelWidth)>MaxX) )){
+			if( (style.Display==DisplayType.Block && style.Float==FloatType.None) || ((parentStyle==null || parentStyle.WhiteSpace==WhiteSpaceType.Normal) && ((PenX+style.PixelWidth)>MaxX) )){
+				
 				// Doesn't fit here.
 				CompleteLine(parentStyle);
+				
 			}
 			
 			style.NextPacked=null;
 			style.NextOnLine=null;
 			
-			if(GoingLeftwards){
+			if(style.Float==FloatType.Right){
+				
+				if(GoingLeftwards){
+					style.ParentOffsetLeft=LineStart;
+					PenX+=style.PixelWidth;
+				}else{
+					style.ParentOffsetLeft=MaxX-style.PixelWidth;
+				}
+				
+				if(ActiveFloats==null){
+					ActiveFloats=new List<ComputedStyle>(1);
+				}
+				
+				ActiveFloats.Add(style);
+				
+			}else if(style.Float==FloatType.Left){
+				
+				if(GoingLeftwards){
+					style.ParentOffsetLeft=MaxX-style.PixelWidth;
+				}else{
+					style.ParentOffsetLeft=LineStart;
+					PenX+=style.PixelWidth;
+				}
+				
+				if(ActiveFloats==null){
+					ActiveFloats=new List<ComputedStyle>(1);
+				}
+				
+				ActiveFloats.Add(style);
+				
+			}else if(GoingLeftwards){
 				PenX+=style.PixelWidth;
-				style.ParentOffsetLeft=-PenX;
+				style.ParentOffsetLeft=LineStart*2-PenX;
 			}else{
 				style.ParentOffsetLeft=PenX;
 				PenX+=style.PixelWidth;
 			}
 			
-			if(style.PixelHeight>LineHeight){
+			if(style.Float==FloatType.None && ActiveFloats!=null){
+				
+				if(style.Display==DisplayType.Block || style.FixedWidth){
+					
+					// Get this elements width value:
+					Css.Value widthValue=style[Css.Properties.Width.GlobalProperty];
+					
+					// Is it a percentage or not fixed width and block?
+					if(widthValue==null){
+						
+						if(style.Display==DisplayType.Block){
+							
+							// Grab it:
+							int parentWidth=parentStyle.InnerWidth;
+							
+							// Overwrite it:
+							parentStyle.InnerWidth=MaxX-LineStart;
+							
+							// Update the size:
+							style.SetSize();
+							
+							// And bubble upwards:
+							style.Element.SetWidthForKids(style);
+							
+							// Write back:
+							parentStyle.InnerWidth=parentWidth;
+							
+						}
+						
+					}else{
+						if(widthValue.Type==Css.ValueType.Percentage){
+							// Yep! We need to update it.
+							
+							// Grab it:
+							int parentWidth=parentStyle.InnerWidth;
+							
+							// Overwrite it:
+							parentStyle.InnerWidth=MaxX-LineStart;
+							
+							// Resolve it again:
+							widthValue.MakeAbsolute(Css.Properties.Width.GlobalProperty,style.Element);
+							
+							// Apply it:
+							style.InnerWidth=widthValue.PX;
+							
+							style.SetSize();
+							
+							// Update width:
+							style.Element.SetWidthForKids(style);
+							
+							// Write back:
+							parentStyle.InnerWidth=parentWidth;
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+			if(style.Float==FloatType.Left){
+				
+				if(GoingLeftwards){
+				
+					// Reduce max:
+					MaxX-=style.PixelWidth;
+					
+				}else{
+					
+					// Push over where lines start at:
+					LineStart+=style.PixelWidth;
+					
+				}
+				
+			}else if(style.Float==FloatType.Right){
+				
+				if(GoingLeftwards){
+					
+					// Push over where lines start at:
+					LineStart+=style.PixelWidth;
+					
+				}else{
+					
+					// Reduce max:
+					MaxX-=style.PixelWidth;
+					
+				}
+				
+			}else if(style.PixelHeight>LineHeight){
 				LineHeight=style.PixelHeight;
 			}
 			
@@ -788,10 +1001,30 @@ namespace PowerUI{
 			if(FirstOnLine==null){
 				FirstOnLine=LastOnLine=style;
 			}else{
+				
+				if(style.Float==FloatType.Left){
+					
+					// Push over all the elements before this on the line.
+					ComputedStyle currentLine=FirstOnLine;
+					
+					while(currentLine!=null){
+						
+						if(currentLine.Float==FloatType.None){
+							// Move it:
+							currentLine.ParentOffsetLeft+=style.PixelWidth;
+						}
+						
+						// Next one:
+						currentLine=currentLine.NextOnLine;
+						
+					}
+					
+				}
+				
 				LastOnLine=LastOnLine.NextOnLine=style;
 			}
 			
-			if(style.Display==DisplayType.Block){
+			if(style.Display==DisplayType.Block && style.Float==FloatType.None){
 				// A second newline after the block too.
 				CompleteLine(parentStyle);
 			}
@@ -823,11 +1056,11 @@ namespace PowerUI{
 			BoxRegion newBoundary=null;
 			
 			if(visibleX){
-				newBoundary=new BoxRegion(ClippingBoundary.X,style.OffsetTop+style.BorderTop,ClippingBoundary.Width,style.PaddedHeight);
+				newBoundary=new BoxRegion(ClippingBoundary.X,style.OffsetTop+style.StyleOffsetTop+style.ScrollTop,ClippingBoundary.Width,style.InnerHeight);
 			}else if(visibleY){
-				newBoundary=new BoxRegion(style.OffsetLeft+style.BorderLeft,ClippingBoundary.Y,style.PaddedWidth,ClippingBoundary.Height);
+				newBoundary=new BoxRegion(style.OffsetLeft+style.StyleOffsetLeft+style.ScrollLeft,ClippingBoundary.Y,style.InnerWidth,ClippingBoundary.Height);
 			}else{
-				newBoundary=new BoxRegion(style.OffsetLeft+style.BorderLeft,style.OffsetTop+style.BorderTop,style.PaddedWidth,style.PaddedHeight);
+				newBoundary=new BoxRegion(style.OffsetLeft+style.StyleOffsetLeft+style.ScrollLeft,style.OffsetTop+style.StyleOffsetTop+style.ScrollTop,style.InnerWidth,style.InnerHeight);
 			}
 			
 			if(style.Clip){
@@ -839,15 +1072,20 @@ namespace PowerUI{
 		
 		/// <summary>Resets the clipping boundary back to the whole screen.</summary>
 		public void ResetBoundary(){
-			if(RenderingInWorld){
+			
+			if(InWorldUI!=null){
 				ClippingBoundary.Set(0,0,InWorldUI.pixelWidth,InWorldUI.pixelHeight);
-			}else{
+			}else if(ScreenClip){
 				ClippingBoundary.Set(0,0,ScreenInfo.ScreenX,ScreenInfo.ScreenY);
+			}else{
+				ClippingBoundary.Set(-80000,-80000,160000,160000);
 			}
+			
 		}
 		
 		/// <summary>Resets all values in the renderer. Called before each layout.</summary>
 		public void Reset(){
+			LineStart=0;
 			PenX=0;
 			PenY=0;
 			Depth=0f;
@@ -855,11 +1093,15 @@ namespace PowerUI{
 			MaxDepth=0f;
 			BatchDepth=0;
 			LineHeight=0;
+			ActiveFloats=null;
+			FontAliasing=InfiniText.Fonts.Aliasing;
+			
 			ResetBoundary();
 			DepthUsed=false;
 			CurrentBatch=null;
+			CustomShader=null;
 			
-			if(!RenderingInWorld){
+			if(InWorldUI==null){
 				// This is the main UI renderer.
 				
 				// Clear the root node:
@@ -951,20 +1193,6 @@ namespace PowerUI{
 				
 			}
 			
-			/*
-			// Flush all atlas data (note: checks internally if it changed):
-			UIBatch currentAtlas=FirstBatch;
-			
-			while(currentAtlas!=null){
-				currentAtlas.FlushAtlas();
-				currentAtlas=currentAtlas.BatchAfter;
-			}*/
-			
-			if(SharedAtlas!=null){
-				// Flush the main atlas:
-				SharedAtlas.Flush();
-			}
-			
 		}
 		
 		/// <summary>Relocates all DOM elements by calculating their onscreen position.
@@ -974,46 +1202,20 @@ namespace PowerUI{
 			DoLayout=false;
 			Reset();
 			
-			// Optimise all atlases (note: checks internally if it changed):
-			/*
-			UIBatch currentAtlas=FirstBatch;
-			
-			while(currentAtlas!=null){
-				currentAtlas.OptimizeAtlas();
-				currentAtlas=currentAtlas.BatchAfter;
-			}
-			*/
-			
-			if(SharedAtlas!=null){
-				// Optimize the main atlas (almost always does nothing at all):
-				SharedAtlas.Optimize();
-			}
-			
-			// First, push all batches to the pool:
+			// First, push all batches to the pool - inlined for speed:
 			// Note that no isolated batches enter either the queue or the pool until their no longer isolated.
-			FirstPoolBatch=FirstBatch;
-			LastPoolBatch=LastBatch;
+			if(FirstBatch!=null){
+				LastBatch.BatchAfter=UIBatchPool.First;
+				UIBatchPool.First=FirstBatch;
+			}
+			
 			FirstBatch=LastBatch=null;
 			
 			// Note: Batches are Prepared For Layout as they are added.
 			
-			// Step one - Prepare each font for allocate. This deallocates all their characters.
-			foreach(KeyValuePair<string,DynamicFont> kvp in ActiveFonts){
-				kvp.Value.PrepareForAllocate();
-			}
-			
 			LayoutOccuring=true;
 			
-			// Step two - allocate characters. Finds which are in use.
-			// This must be done first as we need to know the dimensions of characters before the PositionLocally pass.
-			RootDocument.html.AllocateText();
-			
-			// Step three - Prepare the fonts for layout. This requests the in use characters.
-			foreach(KeyValuePair<string,DynamicFont> kvp in ActiveFonts){
-				kvp.Value.PrepareForLayout();
-			}
-			
-			// Step four - position elements locally:
+			// Position elements locally.
 			// This sets their ParentOffset values and as a result finds their PixelWidth.
 			RootDocument.html.PositionLocally();
 			
@@ -1047,15 +1249,6 @@ namespace PowerUI{
 				currentBatch=currentBatch.BatchAfter;
 			}
 			
-			// And destroy any remaining batches in the pool:
-			currentBatch=FirstPoolBatch;
-			FirstPoolBatch=null;
-			
-			while(currentBatch!=null){
-				currentBatch.Destroy();
-				currentBatch=currentBatch.BatchAfter;
-			}
-			
 			if(StylesToPaint!=null){
 				// Clear the isPainting flag.
 				Css.ElementStyle style=StylesToPaint;
@@ -1066,6 +1259,9 @@ namespace PowerUI{
 					style=style.Next;
 				}
 			}
+			
+			// Hide all pool entries:
+			UIBatchPool.HideAll();
 		}
 		
 		/// <summary>Converts the given screen coordinate to world coordinates.</summary>
@@ -1073,16 +1269,8 @@ namespace PowerUI{
 		/// <param name="py">The screen y coordinate in pixels from the top.</param>
 		/// <param name="depth">The z depth.</param>
 		public Vector3 PixelToWorldUnit(float px,float py,float depth){
-			if(RenderingInWorld){
-				py=InWorldUI.PixelHeightF-py;
+			if(InWorldUI==null){
 				
-				return new Vector3(
-					(InWorldUI.WorldScreenOrigin.x + px),
-					(InWorldUI.WorldScreenOrigin.y + py),
-					-depth
-								);
-			}else{
-			
 				py=ScreenInfo.ScreenYFloat-py;
 				float depthFactor=1f-(depth*ScreenInfo.DepthDepreciation);
 				
@@ -1090,6 +1278,22 @@ namespace PowerUI{
 				return new Vector3(
 					(ScreenInfo.WorldScreenOrigin.x + px*ScreenInfo.WorldPerPixel.x) * depthFactor,
 					(ScreenInfo.WorldScreenOrigin.y + py*ScreenInfo.WorldPerPixel.y) * depthFactor,
+					-depth
+								);
+			}else if(InWorldUI.Flat){
+				py=InWorldUI.PixelHeightF-py;
+				
+				return new Vector3(
+					(InWorldUI.WorldScreenOrigin.x + px),
+					(InWorldUI.WorldScreenOrigin.y + py * InWorldUI.Ratio),
+					-depth
+								);
+			}else{
+				py=InWorldUI.PixelHeightF-py;
+				
+				return new Vector3(
+					(InWorldUI.WorldScreenOrigin.x + px),
+					(InWorldUI.WorldScreenOrigin.y + py),
 					-depth
 								);
 			}

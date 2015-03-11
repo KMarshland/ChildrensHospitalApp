@@ -38,23 +38,75 @@ namespace Nitro{
 		public OperationFragment(CodeLexer sr,CodeFragment parent){
 			ParentFragment=parent;
 			LineNumber=sr.LineNumber;
+			bool localMode=false;
+			
 			while(true){
 				char peek=sr.Peek();
+				
 				if(peek==StringReader.NULL){
 					return;
 				}
+				
 				if(peek==';'||peek==','){
 					// Read it off:
 					sr.Read();
 					return;
 				}
+				
 				Handler handler=Handlers.Find(peek);
+				
 				if(handler==Handler.Stop){
 					return;
 				}
-				if(Handlers.Handle(handler,sr).AddTo(this,sr)==AddResult.Stop){
-					return;
+				
+				// Handle the fragment:
+				CodeFragment fragment;
+				
+				try{
+					
+					// Try to get the code fragment:
+					fragment=Handlers.Handle(handler,sr);
+					
+				}catch(CompilationException e){
+					
+					if(e.LineNumber==-1){
+						// Setup line number:
+						e.LineNumber=LineNumber;
+					}
+					
+					// Rethrow:
+					throw e;
 				}
+				
+				if(localMode){
+					
+					// Should always be a VariableFragment:
+					
+					if(fragment.GetType()==typeof(VariableFragment)){
+						
+						VariableFragment local=(VariableFragment)fragment;
+						local.AfterVar=true;
+						
+					}
+					
+					localMode=false;
+				}
+				
+				// Try adding the fragment to the operation:
+				AddResult status=fragment.AddTo(this,sr);
+				
+				// What was the outcome?
+				switch(status){
+					case AddResult.Stop:
+						// Halt.
+						return;
+					case AddResult.Local:
+						// Local next:
+						localMode=true;
+					break;
+					// Ok otherwise.
+				}
+				
 			}
 		}
 		
@@ -66,8 +118,31 @@ namespace Nitro{
 			if(FirstChild==null){
 				return null;
 			}
-			CompilationServices.CompileOperators(this,method);
-			return (CompiledFragment)FirstChild.Compile(method);
+			
+			// Apply the current line:
+			method.CurrentLine=LineNumber;
+			
+			try{
+				
+				// Compile operator chains: (d=a+b+c;)
+				CompilationServices.CompileOperators(this,method);
+				
+				// Compile the now singular operator:
+				CompiledFragment cFrag=FirstChild.Compile(method) as CompiledFragment;
+				
+				return cFrag;
+				
+			}catch(CompilationException e){
+				
+				if(e.LineNumber==-1){
+					// Setup line number:
+					e.LineNumber=LineNumber;
+				}
+				
+				// Rethrow:
+				throw e;
+			}
+			
 		}
 		
 		public override string ToString(){

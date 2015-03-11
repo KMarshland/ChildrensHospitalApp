@@ -30,8 +30,16 @@ namespace Nitro{
 		
 		public override Type OutputType(out CompiledFragment v){
 			v=this;
-			Input0.OutputType(out Input0);
-			Input1.OutputType(out Input1);
+			Type typeA=Input0.OutputType(out Input0);
+			Type typeB=Input1.OutputType(out Input1);
+			
+			CompiledFragment overload=null;
+			FindOverload("GreaterThan",typeA,typeB,ref overload);
+			
+			if(overload!=null){
+				v=overload;
+			}
+			
 			return typeof(bool);
 		}
 		

@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -54,64 +53,61 @@ namespace PowerUI.Css.Properties{
 				return;
 			}
 			
-			fontName=fontName.Replace("\"","");
-			
-			text.FontToDraw=text.Element.Document.Renderer.GetOrCreateFont(fontName);
+			Find(fontName,text);
 			
 			if(text.FontToDraw==null){
 				
-				// It's not a font at all.
-				// So, we're gonna next pick the 'first' (random) font in the renderer set and use that.
-				// And for future reffing, we'll then map the fontName to that too.
-				
-				Dictionary<string,DynamicFont> fonts=text.Element.Document.Renderer.ActiveFonts;
-				
-				if(fonts.Count>0){
-					IEnumerator<string> enumerator=fonts.Keys.GetEnumerator();
-					enumerator.MoveNext();
-					
-					text.FontToDraw=fonts[enumerator.Current];
-					
-					// Push for quick reference later:
-					fonts[fontName]=text.FontToDraw;
-				}else{
-					// None loaded! Track up the tree in search of a font that works.
-					SearchForFont(text,text.Element.ParentNode);
-				}
+				// No fonts at all.
+				// We're going to load and use the default one:
+				text.FontToDraw=DynamicFont.GetDefaultFamily();
 				
 			}
-			
-			// Recalculate the sizes of the text:
-			text.SetDimensions();
 			
 			// Apply the changes:
 			text.SetText();
+			
 		}
 		
-		/// <summary>Searches for a suitable font in the given elements style. 
-		/// This occurs if the font name for the current element is invalid.</summary>
-		/// <param name="element">The element to search. Checks its parent if this is also invalid.</param>
-		public void SearchForFont(TextRenderingProperty text,Element element){
-			if(element==null){
-				return;
-			}
+		/// <summary>Finds and connects the font(s) for the given text renderer.</summary>
+		private void Find(string fontName,TextRenderingProperty text){
 			
-			// Get the current value for the font-family property:
-			Value font=element.Style.Computed[this];
+			fontName=fontName.Replace("\"","");
 			
-			if(font!=null){
+			string[] pieces=fontName.Split(',');
+			
+			DynamicFont current=null;
+			
+			// Grab the doc:
+			Document doc=text.Element.Document;
+			
+			for(int i=0;i<pieces.Length;i++){
 				
-				string fontName=font.Text.Replace("\"","");
+				// Trim the name:
+				fontName=pieces[i].Trim();
 				
-				text.FontToDraw=text.Element.Document.Renderer.GetOrCreateFont(fontName);
+				// Get the font from this DOM:
+				DynamicFont backup=doc.GetOrCreateFont(fontName);
 				
-				if(text.FontToDraw!=null){
-					return;
+				if(backup==null){
+					// Font not described in the HTML at all or isn't available in the project.
+					continue;
+				}
+				
+				if(current!=null){
+					
+					// Hook up the fallback:
+					current.Fallback=backup;
+					
+				}
+				
+				current=backup;
+				
+				if(text.FontToDraw==null){
+					text.FontToDraw=current;
 				}
 				
 			}
 			
-			SearchForFont(text,element.ParentNode);
 		}
 		
 	}

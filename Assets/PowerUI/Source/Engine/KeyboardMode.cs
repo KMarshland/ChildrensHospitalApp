@@ -1,5 +1,3 @@
-using UnityEngine;
-
 //--------------------------------------
 //               PowerUI
 //
@@ -10,6 +8,13 @@ using UnityEngine;
 //    Copyright © 2013 Kulestar Ltd
 //          www.kulestar.com
 //--------------------------------------
+
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+	#define MOBILE
+#endif
+
+using UnityEngine;
+
 
 namespace PowerUI{
 	
@@ -28,7 +33,7 @@ namespace PowerUI{
 		/// <summary>The text that should show up to start with.</summary>
 		public string StartText;
 		
-		#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
+		#if MOBILE
 		/// <summary>The type of keyboard to display.</summary>
 		public TouchScreenKeyboardType Type=TouchScreenKeyboardType.Default;
 		#endif

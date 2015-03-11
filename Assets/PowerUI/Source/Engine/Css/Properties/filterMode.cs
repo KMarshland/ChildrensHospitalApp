@@ -19,7 +19,7 @@ namespace PowerUI.Css.Properties{
 	/// Represents the filter-mode: css property. Specific to PowerUI - this defines the image filtering.
 	/// </summary>
 	
-	public class FilterMode:CssProperty{
+	public class FilteringMode:CssProperty{
 		
 		public override string[] GetProperties(){
 			return new string[]{"filter-mode"};
@@ -31,18 +31,18 @@ namespace PowerUI.Css.Properties{
 			PowerUI.Css.BackgroundImage background=GetBackground(style);
 			
 			if(value==null){
-				background.Filtering=UnityEngine.FilterMode.Point;
+				background.Filtering=FilterMode.Point;
 			}else{
 				
 				switch(value.Text){
 					case "bilinear":
-						background.Filtering=UnityEngine.FilterMode.Bilinear;
+						background.Filtering=FilterMode.Bilinear;
 					break;
 					case "trilinear":
-						background.Filtering=UnityEngine.FilterMode.Trilinear;
+						background.Filtering=FilterMode.Trilinear;
 					break;
 					default:
-						background.Filtering=UnityEngine.FilterMode.Point;
+						background.Filtering=FilterMode.Point;
 					break;
 				}
 				

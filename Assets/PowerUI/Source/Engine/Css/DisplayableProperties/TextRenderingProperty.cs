@@ -13,6 +13,8 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using InfiniText;
+using Blaze;
 
 
 namespace PowerUI.Css{
@@ -21,34 +23,37 @@ namespace PowerUI.Css{
 	/// This class manages rendering text to the screen.
 	/// </summary>
 	
-	public class TextRenderingProperty:DisplayableProperty{
+	public partial class TextRenderingProperty:DisplayableProperty{
 		
-		/// <summary>True if the text should be bold.</summary>
-		public bool Bold;
+		/// <summary>Font weight (boldness). 400 is regular.</summary>
+		public int Weight=400;
 		/// <summary>True if the text should be italic.</summary>
 		public bool Italic;
 		/// <summary>The string to render. Note that this is parsed
 		/// into <see cref="PowerUI.Css.TextRenderingProperty.Characters"/>.</summary>
 		public string Text;
 		/// <summary>The size of the font in pixels.</summary>
-		public int FontSize;
+		public float FontSize;
 		/// <summary>How wide a space should be in pixels.</summary>
 		public float SpaceSize;
 		/// <summary>The colour that the font should be without the colour overlay.</summary>
 		public Color BaseColour;
 		/// <summary>The base colour combined with the colour overlay.</summary>
 		public Color FontColour;
-		/// <summary>True if there have been no text changes.</summary>
-		public bool NoTextChange;
-		
-		/// <summary>The thickness of the text line, if there is one.</summary>
-		public int TextLineWeight;
+		/// <summary>Should text be automatically aliased? Auto is MaxValue. Set with font-smoothing.</summary>
+		public float Alias=float.MaxValue;
+		/// <summary>The ascender for the font with the current gap applied.</summary>
+		public float Ascender=1f;
+		/// <summary>The gap to apply around lines as an em value.</summary>
+		public float LineGap=0.2f;
 		/// <summary>True if all characters are whitespaces. No batches will be generated.</summary>
 		public bool AllWhitespace;
+		/// <summary>A scale factor converting the SDF rasters to FontSize units tall.</summary>
+		private float ScaleFactor;
 		/// <summary>Additional spacing to apply around letters.</summary>
 		public float LetterSpacing;
 		/// <summary>How and where a line should be drawn if at all (e.g. underline, overline etc.)</summary>
-		public TextLineType TextLine;
+		public TextDecorationInfo TextLine;
 		/// <summary>The font to use when rendering.</summary>
 		public DynamicFont FontToDraw;
 		/// <summary>The number of punctiation characters at the end of the word.</summary>
@@ -56,15 +61,9 @@ namespace PowerUI.Css{
 		/// <summary>The number of punctiation characters at the start of the word.</summary>
 		public int StartPunctuationCount;
 		/// <summary>The set of characters to render. Note that the characters are shared globally.</summary>
-		public DynamicCharacter[] Characters;
-		
-		
-		/// <summary>The minimum font size at which spreadover occurs. As all characters get written to a texture, large font
-		/// may cause this texture to fill up. Spreadover is the font size at which PowerUI will start searching for e.g.
-		/// a specific bold version of the font to 'spread' or offload some of the characters onto.</summary>
-		public int Spreadover=30;
-		/// <summary>How text should be clipped at the edges of scrolling regions. Set with text-clip css property.</summary>
-		public TextClipType TextClipping=TextClipType.Fast;
+		public Glyph[] Characters;
+		/// <summary>Kern values for this text, if it has any. Created only if it's needed.</summary>
+		private float[] Kerning;
 		
 		
 		/// <summary>Creates a new text rendering property. Note that this must not be called directly.
@@ -81,7 +80,9 @@ namespace PowerUI.Css{
 					return 0;
 				}
 				
-				if(Characters[Characters.Length-1].Space){
+				Glyph character=Characters[Characters.Length-1];
+				
+				if(character!=null && character.Space){
 					// It ends in a space! Return the width of a space as measured by this renderer.
 					return (int)SpaceSize;
 				}
@@ -96,85 +97,180 @@ namespace PowerUI.Css{
 			return Text.Length;
 		}
 		
-		/// <summary>Recomputes the baseline, space size and inner height of the parent element.</summary>
+		/// <summary>Recomputes the space size and inner height of the parent element.</summary>
 		public void SetDimensions(){
-			if(FontToDraw==null){
+			
+			if(FontToDraw==null || Characters==null){
 				return;
 			}
 			
+			float width=0f;
+			float size=FontSize;
+			float screenHeight=FontToDraw.GetHeight(size) * (1f + LineGap);
+			
+			Ascender=FontToDraw.GetAscend(size) + (LineGap * size / 2f);
+			
+			ScaleFactor=size / Fonts.Rasteriser.ScalarX;
+			
 			ComputedStyle computed=Element.Style.Computed;
-			computed.Baseline=(int)FontToDraw.GetDescend(FontSize);
 			computed.FixedHeight=true;
-			computed.InnerHeight=(int)FontToDraw.GetHeight(FontSize);
 			
 			if(SpaceSize==0f){
-				SpaceSize=FontToDraw.GetSpaceSize(FontSize);
+				SpaceSize=StandardSpaceSize();
 			}
 			
+			for(int i=0;i<Characters.Length;i++){
+				Glyph dChar=Characters[i];
+				
+				if(dChar==null){
+					continue;
+				}
+				
+				if(dChar.Image!=null){
+					
+					if(CharacterProviders.FixHeight){
+						if(dChar.Height>screenHeight){
+							screenHeight=dChar.Height;
+						}
+						
+						width+=dChar.Width;
+					}else{
+						
+						width+=FontSize;
+						
+					}
+					
+				}else if(dChar.Space){
+					width+=SpaceSize;
+				}else{
+					width+=dChar.AdvanceWidth * size;
+				}
+				
+				width+=LetterSpacing;
+			}
+			
+			computed.InnerHeight=(int)screenHeight;
+			computed.InnerWidth=(int)width;
+			computed.FixedWidth=true;
 			computed.SetSize();
+		}
+		
+		/// <summary>The base space size for this text.</summary>
+		public float StandardSpaceSize(){
+			if(FontToDraw==null){
+				return FontSize/3f;
+			}
+			
+			return FontToDraw.GetSpaceSize(FontSize);
 		}
 		
 		public override void SetOverlayColour(Color colour){
 			FontColour=BaseColour*colour;
+			
+			if(TextLine!=null && TextLine.ColourOverride){
+				TextLine.SetOverlayColour(colour);
+			}
+			
 			RequestPaint();
 		}
 		
-		/// <summary>Allocates the characters that are held by this text object so they don't get purged.</summary>
-		public void AllocateText(){
+		protected override void NowOffScreen(){
+			
 			if(Characters==null){
 				return;
 			}
 			
-			foreach(DynamicCharacter character in Characters){
+			foreach(Glyph character in Characters){
+				
 				if(character==null){
 					continue;
 				}
-				character.InUse=true;
+				
+				character.OffScreen();
 			}
+			
+		}
+		
+		protected override bool NowOnScreen(){
+			
+			if(Characters==null){
+				return false;
+			}
+			
+			foreach(Glyph character in Characters){
+				
+				if(character==null){
+					continue;
+				}
+				
+				character.OnScreen();
+			}
+			
+			return true;
+			
+		}
+		
+		/// <summary>Called when an @font-face font fully loads.</summary>
+		public void FontLoaded(DynamicFont font){
+			
+			if(FontToDraw==null || Characters==null){
+				return;
+			}
+			
+			if(FontToDraw==font){
+				Kerning=null;
+				SpaceSize=0f;
+				SetText();
+				
+				if(Visible){
+					NowOnScreen();
+				}
+				
+				return;
+				
+			}
+				
+			DynamicFont fallback=FontToDraw.Fallback;
+			while(fallback!=null){
+				
+				if(fallback==font){
+					// Fallback font now available - might change the rendering.
+					Kerning=null;
+					SpaceSize=0f;
+					SetText();
+					
+					if(Visible){
+						NowOnScreen();
+					}
+					
+					return;
+				}
+				
+				fallback=fallback.Fallback;
+			}
+			
 		}
 		
 		/// <summary>Loads the character array (<see cref="PowerUI.Css.TextRenderingProperty.Characters"/>) from the text string.</summary>
 		public void SetText(){
 			
-			if(Text==null||FontToDraw==null){
+			if(Text==null || FontToDraw==null){
 				// Can't do it just yet - we have no text/ font to use.
 				return;
 			}
 			
 			char[] characters=Text.ToCharArray();
 			
-			Characters=new DynamicCharacter[characters.Length];
-			
-			if(TextLine==TextLineType.None){
-				TextLineWeight=0;
-			}else{
-				TextLineWeight=FontSize/12;
-				if(TextLineWeight<0){
-					TextLineWeight=1;
-				}
-			}
+			Characters=new Glyph[characters.Length];
 			
 			// Find the style ID for our properties:
-			int fontStyleID=0;
+			int fontStyle=Weight;
 			
-			if(Bold&&Italic){
-				fontStyleID=3;
-			}else if(Bold){
-				fontStyleID=2;
-			}else if(Italic){
-				fontStyleID=1;
+			if(Italic){
+				fontStyle|=1;
 			}
 			
-			// If the text is large, Unity may not be able to fit all characters onto the texture atlas.
-			// So instead we go hunting for a font that's already bold/italic if this is and use that instead.
-			if(FontSize>=Spreadover){
-				if(fontStyleID!=FontToDraw.StyleID){
-					FontToDraw=FontToDraw.GetAlternateFont(fontStyleID);
-				}
-			}else if(FontToDraw.StyleID!=0){
-				// Reset it back to the main one:
-				FontToDraw=FontToDraw.GetAlternateFont(0);
-			}
+			FontFaceFlags fontStyleID=(FontFaceFlags)fontStyle;
 			
 			// The number of punctuation marks in a row that have been spotted.
 			int punctuationCount=0;
@@ -188,18 +284,23 @@ namespace PowerUI.Css{
 			
 			// Next, for each character, find its dynamic character.
 			// At the same time we want to find out what dimensions this word has so it can be located correctly.
+			Glyph previous=null;
+			
 			for(int i=0;i<characters.Length;i++){
 				char rawChar=characters[i];
 				
-				DynamicCharacter character=null;
+				Glyph character=null;
 				
 				// Is it a unicode high/low surrogate pair?
 				if(char.IsHighSurrogate(rawChar) && i!=characters.Length-1){
 					// Low surrogate follows:
 					char lowChar=characters[i+1];
 					
+					// Get the full charcode:
+					int charcode=char.ConvertToUtf32(rawChar,lowChar);
+					
 					// Grab the surrogate pair char:
-					character=FontToDraw.GetCharacter(lowChar,rawChar,FontSize,fontStyleID);
+					character=FontToDraw.GetCharacter(charcode,fontStyleID);
 					
 					// Make sure there is no char in the low surrogate spot:
 					Characters[i+1]=null;
@@ -208,7 +309,7 @@ namespace PowerUI.Css{
 					// Skip the low surrogate:
 					i++;
 				}else{
-					character=FontToDraw.GetCharacter(characters[i],FontSize,fontStyleID);
+					character=FontToDraw.GetCharacter((int)characters[i],fontStyleID);
 					Characters[i]=character;
 				}
 				
@@ -217,11 +318,33 @@ namespace PowerUI.Css{
 					continue;
 				}
 				
-				if(!character.Space){
+				if(previous!=null){
+					
+					// Look for a kern pair:
+					if(character.Kerning!=null){
+						
+						float offset;
+						
+						if(character.Kerning.TryGetValue(previous,out offset)){
+							// Got a kern!
+							if(Kerning==null){
+								Kerning=new float[characters.Length];
+							}
+							
+							Kerning[i]=offset;
+						}
+						
+					}
+					
+				}
+				
+				previous=character;
+				
+				if(!character.Space || character.Image!=null){
 					AllWhitespace=false;
 				}
 				
-				if(character.Space || ( !char.IsNumber(character.RawCharacter) && !char.IsLetter(character.RawCharacter) ) ){
+				if(character.Space || ( !char.IsNumber((char)character.RawCharcode) && !char.IsLetter((char)character.RawCharcode) ) ){
 					// Considered punctuation if it's not alphanumeric.
 					punctuationCount++;
 				}else{
@@ -232,64 +355,16 @@ namespace PowerUI.Css{
 					punctuationCount=0;
 				}
 				
-				if(character.Space){
-					continue;
-				}
 			}
 			
 			EndPunctuationCount=punctuationCount;
 			
+			// Update dimensions:
+			SetDimensions();
+			
 			// And finally request a redraw:
 			RequestLayout();
-			NoTextChange=false;
-		}
-		
-		/// <summary>Recomputes the width of this element.</summary>
-		public void SetWidth(){
-			if(Characters==null||NoTextChange){
-				return;
-			}
-			NoTextChange=true;
-			float width=0f;
-			float height=0f;
 			
-			for(int i=0;i<Characters.Length;i++){
-				DynamicCharacter dChar=Characters[i];
-				
-				if(dChar==null){
-					continue;
-				}
-				
-				if(dChar.Space){
-					width+=SpaceSize;
-				}else{
-					width+=dChar.DeltaWidth;
-				}
-				
-				if(dChar.IsImage&& dChar.Height>height){
-					// Emoji char.
-					
-					if(height==0f){
-						height=FontToDraw.GetHeight(FontSize);
-						
-						if(dChar.Height>height){
-							height=dChar.Height;
-						}
-					}else{
-						height=dChar.Height;
-					}
-				}
-				
-				width+=LetterSpacing;
-			}
-			ComputedStyle computed=Element.Style.Computed;
-			if(height!=0f){
-				
-				computed.InnerHeight=(int)height;
-			}
-			computed.InnerWidth=(int)width;
-			computed.FixedWidth=true;
-			computed.SetSize();
 		}
 		
 		public override void Paint(){
@@ -316,7 +391,8 @@ namespace PowerUI.Css{
 			int intSpaceSize=(int)SpaceSize;
 			
 			for(int i=0;i<Characters.Length;i++){
-				DynamicCharacter character=Characters[i];
+				Glyph character=Characters[i];
+				
 				if(character==null){
 					continue;
 				}
@@ -324,7 +400,7 @@ namespace PowerUI.Css{
 				if(character.Space){
 					widthOffset-=intSpaceSize;
 				}else{
-					widthOffset-=(int)character.DeltaWidth;
+					widthOffset-=(int)(character.AdvanceWidth * FontSize);
 				}
 				
 				widthOffset-=(int)LetterSpacing;
@@ -361,7 +437,7 @@ namespace PowerUI.Css{
 			float result=0f;
 			
 			for(int i=0;i<letterID;i++){
-				DynamicCharacter character=Characters[i];
+				Glyph character=Characters[i];
 				
 				if(character==null){
 					continue;
@@ -371,58 +447,141 @@ namespace PowerUI.Css{
 					result+=SpaceSize+LetterSpacing;
 					continue;
 				}
-				result+=character.DeltaWidth+LetterSpacing;
+				
+				result+=(character.AdvanceWidth * FontSize)+LetterSpacing;
 			}
+			
 			return result;
 		}
 		
 		protected override void Layout(){
+			
 			if(Characters==null||FontToDraw==null||Characters.Length==0){
 				return;
-			}
-			
-			if(!AllWhitespace){
-				// Firstly, make sure the batch is using the right font texture.
-				// This may generate a new batch if the font doesn't match the previous or existing font.
-				SetFontTexture(FontToDraw.FontTexture);
 			}
 			
 			// The blocks we allocate here come from FontToDraw.
 			// They use the same renderer and same layout service, but just a different mesh.
 			// This is to enable potentially very large font atlases with multiple fonts.
 			ComputedStyle computed=Element.Style.Computed;
+			Renderman renderer=Element.Document.Renderer;
 			
 			float top=computed.OffsetTop + computed.StyleOffsetTop;
 			float left=computed.OffsetLeft + computed.StyleOffsetLeft;
 			
+			// Should we auto-alias the text?
+			
+			// Note that this property "drags" to following elements which is correct.
+			// We don't really want to break batching chains for aliasing.
+			
+			if(Alias==float.MaxValue){
+				// Yep! Note all values here are const.
+				float aliasing=Fonts.AutoAliasOffset - ( (FontSize-Fonts.AutoAliasRelative) * Fonts.AutoAliasRamp);
+				
+				if(aliasing>0.1f){
+					renderer.FontAliasing=aliasing;
+				}
+				
+			}else{
+				
+				// Write aliasing:
+				renderer.FontAliasing=Alias;
+				
+			}
+			
+			if(Extrude!=0f){
+				// Compute the extrude now:
+				if(Text3D==null){
+					Text3D=Get3D(FontSize,FontColour,ref left,ref top);
+				}else{
+					// Update it.
+				}
+				
+				return;
+				
+			}else{
+				Text3D=null;
+			}
+			
+			
+			if(!AllWhitespace){
+				// Firstly, make sure the batch is using the right font texture.
+				// This may generate a new batch if the font doesn't match the previous or existing font.
+				
+				// Get the full shape of the element:
+				int width=computed.PaddedWidth;
+				int height=computed.PaddedHeight;
+				int minY=computed.OffsetTop+computed.BorderTop;
+				int minX=computed.OffsetLeft+computed.BorderLeft;
+				
+				BoxRegion boundary=new BoxRegion(minX,minY,width,height);
+				
+				if(!boundary.Overlaps(renderer.ClippingBoundary)){
+					
+					if(Visible){
+						SetVisibility(false);
+					}
+					
+					return;
+				}else if(!Visible){
+					
+					// ImageLocation will allocate here if it's needed.
+					SetVisibility(true);
+					
+				}
+				
+			}
+			
 			float zIndex=computed.ZIndex;
 			BoxRegion screenRegion=new BoxRegion();
-			Renderman renderer=Element.Document.Renderer;
 			
 			// First up, underline.
-			if(TextLine!=TextLineType.None){
+			if(TextLine!=null){
 				// We have one. Locate it next.
-				int yOffset=0;
-				if(TextLine==TextLineType.Underline){
-					yOffset=computed.InnerHeight-computed.Baseline;
-				}else if(TextLine==TextLineType.StrikeThrough){
-					yOffset=computed.InnerHeight/2;
+				float lineWeight=(FontToDraw.StrikeSize * FontSize);
+				float yOffset=0f;
+				
+				switch(TextLine.Type){
+				
+					case TextLineType.Underline:
+						yOffset=Ascender + lineWeight;
+					break;
+					case TextLineType.StrikeThrough:
+						yOffset=(FontToDraw.StrikeOffset * FontSize);
+						yOffset=Ascender - yOffset;
+					break;
+					case TextLineType.Overline:
+						yOffset=(lineWeight * 2f);
+					break;
 				}
-				screenRegion.Set(left,top+yOffset-(TextLineWeight/2),computed.InnerWidth,TextLineWeight);
+				
+				Color lineColour=FontColour;
+				
+				if(TextLine.ColourOverride){
+					lineColour=TextLine.Colour;
+				}
+				
+				screenRegion.Set(left,top+yOffset,computed.PixelWidth,lineWeight);
 				
 				if(screenRegion.Overlaps(renderer.ClippingBoundary)){
+					
+					// Ensure we have a batch:
+					SetupBatch(null,null);
+					
 					// This region is visible. Clip it:
 					screenRegion.ClipBy(renderer.ClippingBoundary);
 					// And get our block ready:
 					MeshBlock block=Add();
 					// Set the UV to that of the solid block colour pixel:
 					block.SetSolidColourUV();
-					// Set the font colour:
-					block.SetColour(FontColour);
+					// Set the colour:
+					block.SetColour(lineColour);
 					
 					block.SetClipped(renderer.ClippingBoundary,screenRegion,renderer,zIndex);
 				}
+				
 			}
+			
 			
 			// Next, render the characters.
 			// If we're rendering from right to left, flip the punctuation over.
@@ -432,7 +591,12 @@ namespace PowerUI.Css{
 			
 			if(StartPunctuationCount<Characters.Length){
 				// Is the first actual character a rightwards one?
-				rightwardWord=Characters[StartPunctuationCount].Rightwards;
+				Glyph firstChar=Characters[StartPunctuationCount];
+				
+				if(firstChar!=null){
+					rightwardWord=firstChar.Rightwards;
+				}
+				
 			}
 			
 			// Right to left (e.g. arabic):
@@ -443,7 +607,7 @@ namespace PowerUI.Css{
 				// Draw the punctuation from the end of the string first, backwards:
 				if(EndPunctuationCount>0){
 					for(int i=Characters.Length-1;i>=end;i--){
-						DrawInvertCharacter(Characters[i],ref left,top,renderer,zIndex,screenRegion);
+						DrawInvertCharacter(i,ref left,top,renderer,zIndex,screenRegion);
 					}
 				}
 				
@@ -451,14 +615,14 @@ namespace PowerUI.Css{
 					// Render the word itself backwards.
 					
 					for(int i=end-1;i>=StartPunctuationCount;i--){
-						DrawCharacter(Characters[i],ref left,top,renderer,zIndex,screenRegion);
+						DrawCharacter(i,ref left,top,renderer,zIndex,screenRegion);
 					}
 					
 				}else{
 				
 					// Draw the middle characters:
 					for(int i=StartPunctuationCount;i<end;i++){
-						DrawCharacter(Characters[i],ref left,top,renderer,zIndex,screenRegion);
+						DrawCharacter(i,ref left,top,renderer,zIndex,screenRegion);
 					}
 					
 				}
@@ -468,7 +632,7 @@ namespace PowerUI.Css{
 				if(StartPunctuationCount>0){
 					
 					for(int i=StartPunctuationCount-1;i>=0;i--){
-						DrawInvertCharacter(Characters[i],ref left,top,renderer,zIndex,screenRegion);
+						DrawInvertCharacter(i,ref left,top,renderer,zIndex,screenRegion);
 					}
 					
 				}
@@ -478,7 +642,7 @@ namespace PowerUI.Css{
 				// Render the word itself backwards.
 				
 				for(int i=Characters.Length-1;i>=0;i--){
-					DrawCharacter(Characters[i],ref left,top,renderer,zIndex,screenRegion);
+					DrawCharacter(i,ref left,top,renderer,zIndex,screenRegion);
 				}
 				
 			}else{
@@ -486,7 +650,8 @@ namespace PowerUI.Css{
 				// Draw it as is.
 				
 				for(int i=0;i<Characters.Length;i++){
-					DrawCharacter(Characters[i],ref left,top,renderer,zIndex,screenRegion);
+					
+					DrawCharacter(i,ref left,top,renderer,zIndex,screenRegion);
 				}
 				
 			}
@@ -494,9 +659,16 @@ namespace PowerUI.Css{
 		}
 		
 		/// <summary>Draws a character with x-inverted UV's. Used for rendering e.g. "1 < 2" in right-to-left.</summary>
-		private void DrawInvertCharacter(DynamicCharacter character,ref float left,float top,Renderman renderer,float zIndex,BoxRegion screenRegion){
+		private void DrawInvertCharacter(int index,ref float left,float top,Renderman renderer,float zIndex,BoxRegion screenRegion){
+			
+			Glyph character=Characters[index];
+			
 			if(character==null){
 				return;
+			}
+			
+			if(Kerning!=null){
+				left+=Kerning[index] * FontSize;
 			}
 			
 			if(character.Space){
@@ -504,90 +676,87 @@ namespace PowerUI.Css{
 				return;
 			}
 			
-			float y=top+character.AscendorOffset;
+			float y=top+Ascender-((character.Height+character.MinY) * FontSize);
 			
-			screenRegion.Set(left,y,character.Width,character.Height);
+			AtlasLocation locatedAt=character.Location;
+			
+			if(locatedAt==null){
+				// Not in font.
+				return;
+			}
+			
+			screenRegion.Set(left + (character.LeftSideBearing * FontSize),y,locatedAt.Width * ScaleFactor,locatedAt.Height * ScaleFactor);
 			
 			if(screenRegion.Overlaps(renderer.ClippingBoundary)){
 				// True if this character is visible.
 				
+				// Ensure correct batch:
+				SetupBatch(null,locatedAt.Atlas);
+			
 				MeshBlock block=Add();
 				block.SetColour(FontColour);
 				
 				// And clip our meshblock to fit within boundary:
-				block.SetClipped(renderer.ClippingBoundary,screenRegion,Element.Document.Renderer,zIndex);
+				block.ImageUV=null;
+				UVBlock uvs=block.SetClipped(renderer.ClippingBoundary,screenRegion,renderer,zIndex,locatedAt,block.TextUV);
 				
-				if(TextClipping==TextClipType.Fast){
-					// No UV clipping. Note the inversion here!
-					block.UVTopLeft=character.UVTopRight;
-					block.UVTopRight=character.UVTopLeft;
-					block.UVBottomLeft=character.UVBottomRight;
-					block.UVBottomRight=character.UVBottomLeft;
-				}else{
-					// Clip the UVs.
-					
-					// Find the size in UV coords that was chopped off the top and left edges:
-					float choppedOffTop=(screenRegion.Y-y) * character.UVPerPixelY;
-					float choppedOffLeft=(screenRegion.X-left) * character.UVPerPixelX;
-					
-					if(character.Flipped){
-						// Flipped character.
-						float maxU=character.UVTopRight.x - choppedOffTop;
-						float minV=character.UVBottomLeft.y + choppedOffLeft;
-						
-						float minU=maxU - (screenRegion.Height * character.UVPerPixelY);
-						float maxV=minV + (screenRegion.Width * character.UVPerPixelX);
-						
-						// Note that the following is inverted.
-						block.UVTopRight=new Vector2(maxU,minV);
-						block.UVTopLeft=new Vector2(maxU,maxV);
-						block.UVBottomRight=new Vector2(minU,minV);
-						block.UVBottomLeft=new Vector2(minU,maxV);
-						
-					}else{
-						// UV's are as you'd expect here.
-						float minU=character.UVBottomLeft.x + choppedOffLeft;
-						float maxV=character.UVTopRight.y - choppedOffTop;
-						
-						float maxU=minU + (screenRegion.Width * character.UVPerPixelX);
-						float minV=maxV - (screenRegion.Height * character.UVPerPixelY);
-						
-						// Note that the following is inverted.
-						block.UVTopRight=new Vector2(minU,maxV);
-						block.UVTopLeft=new Vector2(maxU,maxV);
-						block.UVBottomRight=new Vector2(minU,minV);
-						block.UVBottomLeft=new Vector2(maxU,minV);
-					}
+				if(uvs.Shared){
+					uvs=new UVBlock(uvs);
 				}
+				
+				// Invert along X:
+				float temp=uvs.MinX;
+				uvs.MinX=uvs.MaxX;
+				uvs.MaxX=temp;
+				
+				// Assign to the block:
+				block.TextUV=uvs;
+				
 			}
 			
-			left+=character.DeltaWidth+LetterSpacing;
+			left+=(character.AdvanceWidth * FontSize)+LetterSpacing;
 		}
 		
 		/// <summary>Draws a character and advances the pen onwards.</summary>
-		private void DrawCharacter(DynamicCharacter character,ref float left,float top,Renderman renderer,float zIndex,BoxRegion screenRegion){
+		private void DrawCharacter(int index,ref float left,float top,Renderman renderer,float zIndex,BoxRegion screenRegion){
+			
+			Glyph character=Characters[index];
+			
 			if(character==null){
 				return;
 			}
 			
-			if(character.Space){
-				left+=SpaceSize+LetterSpacing;
-				return;
+			if(Kerning!=null){
+				left+=Kerning[index] * FontSize;
 			}
 			
-			if(character.IsImage){
-				// It's an image (e.g. Emoji).
-				AtlasLocation locatedAt=AddTexture(character.Image.Image);
+			AtlasLocation locatedAt;
+			
+			if(character.Image!=null){
 				
-				if(locatedAt==null){
-					// We didn't have any space for the image on the atlas.
+				if(!character.Image.Loaded()){
 					return;
 				}
 				
-				// Set the region:
-				screenRegion.Set(left,top,locatedAt.Width,locatedAt.Height);
+				// It's an image (e.g. Emoji).
+				locatedAt=RequireImage(character.Image);
+				
+				if(locatedAt==null){
+					// It needs to be isolated. Big emoji image!
+					return;
+				}
+				
+				if(CharacterProviders.FixHeight){
+					// Set the region:
+					screenRegion.Set(left,top,locatedAt.Width,locatedAt.Height);
+				}else{
+					screenRegion.Set(left,top,FontSize,FontSize);
+				}
 				
 				if(screenRegion.Overlaps(renderer.ClippingBoundary)){
+						
+					// Ensure correct batch:
+					SetupBatch(locatedAt.Atlas,null);
 					
 					// If the two overlap, this means it's actually visible.
 					MeshBlock block=Add();
@@ -596,72 +765,53 @@ namespace PowerUI.Css{
 					block.SetColour(Element.Style.Computed.ColorOverlay);
 					
 					// And clip our meshblock to fit within boundary:
-					block.SetClipped(renderer.ClippingBoundary,screenRegion,Element.Document.Renderer,zIndex,locatedAt);
+					block.TextUV=null;
+					block.ImageUV=block.SetClipped(renderer.ClippingBoundary,screenRegion,renderer,zIndex,locatedAt,block.ImageUV);
 				}
 				
-				left+=character.DeltaWidth+LetterSpacing;
+				left+=(character.AdvanceWidth)+LetterSpacing;
+				return;
+			}else if(character.Space){
+				left+=SpaceSize+LetterSpacing;
 				return;
 			}
 			
-			float y=top+character.AscendorOffset;
 			
-			screenRegion.Set(left,y,character.Width,character.Height);
+			locatedAt=character.Location;
+			
+			if(locatedAt==null){
+				// Not in font.
+				return;
+			}
+			
+			float y=top+Ascender-((character.Height+character.MinY) * FontSize);
+			
+			screenRegion.Set(left + (character.LeftSideBearing * FontSize),y,locatedAt.Width * ScaleFactor,locatedAt.Height * ScaleFactor);
 			
 			if(screenRegion.Overlaps(renderer.ClippingBoundary)){
 				// True if this character is visible.
+				
+				// Ensure correct batch:
+				SetupBatch(null,locatedAt.Atlas);
 				
 				MeshBlock block=Add();
 				block.SetColour(FontColour);
 				
 				// And clip our meshblock to fit within boundary:
-				block.SetClipped(renderer.ClippingBoundary,screenRegion,Element.Document.Renderer,zIndex);
+				block.ImageUV=null;
+				block.TextUV=block.SetClipped(renderer.ClippingBoundary,screenRegion,renderer,zIndex,locatedAt,block.TextUV);
 				
-				if(TextClipping==TextClipType.Fast){
-					// No UV clipping.
-					block.UVTopLeft=character.UVTopLeft;
-					block.UVTopRight=character.UVTopRight;
-					block.UVBottomLeft=character.UVBottomLeft;
-					block.UVBottomRight=character.UVBottomRight;
-				}else{
-					// Clip the UVs.
-					
-					// Find the size in UV coords that was chopped off the top and left edges:
-					float choppedOffTop=(screenRegion.Y-y) * character.UVPerPixelY;
-					float choppedOffLeft=(screenRegion.X-left) * character.UVPerPixelX;
-					
-					if(character.Flipped){
-						// Flipped character.
-						float maxU=character.UVTopRight.x - choppedOffTop;
-						float minV=character.UVBottomLeft.y + choppedOffLeft;
-						
-						float minU=maxU - (screenRegion.Height * character.UVPerPixelY);
-						float maxV=minV + (screenRegion.Width * character.UVPerPixelX);
-						
-						block.UVTopLeft=new Vector2(maxU,minV);
-						block.UVTopRight=new Vector2(maxU,maxV);
-						block.UVBottomLeft=new Vector2(minU,minV);
-						block.UVBottomRight=new Vector2(minU,maxV);
-						
-					}else{
-						// UV's are as you'd expect here.
-						float minU=character.UVBottomLeft.x + choppedOffLeft;
-						float maxV=character.UVTopRight.y - choppedOffTop;
-						
-						float maxU=minU + (screenRegion.Width * character.UVPerPixelX);
-						float minV=maxV - (screenRegion.Height * character.UVPerPixelY);
-						
-						block.UVTopLeft=new Vector2(minU,maxV);
-						block.UVTopRight=new Vector2(maxU,maxV);
-						block.UVBottomLeft=new Vector2(minU,minV);
-						block.UVBottomRight=new Vector2(maxU,minV);
-					}
-				}
 			}
-			left+=character.DeltaWidth+LetterSpacing;
+			
+			left+=(character.AdvanceWidth * FontSize)+LetterSpacing;
 		}
 		
 		public override string ToString(){
 			return Text;
+		}
+		
+		public void ToString(System.Text.StringBuilder builder){
+			builder.Append(Text);
 		}
 		
 	}

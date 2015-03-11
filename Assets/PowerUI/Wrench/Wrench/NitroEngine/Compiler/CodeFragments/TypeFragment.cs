@@ -79,7 +79,7 @@ namespace Nitro{
 				}else if(peek=='['){
 					SetArray(sr);
 					break;
-				}else if(peek=='='||peek=='>'||peek==','||peek==';'||peek==StringReader.NULL||BracketFragment.AnyBracket(peek)){
+				}else if(peek==','||peek==';'||peek==StringReader.NULL||BracketFragment.AnyBracket(peek)||Operator.IsOperator(peek)){
 					// Pass control back to the operation:
 					break;
 				}

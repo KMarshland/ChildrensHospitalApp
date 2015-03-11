@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 
 
 namespace PowerUI.Css.Properties{
@@ -46,28 +45,39 @@ namespace PowerUI.Css.Properties{
 			
 			// Apply the property:
 			if(value==null){
-				text.FontSize=12;
+				text.FontSize=12f;
 			}else{
 				
 				if(value.Type==ValueType.Text){
 					
 					if(string.IsNullOrEmpty(value.Text)){
-						text.FontSize=12;
+						text.FontSize=12f;
 					}else{
-						text.FontSize=int.Parse(value.Text);
+						text.FontSize=float.Parse(value.Text);
 					}
 					
 				}else{
-					text.FontSize=value.PX;
+					text.FontSize=(float)value.PX;
 				}
+				
+			}
+			
+			// Got any letter spacing that needs updating?
+			Css.Value spacing=style["letter-spacing"];
+			
+			if(spacing!=null && spacing.Single!=0f){
+				
+				// Apply a relative %:
+				text.LetterSpacing=text.FontSize*(value.Single-1f);
 				
 			}
 			
 			// Set width/height directly to the computed style:
 			text.SetDimensions();
 			
-			// Apply the changes:
-			text.SetText();
+			// Request a redraw:
+			style.RequestLayout();
+			
 		}
 		
 	}

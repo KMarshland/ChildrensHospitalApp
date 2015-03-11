@@ -45,7 +45,8 @@ namespace Nitro{
 		
 		/// <summary>Outputs this variable to write its content.</summary>
 		/// <param name="into">The IL stream a set should be put into.</param>
-		public virtual void OutputSet(NitroIL into){}
+		/// <param name="setting">The type being set to this variable.</param>
+		public virtual void OutputSet(NitroIL into,Type setting){}
 		
 		/// <summary>Used with OutputSet, this outputs any additional information that 'targets' where this variable is located.</summary>
 		/// <param name="into">The IL stream a set should be put into.</param>
@@ -55,9 +56,11 @@ namespace Nitro{
 		/// <param name="other">The variable to check for equality with this one.</param>
 		/// <returns>True if this and the given variable is equal.</returns>
 		public bool Equals(Variable other){
+			
 			if(other==null||other.GetType()!=GetType()){
 				return false;
 			}
+			
 			return (Name==other.Name);
 		}
 

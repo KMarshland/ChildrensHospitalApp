@@ -28,18 +28,25 @@ namespace PowerUI{
 		[MenuItem("Assets/PowerUI/Auto Image Settings")]
 		public static void AutoImageSettings(){
 			
-			// Grab the path:
-			string path=AssetDatabase.GetAssetPath(Selection.activeObject);
+			// Get the selection:
+			UnityEngine.Object[] assets=Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets);
 			
-			// Log a message:
-			Debug.Log("Automatically applying import settings to "+path+"..");
+			foreach(UnityEngine.Object obj in assets){
 			
-			if(string.IsNullOrEmpty(path)){
-				return;
+				// Grab the paths:
+				string path=AssetDatabase.GetAssetPath(obj);
+				
+				// Log a message:
+				Debug.Log("Automatically applying import settings to "+path+"..");
+				
+				if(string.IsNullOrEmpty(path)){
+					continue;
+				}
+				
+				// Note: Internally checks if path is a directory.
+				ImageImport.Apply(path);
+				
 			}
-			
-			// Note: Internally checks if path is a directory.
-			ImageImport.Apply(path);
 			
 		}
 		

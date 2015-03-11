@@ -28,7 +28,7 @@ namespace PowerUI{
 			return new SampTag();
 		}
 		
-		public override bool AtEnd(MLLexer lexer){
+		protected override bool AtEnd(MLLexer lexer){
 			// Three will do; we're certainly at the end by that point.
 			return (lexer.Peek()=='<'&&
 					lexer.Peek(1)=='/'&&

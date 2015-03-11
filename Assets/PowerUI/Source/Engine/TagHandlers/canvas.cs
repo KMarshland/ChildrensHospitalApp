@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -71,6 +70,21 @@ namespace PowerUI{
 			if(Context2D!=null){
 				Context2D.Resized();
 			}
+		}
+		
+	}
+	
+	
+	public partial class Element{
+		
+		/// <summary>Gets a rendering context for this canvas (if it is a canvas element!).</summary>
+		/// <param name="text">The context type e.g. "2D".</param>
+		public CanvasContext getContext(string text){
+			if(Tag=="canvas"){
+				return ((CanvasTag)Handler).getContext(text);
+			}
+			
+			return null;
 		}
 		
 	}

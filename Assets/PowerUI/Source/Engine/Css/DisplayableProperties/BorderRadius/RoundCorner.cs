@@ -22,8 +22,11 @@ namespace PowerUI.Css{
 	
 	public class RoundCorner{
 		
-		/// <summary>The amount of pixels per section of the corner. The higher this is, the smoother the corner (but the lower the performance).</summary>
+		/// <summary>The amount of pixels per section of the corner. The lower this is, the smoother the corner (but the lower the performance).
+		/// Below this, micro resolution is used instead.</summary>
 		public static int Resolution=4;
+		/// <summary>The corner resolution if a corner radius is equal to resolution or lower.</summary>
+		public static int MicroResolution=1;
 		
 		/// <summary>The edge index that this corner goes to.</summary>
 		public int ToIndex;
@@ -82,8 +85,17 @@ namespace PowerUI.Css{
 				
 				CornerRadius=value;
 				
+				int resolution=Resolution;
+				
+				if(value<=resolution){
+					
+					// Use the micro resolution instead:
+					resolution=MicroResolution;
+					
+				}
+				
 				// How many blocks does this corner require? Rounded up.
-				BlocksRequired=((value-1)/Resolution)+1;
+				BlocksRequired=((value-1)/resolution)+1;
 				
 				// How many inverse blocks?
 				InverseBlocksRequired=((BlocksRequired-1)/2)+1;
@@ -373,6 +385,9 @@ namespace PowerUI.Css{
 			
 			// Resolve the corner:
 			Vector3 corner=renderer.PixelToWorldUnit(cornerX,cornerY,zIndex);
+			
+			// Ensure a batch is available:
+			InverseBorder.SetupBatch(null,null);
 			
 			// For each inverse block:
 			for(int i=0;i<InverseBlocksRequired;i++){

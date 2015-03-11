@@ -31,6 +31,12 @@ namespace Nitro{
 			Input1=input1;
 		}
 		
+		public override bool RequiresStoring{
+			get{
+				return false;
+			}
+		}
+		
 		public override Type OutputType(out CompiledFragment v){
 			v=this;
 			Output=true;
@@ -45,31 +51,40 @@ namespace Nitro{
 			if(cfrag==null){
 				return false;
 			}
+			
 			if(cfrag.Value==null&&Types.IsTypeOf(cfrag,typeof(Operation))){
 				Operation op=(Operation)cfrag;
+				
 				if(LookFor(op.Input0,findingVar)){
 					return true;
 				}
+				
 				if(LookFor(op.Input1,findingVar)){
 					return true;
 				}
+				
 			}else if(cfrag.Value!=null&&Types.IsTypeOf(cfrag.Value,typeof(Variable))){
 				return ((Variable)cfrag.Value).Equals(findingVar);
 			}
+			
 			return false;
 		}
 		
 		/// <summary>Is the object in I0 mentioned anywhere in I1? Used to distinguish incrementals from straight sets.</summary>
 		/// <returns>True if it is, false otherwise.</returns>
 		public bool SelfReferencing(){
+			
 			if(Input1!=null&&Input0.Value!=null&&Types.IsTypeOf(Input0.Value,typeof(Variable))){
 				Variable var=(Variable)Input0.Value;
+				
 				return LookFor(Input1,var);
 			}
+			
 			return false;
 		}
 		
 		public override void OutputIL(NitroIL into){
+			
 			Type type2=Input1.OutputType(out Input1);
 			
 			// Is it something which is being ["indexed"]? May apply to properties too.
@@ -82,32 +97,40 @@ namespace Nitro{
 				((Operation)Input0).Input0=Input1;
 			}
 			
+			// Update input0 by computing the type it outputs:
 			Type type1=Input0.OutputType(out Input0);
 			
-			if(type1==null){
-				Error("Can't set to nothing.");
-			}
+			object value=Input0.ActiveValue();
 			
-			if(type2==null){
+			if(value.GetType()!=typeof(LocalVariable)){
 				
-				if(type1.IsValueType){
-					Error("Can't set "+type1+" to null because it's a value type.");
+				// Local vars can change type so this doesn't affect them.
+				
+				if(type1==null){
+					Error("Can't set to nothing.");
 				}
 				
-			}else if(!type1.IsAssignableFrom(type2)){
-				Error("Can't implicity convert "+type2+" to "+type1+".");
+				if(type2==null){
+					
+					if(type1.IsValueType){
+						Error("Can't set "+type1+" to null because it's a value type.");
+					}
+					
+				}else if(!type1.IsAssignableFrom(type2)){
+					Error("Can't implicity convert "+type2+" to "+type1+".");
+				}
+				
 			}
-			
-			object value=Input0.ActiveValue();
 			
 			if(Types.IsTypeOf(value,typeof(ISettable))){
 				ISettable Value=(ISettable)value;
 				
 				Value.OutputTarget(into);
 				Input1.OutputIL(into);
-				Value.OutputSet(into);
+				Value.OutputSet(into,type2);
 				
 				if(Output){
+					// Daisy chaining these sets.
 					Input0.OutputIL(into);
 				}
 				
@@ -119,6 +142,7 @@ namespace Nitro{
 				if(Output){
 					Error("Can't daisy chain with an indexer. Place your indexed object furthest left.");
 				}
+				
 			}else if(propertyOperation && value.GetType()==typeof(MethodOperation) && ((MethodOperation)value).MethodName=="set_Item"){
 				// This is also ok - we've done something like object.property=value; and it mapped to object["property"]=value;
 				// Just output the method call:
@@ -131,6 +155,7 @@ namespace Nitro{
 			}else{
 				Error("Attempted to set to something (a "+value.GetType()+") that isn't a variable.");
 			}
+			
 		}
 		
 	}

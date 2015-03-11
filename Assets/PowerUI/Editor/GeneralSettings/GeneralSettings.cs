@@ -68,7 +68,7 @@ namespace PowerUI{
 		void OnGUI(){
 			bool previousValue=IsolatePowerUI;
 			IsolatePowerUI=EditorGUILayout.Toggle("Isolate UI classes",previousValue);
-			EditorGUILayout.HelpBox("This isolates the 'UI' class inside the PowerUI namespace just incase you've got a class called UI of your own.",MessageType.Info);
+			PowerUIEditor.HelpBox("This isolates the 'UI' class inside the PowerUI namespace just incase you've got a class called UI of your own.");
 			
 			if(previousValue!=IsolatePowerUI){
 				OnIsolateChanged();
@@ -76,7 +76,7 @@ namespace PowerUI{
 			
 			previousValue=CustomInput;
 			CustomInput=EditorGUILayout.Toggle("Custom Input",previousValue);
-			EditorGUILayout.HelpBox("Check if you'd like to call UI.HandleInput directly so you can use it's return value.",MessageType.Info);
+			PowerUIEditor.HelpBox("Check if you'd like to call UI.HandleInput directly so you can use it's return value.");
 			
 			if(previousValue!=CustomInput){
 				OnCustomInputChanged();

@@ -64,16 +64,16 @@ namespace PowerUI{
 		void OnGUI(){
 			bool previousValue=CompileAOT;
 			CompileAOT=EditorGUILayout.Toggle("Precompile Nitro code",previousValue);
-			EditorGUILayout.HelpBox("Note: Nitro on iOS and WP8 requires this. Normally, Nitro is compiled at runtime just like Javascript in a web browser. "+
+			PowerUIEditor.HelpBox("Note: Nitro on iOS and WP8 requires this. Normally, Nitro is compiled at runtime just like Javascript in a web browser. "+
 									"It can however be compiled here in the Editor ('Ahead of time') for more performance. "+
-									"Scripts that haven't been precompiled will still be compiled at runtime.",MessageType.Info);
+									"Scripts that haven't been precompiled will still be compiled at runtime.");
 			if(previousValue!=CompileAOT){
 				OnAOTChanged();
 			}
 			
 			previousValue=NoRuntime;
 			NoRuntime=EditorGUILayout.Toggle("No Runtime",previousValue);
-			EditorGUILayout.HelpBox("Note: Nitro on WP8 requires this. Forces a precompile only requirement. Nitro will not be able to compile at runtime.",MessageType.Info);
+			PowerUIEditor.HelpBox("Note: Nitro on WP8 requires this. Forces a precompile only requirement. Nitro will not be able to compile at runtime.");
 			if(previousValue!=NoRuntime){
 				OnRuntimeChanged();
 			}
@@ -81,15 +81,19 @@ namespace PowerUI{
 		
 		/// <summary>Called when the Runtime checkbox is changed.</summary>
 		private void OnRuntimeChanged(){
+			
+			// Grab the nitro path:
+			string nitroPath=NitroPath;
+			
 			if(NoRuntime){
 				// Rename Compiler folder to 'Editor'.
-				if(Directory.Exists(NitroPath+"/Compiler")){
-					AssetDatabase.RenameAsset(NitroPath+"/Compiler","Editor");
+				if(Directory.Exists(nitroPath+"/Compiler")){
+					AssetDatabase.RenameAsset(nitroPath+"/Compiler","Editor");
 				}
 			}else{
 				// Rename the folder back.
-				if(Directory.Exists(NitroPath+"/Editor")){
-					AssetDatabase.RenameAsset(NitroPath+"/Editor","Compiler");
+				if(Directory.Exists(nitroPath+"/Editor")){
+					AssetDatabase.RenameAsset(nitroPath+"/Editor","Compiler");
 				}
 			}
 			AssetDatabase.SaveAssets();
@@ -103,7 +107,7 @@ namespace PowerUI{
 		
 		private string NitroPath{
 			get{
-				return "Assets/PowerUI/Wrench/Wrench/NitroEngine";
+				return PowerUIEditor.GetPowerUIPath()+"/Wrench/Wrench/NitroEngine";
 			}
 		}
 		

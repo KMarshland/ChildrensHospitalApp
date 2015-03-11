@@ -30,9 +30,6 @@ public class AboveHeadTextExample : MonoBehaviour {
 	
 	public void Start(){
 		
-		// Change the text filtering for smoother text:
-		UI.TextFilterMode=FilterMode.Bilinear;
-		
 		// White cube says hello!
 		ShowMessage("Hello <b>people</b>!",WhiteCubesMessageNode);
 		
@@ -46,7 +43,7 @@ public class AboveHeadTextExample : MonoBehaviour {
 		
 		// We'll use WorldUI's for this - no need to mess around with updating etc.
 		// As a worldUI is like a small screen, it needs some pixel space - that's how much space the message HTML has (100px x 100px).
-		WorldUI messageUI=new WorldUI(100,100);
+		WorldUI messageUI=new WorldUI(110,100);
 		
 		// Put it in pixel perfect mode - this is what makes it "stick" to the camera:
 		messageUI.PixelPerfect=true;

@@ -279,7 +279,7 @@ public class MapLabel : MonoBehaviour {
 	public static void loadMarkers(){
 		//TextAsset txt = Resources.Load("TextAssets/MarkerSave") as TextAsset;
 		//string text = txt.text;
-
+		ConsoleControl.Log("LoadMarkers Called");
 		if (!PlayerPrefs.HasKey("MarkerSave")){
 			PlayerPrefs.SetString("MarkerSave", "");
 			Debug.LogWarning("If you see this message twice more than once at the beginning " +
@@ -328,6 +328,7 @@ public class MapLabel : MonoBehaviour {
 
 	public static IEnumerator updateMarkerSave(){
 
+		ConsoleControl.Log("updateMarkerSave Called");
 		string url = "http://marshlandgames.com/HospitalProject/Client/MarkerPlacement/show_formatted_markers.php";
 		//byte[] postData = new byte[1];
 		//Dictionary<string, string> headers = new Dictionary<string, string>();

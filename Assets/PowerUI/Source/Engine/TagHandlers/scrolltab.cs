@@ -150,6 +150,15 @@ namespace PowerUI{
 			SetTabSize(newTabSize);
 		}
 		
+		/// <summary>Scrolls this tab to the specific percentage along the bar. 0-1. Optionally scrolls the target element.</summary>
+		public void ScrollTo(float percent,bool scrollTarget){
+			ScrollTo((int)(percent * BarSize()),scrollTarget);
+		}
+		
+		/// <summary>Scrolls this tab to the specific position along the bar. Optionally scrolls the target element.</summary>
+		public virtual void ScrollTo(int location,bool scrollTarget){
+		}
+		
 		/// <summary>Sets the tab to be the given size in pixels.</summary>
 		/// <param name="newSize">The size in pixels of the tab.</param>
 		protected virtual void SetTabSize(int newSize){}

@@ -25,7 +25,7 @@ namespace Nitro{
 		public OperatorLogicNotEql():base("!=",11){}
 		
 		protected override Operation Compile(CompiledFragment left,CompiledFragment right,CompiledMethod method){
-			return new EqualsOperation(method,new CompiledFragment(0),new EqualsOperation(method,left,right));
+			return new NotEqualOperation(method,left,right);
 		}
 		
 	}

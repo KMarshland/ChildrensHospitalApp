@@ -2,11 +2,17 @@
 body{
 	color:#ffffff;
 	overflow:hidden;
+	font-smoothing:0.15;
 }
 </style>
 
 <div id='screenContent' style='color-overlay:#000000;height:100%;'>
-	<div style='position:fixed;height:100%;width:100%;background:url(background.png);'></div>
+	
+	<!-- Background (The blue noise part - PowerUI is actually transparent) -->
+	<div style='position:fixed;height:100%;width:100%;background:url(noise-background.png);'></div>
+
+	<!-- The PowerUI logo in the middle of the screen. -->
+	<div style='background:url(powerUI-logo.png) no-repeat;background-position:center;height:100%;position:fixed;'></div>
 
 	<center style='font-size:30px;v-align:middle;height:100%;'>
 		<br><br>
@@ -26,38 +32,61 @@ var content:Element;
 var messageID:int=1;
 
 function Start(){
+	
+	// Grab the message box (we're caching it for best performance):
 	message=document.getElementById("message");
+	
+	// Grab the content box:
 	content=document.getElementById("screenContent");
 	
 	// Lets get things moving! The screen is currently dark, so pretend it was just faded out:
 	fadedOut(null);
-}	
+	
+}
 
 function fadeIn(){
+	
 	// Fades the screen in. When it's done, it pauses.
 	content.animate("color-overlay:#ffffff;",1.4f).onDone(pause);
+	
 }
 
 function pause(a:UIAnimation){
+	
 	// Waits for 2 seconds, then fades the screen out.
 	setTimeout(fadeOut,2000);
+
 }
 
 function fadeOut(){
+	
 	// Fades the screen out. When it's done, it flips the message.
 	content.animate("color-overlay:#000000;",1.4f).onDone(fadedOut);
+	
 }
 
 function fadedOut(a:UIAnimation){
 	// Flips the message and fades the screen back in.
+	
 	if(messageID==1){
+		//  Write the first message:
 		message.innerHTML="PowerUI isn't limited to just the games UI..";
+		
+		// Next message is #2:
 		messageID=2;
+		
 	}else if(messageID==2){
+		
+		// Write the second message:
 		message.innerHTML="..It can be used for in game world interfaces too!";
+		
+		// Next message is #1:
 		messageID=1;
 	}
+	
+	// Fade in now:
 	fadeIn();
+	
 }
 
 </script>

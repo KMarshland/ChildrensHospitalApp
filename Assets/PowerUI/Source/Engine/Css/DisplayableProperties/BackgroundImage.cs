@@ -9,8 +9,13 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+	#define MOBILE
+#endif
+
 using System;
 using UnityEngine;
+using Blaze;
 
 namespace PowerUI.Css{
 	
@@ -19,7 +24,7 @@ namespace PowerUI.Css{
 	/// May also be a video (pro only) or animation.
 	/// </summary>
 	
-	public class BackgroundImage:DisplayableProperty{
+	public partial class BackgroundImage:DisplayableProperty{
 	
 		/// <summary>How much to move the image over by on the x axis. % or px.</summary>
 		public Css.Value OffsetX;
@@ -37,6 +42,8 @@ namespace PowerUI.Css{
 		public ImagePackage Image;
 		/// <summary>True if this image should be isolated regardless.</summary>
 		public bool ForcedIsolate;
+		/// <summary>The location of the image on an atlas if it's on one.</summary>
+		public AtlasLocation ImageLocation;
 		/// <summary>The filter mode to display the image with.</summary>
 		public FilterMode Filtering=FilterMode.Point;
 		
@@ -47,6 +54,34 @@ namespace PowerUI.Css{
 		
 		public override void SetOverlayColour(Color colour){
 			RequestPaint();
+		}
+		
+		public bool Overlaps(BackgroundImage image){
+			
+			// Get the first image block:
+			MeshBlock block=image.FirstBlock;
+			
+			if(block==null || FirstBlock==null){
+				return false;
+			}
+			
+			// Check if images verts are contained within any of mine.
+			MeshBlock current=FirstBlock;
+			
+			while(current!=null){
+				
+				if(current.Overlaps(block)){
+					
+					return true;
+				
+				}
+				
+				current=current.LocalBlockAfter;
+				
+			}
+			
+			return false;
+			
 		}
 		
 		public override void OnBatchDestroy(){
@@ -131,8 +166,38 @@ namespace PowerUI.Css{
 			}
 		}
 		
+		protected override void NowOffScreen(){
+			
+			if(ImageLocation==null){
+				return;
+			}
+			
+			if(ImageLocation.DecreaseUsage()){
+				ImageLocation=null;
+			}
+			
+		}
+		
+		protected override bool NowOnScreen(){
+			
+			if(Image==null || Image.Image==null){
+				// Reject the visibility state change.
+				ImageLocation=null;
+				return false;
+			}
+			
+			ImageLocation=RequireImage(Image);
+			
+			return true;
+			
+		}
+		
 		protected override void Layout(){
 			if(Image==null || !Image.Loaded()){
+				return;
+			}
+			
+			if(Clipping==BackgroundClipping.Text){
 				return;
 			}
 			
@@ -146,12 +211,18 @@ namespace PowerUI.Css{
 			}else if(Image.IsVideo){
 				// Similarly with a video, we need to isolate it aswell.
 				Isolate();
-				#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
-				// Play now:
-				Image.Video.Play();
 				
-				// Fire an onplay event:
-				Element.Run("onplay");
+				#if !MOBILE
+				if(!Image.Video.isPlaying && Element["autoplay"]!=null){
+					// Play now:
+					Image.Video.Play();
+					
+					// Fire an onplay event:
+					Element.Run("onplay");
+					
+					// Clear:
+					Element["autoplay"]=null;
+				}
 				
 				#endif
 			}else{
@@ -168,36 +239,47 @@ namespace PowerUI.Css{
 			int minX=computed.OffsetLeft+computed.BorderLeft;
 			
 			if(width==0||height==0){
+				if(Visible){
+					SetVisibility(false);
+				}
 				return;
 			}
 			
 			BoxRegion boundary=new BoxRegion(minX,minY,width,height);
 			
 			if(!boundary.Overlaps(renderer.ClippingBoundary)){
+				
+				if(Visible){
+					SetVisibility(false);
+				}
+				
 				return;
+			}else if(!Visible){
+				
+				// ImageLocation will allocate here if it's needed.
+				SetVisibility(true);
+				
 			}
-
+			
 			boundary.ClipBy(renderer.ClippingBoundary);
 			
-			// Add the texture:
-			AtlasLocation locatedAt=null;
-			if(Isolated){
+			// Texture time - get it's location on that atlas:
+			AtlasLocation locatedAt=ImageLocation;
+			
+			if(locatedAt==null){
+				// We're not using the atlas here.
+				
+				if(!Isolated){
+					Isolate();
+				}
+				
 				int imgWidth=Image.Width();
 				int imgHeight=Image.Height();
 				locatedAt=new AtlasLocation(0,0,imgWidth,imgHeight,imgWidth,imgHeight);
-			}else{
-				locatedAt=AddTexture(Image.Image);
-				
-				if(locatedAt==null){
-					// We didn't have any space for the image on the atlas.
-					
-					// Isolate instead:
-					Isolate();
-					int imgWidth=Image.Width();
-					int imgHeight=Image.Height();
-					locatedAt=new AtlasLocation(0,0,imgWidth,imgHeight,imgWidth,imgHeight);
-				}
 			}
+			
+			// Isolation is all done - safe to setup the batch now:
+			SetupBatch(locatedAt.Atlas,null);
 			
 			// Great - Use locatedAt.Width/locatedAt.Height - this removes any risk of overflowing into some other image.
 			
@@ -207,6 +289,8 @@ namespace PowerUI.Css{
 			int trueImageHeight=locatedAt.Height;
 			int imageWidth=trueImageWidth;
 			int imageHeight=trueImageHeight;
+			bool autoX=false;
+			bool autoY=false;
 			
 			if(Image.PixelPerfect){
 				imageWidth=(int)(imageWidth*ScreenInfo.ResolutionScale);
@@ -218,6 +302,8 @@ namespace PowerUI.Css{
 					imageWidth=(int)(width*SizeX.Single);
 				}else if(SizeX.PX!=0){
 					imageWidth=SizeX.PX;
+				}else if(SizeX.IsAuto()){
+					autoX=true;
 				}
 			}
 			
@@ -226,7 +312,19 @@ namespace PowerUI.Css{
 					imageHeight=(int)(height*SizeY.Single);
 				}else if(SizeY.PX!=0){
 					imageHeight=SizeY.PX;
+				}else if(SizeY.IsAuto()){
+					autoY=true;
 				}
+			}
+			
+			if(autoX){
+				
+				imageWidth=imageHeight * trueImageWidth / trueImageHeight;
+				
+			}else if(autoY){
+				
+				imageHeight=imageWidth * trueImageHeight / trueImageWidth;
+				
 			}
 			
 			// offsetX and offsetY are the images position offset from where it should be (e.g. x of -200 means it's 200px left)
@@ -317,7 +415,8 @@ namespace PowerUI.Css{
 						block.SetColour(colour);
 						
 						// And clip our meshblock to fit within boundary:
-						block.SetClipped(boundary,screenRegion,Element.Document.Renderer,zIndex,locatedAt);
+						block.TextUV=null;
+						block.ImageUV=block.SetClipped(boundary,screenRegion,renderer,zIndex,locatedAt,block.ImageUV);
 					}
 					
 					blockX+=imageWidth;

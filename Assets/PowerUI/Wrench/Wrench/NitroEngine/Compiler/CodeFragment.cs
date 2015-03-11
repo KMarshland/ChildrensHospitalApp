@@ -56,21 +56,24 @@ namespace Nitro{
 		/// <summary>Throws an error, outputting the line number it occured on.</summary>
 		/// <param name="message">A message saying why this error occured.</param>
 		public void Error(string message){
-			throw new CompilationException(GetLineNumber(),message);
+			throw new CompilationException(message);
+		}
+		
+		/// <summary>Gets the line number if there is one.</summary>
+		public virtual int GetLineNumber(){
+			
+			if(ParentFragment==null){
+				return -1;
+			}
+			
+			return ParentFragment.GetLineNumber();
+			
 		}
 		
 		/// <summary>A value which states if this fragment accesses members (methods/fields) of something.</summary>
 		/// <returns>True if this fragment is a PropertyOperation or a MethodOperation; false otherwise.</returns>
 		public virtual bool IsMemberAccessor(){
 			return false;
-		}
-		
-		/// <summary>Returns the line number this fragment came from.</summary>
-		public virtual int GetLineNumber(){
-			if(ParentFragment!=null){
-				return ParentFragment.GetLineNumber();
-			}
-			return -1;
 		}
 		
 		/// <summary>Attempts to compile this fragment into the given method.</summary>
@@ -144,17 +147,21 @@ namespace Nitro{
 		/// <summary>Adds the given fragment as a child of this one.</summary>
 		/// <param name="child">The fragment to add as a child.</param>
 		public void AddChild(CodeFragment child){
-			if(child.GetType()==typeof(OperationFragment)&&!child.IsParent()){
+			
+			if(child.GetType()==typeof(OperationFragment) && !child.IsParent){
 				// Don't add empty operations
 				return;
 			}
+			
 			child.ParentFragment=this;
+			
 			if(FirstChild==null){
 				FirstChild=LastChild=child;
 			}else{
 				child.PreviousChild=LastChild;
 				LastChild=LastChild.NextChild=child;
 			}
+			
 		}
 		
 		/// <summary>Defines if a fragment can be given a :TYPE. E.g. Brackets (for casting, (A):TYPE) and variables can.</summary>
@@ -165,22 +172,27 @@ namespace Nitro{
 		
 		/// <summary>Is this fragment a parent or not?</summary>
 		/// <returns>True if it is, false otherwise.</returns>
-		public bool IsParent(){
-			return (FirstChild!=null);
+		public bool IsParent{
+			get{
+				return (FirstChild!=null);
+			}
 		}
 		
 		/// <summary>How many children does this fragment have?</summary>
 		/// <returns>The number of children.</returns>
 		public int ChildCount(){
-			if(!IsParent()){
+			if(!IsParent){
 				return 0;
 			}
+			
 			int count=0;
 			CodeFragment current=FirstChild;
+			
 			while(current!=null){
 				count++;
 				current=current.NextChild;
 			}
+			
 			return count;
 		}
 		
@@ -196,13 +208,18 @@ namespace Nitro{
 		/// <summary>Converts this fragment into a code string.</summary>
 		public override string ToString(){
 			string result="";
-			if(IsParent()){
+			
+			if(IsParent){
+				
 				CodeFragment current=FirstChild;
+				
 				while(current!=null){
 					result+=current.ToString();
 					current=current.NextChild;
 				}
+				
 			}
+			
 			return result;
 		}
 		

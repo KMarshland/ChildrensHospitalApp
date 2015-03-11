@@ -26,16 +26,22 @@ namespace Wrench{
 		/// <param name="property">The name of the property that was read.</param>
 		/// <param name="value">The value of the property, if there was one. Null otherwise.</param>
 		public static void Read(MLLexer lexer,bool selfClosing,out string property,out string value){
-			value="";
-			property="";
+			
+			System.Text.StringBuilder builder=new System.Text.StringBuilder();
 			
 			SkipSpaces(lexer);
 			char peek=lexer.Peek();
 			
-			while(peek!=StringReader.NULL&&peek!=' '&&peek!='='&&peek!='>'&&(peek!='/'||property=="")){
-				property+=char.ToLower(lexer.Read());
+			while(peek!=StringReader.NULL&&peek!=' '&&peek!='='&&peek!='>'&&(peek!='/'||builder.Length==0)){
+				builder.Append(char.ToLower(lexer.Read()));
 				peek=lexer.Peek();
 			}
+			
+			// Get the property:
+			property=builder.ToString();
+			
+			// Clear it:
+			builder.Length=0;
 			
 			SkipSpaces(lexer);
 			peek=lexer.Peek();
@@ -47,9 +53,10 @@ namespace Wrench{
 				peek=lexer.Peek();
 				
 				if(peek==StringReader.NULL){
+					value=builder.ToString();
 					return;
 				}else if(peek=='"'||peek=='\''){
-					value=ReadString(lexer);
+					ReadString(lexer,builder);
 				}else{
 					char character=lexer.Peek();
 					
@@ -60,12 +67,13 @@ namespace Wrench{
 							// End only if this is a self-closing tag.
 							
 							if(selfClosing){
+								value=builder.ToString();
 								return;
 							}
 						}
 						
 						lexer.Read();
-						value+=character;
+						builder.Append(character);
 						character=lexer.Peek();
 						
 						if(lexer.DidReadJunk){
@@ -77,24 +85,24 @@ namespace Wrench{
 			}
 			
 			SkipSpaces(lexer);
+			value=builder.ToString();
 		}
 		
 		/// <summary>Reads a "string" or a 'string' from the lexer. Delimiting can be done with a backslash.</summary>
 		/// <param name="lexer">The lexer the string will be read from.</param>
-		/// <returns>The read string.</returns>
-		public static string ReadString(MLLexer lexer){
+		/// <param name="builder">The builder to read it into.</summary>
+		public static void ReadString(MLLexer lexer,System.Text.StringBuilder builder){
 			lexer.Literal=true;
 			char quote=lexer.Read();
 			char character=lexer.Read();
 			bool delimited=false;
-			string value="";
 			
 			while(delimited||character!=quote&&character!=StringReader.NULL){
 				if(character=='\\'&&!delimited){
 					delimited=true;
 				}else{
 					delimited=false;
-					value+=character;
+					builder.Append(character);
 				}
 				
 				character=lexer.Read();
@@ -103,8 +111,6 @@ namespace Wrench{
 			// Exit literal mode:
 			lexer.ExitLiteral();
 			
-			// All done:
-			return value;
 		}
 		
 		/// <summary>Skips any whitespaces that occur next in the given lexer.</summary>

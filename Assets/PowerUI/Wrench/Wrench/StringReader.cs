@@ -165,7 +165,7 @@ namespace Wrench{
 		
 		/// <summary>Gets the line number that the pointer is currently at.</summary>
 		/// <returns>The current line number, starting from 1.</returns>
-		public int GetLineNumber(){
+		public virtual int GetLineNumber(){
 			int junk;
 			return GetLineNumber(out junk);
 		}

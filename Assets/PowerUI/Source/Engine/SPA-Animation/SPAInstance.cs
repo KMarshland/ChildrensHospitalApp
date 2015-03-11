@@ -58,7 +58,7 @@ namespace PowerUI{
 		/// <summary>Creates a new playable instance of the given SPA animation.</summary>
 		public SPAInstance(SPA animation){
 			Animation=animation;
-			AnimatedMaterial=new Material(Shader.Find("PowerUI Animation Shader"));
+			AnimatedMaterial=new Material(SPA.IsolationShader);
 			SetSprite(0);
 			FrameDelay=1f/(float)Animation.FrameRate;
 		}

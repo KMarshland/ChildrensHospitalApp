@@ -1,0 +1,68 @@
+﻿<!-- Background (The blue noise part - PowerUI is actually transparent) -->
+<div style='position:fixed;height:100%;width:100%;background:url(noise-background.png);'></div>
+
+<!-- The PowerUI logo in the middle of the screen. -->
+<div style='background:url(powerUI-logo.png) no-repeat;background-position:center;height:100%;position:fixed;'></div>
+
+
+<style type='text/css'>
+#title{
+	font-size:40px;
+}
+body{
+	vertical-align:middle;
+	height:100%;
+	text-align:center;
+}
+</style>
+
+<div id='title'>Curved Text Can Be Animated Too</div>
+
+<script type='text/nitro'>
+
+function Start(){
+	
+	// Arch settings:
+	var maxHeight=50f;
+	
+	var maxAngle=25f;
+	
+	// Grab the title:
+	var title=document.getElementById("title");
+	
+	// Split it up into it's individual letters:
+	title.lettering();
+	
+	// How many letters?
+	var letterCount:int=title.childNodes.count;
+	
+	var angle=0f;
+	
+	var deltaAngle=(2f * Mathf.PI)/(letterCount-1):float;
+	
+	// Arch each one individually:
+	for(var i=0;i<letterCount;i++){
+		
+		// Grab the letters style:
+		var ele=title.childNodes[i];
+		
+		// Tell them to rotate around their midpoint:
+		ele.style.transformOrigin="50% 50%";
+		
+		// Get the rotation as a string in degrees:
+		var rotation=(-mathf.Cos(angle)*maxAngle)+"deg";
+		
+		// Get the top offset as a string in degrees:
+		var top=(mathf.Sin(angle)*maxHeight)+"px";
+		
+		// Animate there now:
+		ele.animate("top:"+top+";rotate-z:"+rotation,0.4f,0.2f,0.8f);
+		
+		// Increase the angle:
+		angle+=deltaAngle;
+		
+	}
+	
+}
+
+</script>

@@ -111,15 +111,20 @@ namespace PowerUI{
 		private void Elapsed(object sender,System.Timers.ElapsedEventArgs e){
 		
 		#endif
-		
-			if(OneOff){
-				Stop();
-			}
-			if(Callback!=null){
-				Callback.Run();
-			}
-			if(OnComplete!=null){
-				OnComplete();
+			try{
+				if(OneOff){
+					Stop();
+				}
+				if(Callback!=null){
+					Callback.Run();
+				}
+				if(OnComplete!=null){
+					OnComplete();
+				}
+			}catch(Exception er){
+				
+				Wrench.Log.Add("Error in an timed/interval function: "+er.ToString());
+				
 			}
 		}
 		

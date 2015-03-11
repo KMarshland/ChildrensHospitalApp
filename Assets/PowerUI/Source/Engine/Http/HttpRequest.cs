@@ -5,10 +5,24 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+	#define MOBILE
+#endif
+
+#if UNITY_2_6 || UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5
+	#define PRE_UNITY4
+#endif
+
+#if PRE_UNITY4 || UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4
+	#define PRE_UNITY4_5
+#endif
+
 using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using PowerUI;
+
 
 namespace UnityHttp{
 	
@@ -19,7 +33,7 @@ namespace UnityHttp{
 	/// Represents a single http request.
 	/// </summary>
 
-	public class HttpRequest{
+	public partial class HttpRequest{
 		
 		/// <summary>True if the request is ready (but not necessarily complete).</summary>
 		public bool Ready;
@@ -33,14 +47,14 @@ namespace UnityHttp{
 		public byte[] PostData;
 		/// <summary>A custom object used for passing data to the callbacks.</summary>
 		public object ExtraData;
-		#if UNITY_WP8 || UNITY_METRO || UNITY_4_5 || UNITY_4_6
+		#if UNITY_WP8 || UNITY_METRO || UNITY_5
 		/// <summary>The headers sent with this request.</summary>
 		public Dictionary<string,string> Headers;
 		#else
 		/// <summary>The headers sent with this request.</summary>
 		public Hashtable Headers;
 		#endif
-		#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+		#if !MOBILE
 		/// <summary>The video being downloaded, if any. Note: Pro only.</summary>
 		public MovieTexture Movie;
 		#endif
@@ -77,30 +91,18 @@ namespace UnityHttp{
 		public void AttachForm(WWWForm form){
 			PostData=form.data;
 			
-			#if !UNITY_WP8 && !UNITY_METRO && (UNITY_4_5 || UNITY_4_6)
-			Headers=ToDictionary(form.headers);
-			#else
 			Headers=form.headers;
-			#endif
+			
 		}
 		
-		#if !UNITY_WP8 && !UNITY_METRO
+		#if !UNITY_WP8 && !UNITY_METRO && !UNITY_5
 		/// <summary>Unavailable on Windows 8. Sets the headers using a hashtable set.</summary>
 		/// <param name="headers">The headers to set.</param>
-		[Obsolete("Depreciated as of Unity 4.5+. Use a Dictionary<string,string> instead.")]
+		[Obsolete("Depreciated as of Unity 4.5+. Use a Dictionary<string,string> instead. Apparently reincarnated in Unity 5 so who knows what kind of voodoo Unity is doing here. If you do see this, please tell us!")]
 		public void SetHeaders(Hashtable headers){
-			#if UNITY_4_5 || UNITY_4_6
 			
-			if(headers==null){
-				Headers=null;
-				return;
-			}
-			
-			Headers=ToDictionary(headers);
-			
-			#else
 			Headers=headers;
-			#endif
+			
 		}
 		
 		/// <summary>Converts a hashtable to a dictionary.</summary>
@@ -119,7 +121,7 @@ namespace UnityHttp{
 		/// <summary>Sets the headers using a generic dictionary set.</summary>
 		/// <param name="headers">The headers to set.</param>
 		public void SetHeaders(Dictionary<string,string> headers){
-			#if UNITY_WP8 || UNITY_METRO || UNITY_4_5 || UNITY_4_6
+			#if UNITY_WP8 || UNITY_METRO || UNITY_5
 			Headers=headers;
 			#else
 			Headers=new Hashtable(headers);
@@ -141,7 +143,7 @@ namespace UnityHttp{
 				WWWRequest=new WWW(Url,PostData,Headers);
 			}
 			
-			#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+			#if !MOBILE
 			if(Url.EndsWith(".ogg")){
 				Movie=WWWRequest.movie;
 			}
@@ -237,7 +239,7 @@ namespace UnityHttp{
 			}
 		}
 		
-		#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+		#if !MOBILE
 		/// <summary>The response as a video. Null if there was an error.</summary>
 		public MovieTexture Video{
 			get{
@@ -277,7 +279,7 @@ namespace UnityHttp{
 					if(OnRequestDone!=null){
 						if(Errored){
 							// Log the error for clarity:
-							Wrench.Log.Add("HTTP ERROR: "+Error);
+							Wrench.Log.Add("HTTP ERROR when loading url '"+Url+"': "+Error);
 						}
 						OnRequestDone(this);
 					}
@@ -287,7 +289,7 @@ namespace UnityHttp{
 				
 				// Pop it from the update queue:
 				Remove();
-			#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+			#if !MOBILE
 			}else if(!Ready && Movie!=null && Movie.isReadyToPlay){
 				// Downloaded it far enough to try playing it.
 				Ready=true;

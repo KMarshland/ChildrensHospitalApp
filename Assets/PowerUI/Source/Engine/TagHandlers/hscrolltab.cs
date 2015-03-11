@@ -126,6 +126,13 @@ namespace PowerUI{
 			ScrollBy(deltaX,false,true);
 		}
 		
+		public override void ScrollTo(int location,bool scrollTarget){
+			
+			StartX=0;
+			ScrollBy(location,false,scrollTarget);
+			
+		}
+		
 		public override void ScrollBy(int deltaX,bool fromCurrent,bool scrollTarget){
 			// Scroll it by deltaX from StartX.
 			int newLocation=deltaX;

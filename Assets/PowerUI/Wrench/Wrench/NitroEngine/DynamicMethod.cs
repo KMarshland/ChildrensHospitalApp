@@ -22,7 +22,7 @@ namespace Nitro{
 	/// Essentially acts like a delegate.
 	/// </summary>
 	
-	public class DynamicMethod<T>{
+	public class DynamicMethod<T>:NitroBaseMethod{
 	
 		/// <summary>The name of the method being run.</summary>
 		public string Name;
@@ -47,8 +47,29 @@ namespace Nitro{
 		
 		/// <summary>Executes this dynamic method with the given arguments.</summary>
 		/// <param name="arguments">The arguments to pass to the method</param>
+		/// <returns>The return value of the method, if any, boxed to an object.</returns>
+		public override object RunBoxed(params object[] arguments){
+			if(Method==null){
+				
+				#if NETFX_CORE
+				Method=Object.GetType().GetTypeInfo().GetDeclaredMethod(Name);
+				#else
+				Method=Object.GetType().GetMethod(Name);
+				#endif
+				
+				if(Method==null){
+					throw new Exception("Method '"+Name+"' was not found.");
+				}
+			}
+			
+			return Method.Invoke(Object,arguments);
+			
+		}
+		
+		/// <summary>Executes this dynamic method with the given arguments.</summary>
+		/// <param name="arguments">The arguments to pass to the method</param>
 		/// <returns>The return value of the method, if any.</returns>
-		public T Run(params object[] arguments){
+		public virtual T Run(params object[] arguments){
 			if(Method==null){
 				
 				#if NETFX_CORE

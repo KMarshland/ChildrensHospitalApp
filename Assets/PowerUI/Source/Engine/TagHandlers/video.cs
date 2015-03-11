@@ -9,6 +9,10 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
+	#define MOBILE
+#endif
+
 using System;
 using PowerUI.Css;
 using UnityEngine;
@@ -70,7 +74,7 @@ namespace PowerUI{
 					continue;
 				}
 				
-				#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+				#if !MOBILE
 				// End with ogg, or do we have no source at all?
 				if(src==null || childSrc.ToLower().EndsWith(".ogg")){
 					src=childSrc;
@@ -91,7 +95,7 @@ namespace PowerUI{
 			
 		}
 		
-		#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+		#if !MOBILE
 		/// <summary>The source movie texture.</summary>
 		public MovieTexture video{
 			get{
@@ -111,7 +115,7 @@ namespace PowerUI{
 		
 	}
 	
-	#if !UNITY_IPHONE && !UNITY_ANDROID && !UNITY_BLACKBERRY && !UNITY_WP8
+	#if !MOBILE
 	/// <summary>
 	/// This class extends Element to include an easy to use element.video property (unavailable on mobile).
 	/// </summary>
@@ -146,6 +150,20 @@ namespace PowerUI{
 			}
 		}
 		
+		/// <summary>Stops the video.</summary>
+		public void stop(){
+			MovieTexture movie=video;
+			
+			if(!movie.isPlaying){
+				return;
+			}
+			
+			movie.Stop();
+			
+			// Fire an onstop event:
+			Run("onstop");
+		}
+		
 		/// <summary>Pauses the video.</summary>
 		public void pause(){
 			MovieTexture movie=video;
@@ -154,7 +172,7 @@ namespace PowerUI{
 				return;
 			}
 			
-			video.Pause();
+			movie.Pause();
 			
 			// Fire an onpause event:
 			Run("onpause");

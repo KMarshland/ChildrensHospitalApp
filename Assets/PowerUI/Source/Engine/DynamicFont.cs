@@ -13,6 +13,8 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using InfiniText;
+
 
 namespace PowerUI{
 
@@ -23,368 +25,333 @@ namespace PowerUI{
 
 	public class DynamicFont{
 		
-		/// <summary>The default font size, as set in the fonts themselves.</summary>
-		public static float DefaultSize=16;
+		/// <summary>The default font family. This is just the very first loaded family, or the internal font.</summary>
+		public static DynamicFont DefaultFamily;
+		/// <summary>The font that will attempt to load entirely if no other font is available. Absolute last resort.</summary>
+		public static string InternalFont="DejaVu";
 		
-		/// <summary>Creates a new font by loading the Unity font from resources.</summary>
+		
+		/// <summary>Creates a new font by loading the font from resources.</summary>
 		/// <param name="name">The name of the font to load.</param>
-		/// <param name="styleID">The styleID (bold, italic, bolditalic) to use. Utilized when rendering large text.</param>
 		/// <returns>A new dynamic font.</returns>
-		public static DynamicFont LoadFrom(string name,Renderman renderer){
-			if(name==null || renderer.RootDocument.AotDocument){
-				return null;
-			}
+		public static DynamicFont Get(string name){
 			
-			int styleID=0;
+			// Start fonts if it needs it:
+			Fonts.Start();
 			
-			if(name.EndsWith(" BoldItalic")){
-				styleID=3;
-			}else if(name.EndsWith(" Bold")){
-				styleID=2;
-			}else if(name.EndsWith(" Italic")){
-				styleID=1;
-			}
+			// Create it:
+			DynamicFont font=new DynamicFont(name);
 			
-			Font font=Resources.Load(name) as Font;
+			// Is a font family available already?
+			font.Family=Fonts.Get(name);
 			
-			if(font==null){
-				// Is it arial?
-				if(name.ToLower()=="arial"){
-					name="Arial";
-					font=(Font)Resources.GetBuiltinResource(typeof(Font),"Arial.ttf");
-				}else{
-					return null;
+			if(font.Family==null){
+				
+				// Try loading the faces from Resources:
+				if(font.LoadFaces()){
+					
+					if(DefaultFamily==null){
+						DefaultFamily=font;
+					}
+					
 				}
+				
 			}
 			
-			return new DynamicFont(font,name,styleID,renderer);
+			return font;
 		}
 		
-		/// <summary>The unity font.</summary>
-		public Font RawFont;
-		/// <summary>Used to define e.g. a custom Bold, Italic or BoldItalic font.</summary>
-		public int StyleID;
-		/// <summary>The name of the font.</summary>
+		public static DynamicFont GetDefaultFamily(){
+			if(DefaultFamily==null){
+				LoadInternalFont();
+			}
+			
+			return DefaultFamily;
+		}
+		
+		/// <summary>Loads the internal font which is used as a last resort.</summary>
+		public static bool LoadInternalFont(){
+			
+			Get(InternalFont);
+			
+			return (DefaultFamily!=null);
+		}
+		
+		/// <summary>The font family name. E.g. "Vera".</summary>
 		public string Name;
-		/// <summary>A character which represents a whitespace.</summary>
-		public DynamicCharacter Space;
-		/// <summary>The set of all styled character sets. Normal, Bold, Italic, Bold and Italic.</summary>
-		public DynamicCharSet[] CharacterSets=new DynamicCharSet[4];
-		/// <summary>The height of the ascending section of characters at the default font size.</summary>
-		public float Ascend;
-		/// <summary>The height of the descending section of characters at the default font size.</summary>
-		public float Descend;
-		/// <summary>The height of the meanline at the default font size.</summary>
-		public float Meanline;
-		/// <summary>The height of the baseline at the default font size.</summary>
-		public float Baseline;
-		/// <summary>The height of a character above the baseline at the default fontsize.</summary>
-		public float FullAscend;
-		/// <summary>The renderer this font belongs to.</summary>
-		public Renderman Renderer;
-		/// <summary>The total height of the largest possible character at the default fontsize.</summary>
-		public float CharacterSize;
-		/// <summary>True if the font atlas has been rebuilt and all characters must change.</summary>
-		public bool RebuildRequired;
-		/// <summary>The texture that this fonts characters are rendered to.</summary>
-		public Texture2D FontTexture;
-		/// <summary>True if this font is actively preparing for layout.</summary>
-		private bool PreparingForLayout;
+		/// <summary>The underlying InfiniText font family.</summary>
+		public FontFamily Family;
+		/// <summary>The biggest ascender in this font.</summary>
+		public float Ascender=0.8f;
+		/// <summary>The biggest descender in this font.</summary>
+		public float Descender=0.2f;
+		/// <summary>The height of a line with this font.</summary>
+		public float LineSize=1f;
+		/// <summary>The thickness of a strikethrough line.</summary>
+		public float StrikeSize=0.1f;
+		/// <summary>The offset to a strikethrough line.</summary>
+		public float StrikeOffset=0.25f;
+		/// <summary>A font to fallback on, if one is specified in the HTML.</summary>
+		public DynamicFont Fallback;
+		/// <summary>The width of a standard space at 1px.</summary>
+		public float SpaceSize=1/3f;
 		
 		
-		/// <summary>Creates a new displayable font from the given unity font
-		/// for use with the given renderer.</summary>
-		/// <param name="font">The unity font to display text with.</param>
-		/// <param name="renderer">The renderer which will display the text.</param>
-		public DynamicFont(Font font,string name,int styleID,Renderman renderer){
+		/// <summary>Creates a new displayable font.</summary>
+		/// <param name="name">The name of the font.</param>
+		public DynamicFont(string name){
 			Name=name;
-			RawFont=font;
-			StyleID=styleID;
-			Renderer=renderer;
-			// This ones a hybrid - the font is being applied to the same mesh as things like images with the help of a renderman.
-			UpdateTexture();
-			
-			RawFont.textureRebuildCallback+=OnTextureRebuild;
-			Space=new DynamicCharacter();
-			int size=(int)DefaultSize;
-			RawFont.RequestCharactersInTexture("agl",size,FontStyle.Normal);
-			
-			DynamicCharacter aChar=GetCharacter('a',size,0,true);
-			Meanline=aChar.Height;
-			
-			DynamicCharacter jChar=GetCharacter('g',size,0,true);
-			Descend=jChar.Height-Meanline;
-			
-			DynamicCharacter lChar=GetCharacter('l',size,0,true);
-			Ascend=lChar.Character.vert.y - aChar.Character.vert.y;
-			
-			Baseline=aChar.Character.vert.yMax; // -9. Characters scale about this.
-			
-			FullAscend=Meanline+Ascend;
-			CharacterSize=FullAscend+Descend;
-			
 		}
 		
-		public FilterMode FilterMode{
-			get{
-				return FontTexture.filterMode;
-			}
-			set{
-				FontTexture.filterMode=value;
-			}
-		}
-		
-		public DynamicFont GetAlternateFont(int styleID){
-			if(StyleID==styleID){
-				return this;
-			}
+		/// <summary>Loads this font from the local project files. Should be a folder named after the font family and in it a series of font files.</summary>
+		/// <returns>True if at least one font face was loaded.</returns>
+		public bool LoadFaces(){
 			
-			// Name includes 'my' style - e.g. it could be "Vera Bold".
-			string name=Name;
+			// Load all .ttf/.otf files:
+			object[] faces=Resources.LoadAll(Name,typeof(TextAsset));
 			
-			// Trim the current style tag from the name of this font:
-			if(StyleID!=0){
-				int length=name.Length;
-				if(StyleID==3){
-					// BoldItalic (length is 11 with space).
-					name=name.Substring(length-11);
-				}else if(StyleID==2){
-					// Bold (length is 5 with space).
-					name=name.Substring(length-5);
-				}else if(StyleID==1){
-					// Italic (length is 7 with space).
-					name=name.Substring(length-7);
+			// For each font face..
+			for(int i=0;i<faces.Length;i++){
+				
+				// Get the raw font face data:
+				byte[] faceData=((TextAsset)faces[i]).bytes;
+				
+				if(faceData==null || faceData.Length==0){
+					// It's a folder.
+					continue;
 				}
+				
+				// Load the font face - adds itself to the family within it if it's a valid font:
+				try{
+					
+					FontFace loaded;
+					
+					if(Fonts.DeferLoad){
+						loaded=FontLoader.DeferredLoad(faceData);
+					}else{
+						loaded=FontLoader.Load(faceData);
+					}
+					
+					if(loaded!=null && Family==null){
+						// Grab the family:
+						Family=loaded.Family;
+					}
+					
+				}catch{
+					// Unity probably gave us a copyright file or something like that.
+					// Generally the loader will catch this internally and return null.
+				}
+				
 			}
 			
-			// And next up append the one we want:
-			if(styleID==3){
-				name+=" BoldItalic";
-			}else if(styleID==2){
-				name+=" Bold";
-			}else if(styleID==1){
-				name+=" Italic";
+			if(Family==null){
+				return false;
 			}
 			
-			DynamicFont result=Renderer.GetOrCreateFont(name);
-			
-			if(result!=null){
-				return result;
-			}
-			
-			return this;
+			Load();
+			return true;
 		}
 		
-		/// <summary>Called when the font atlas is rebuilt.</summary>
-		private void OnTextureRebuild(){
-			UpdateTexture();
-			RebuildRequired=true;
-			if(!PreparingForLayout){
-				Renderer.RequestLayout();
+		/// <summary>Loads useful values into this font.</summary>
+		public void Load(){
+			
+			// Get the advance width of space:
+			Glyph space=Family.Regular.GetGlyph(' ');
+			
+			if(space!=null){
+				
+				// Grab the advance width:
+				SpaceSize=space.AdvanceWidth;
+				
 			}
+			
+			// Grab the regular face (always will be one):
+			FontFace regular=Family.Regular;
+			
+			// Get some useful values:
+			Descender=regular.Descender;
+			Ascender=regular.Ascender;
+			LineSize=regular.LineGap;
+			StrikeSize=regular.StrikeSize;
+			StrikeOffset=regular.StrikeOffset;
+			
 		}
 		
-		/// <summary>Gets the full ascend above the baseline of a character at the given fontsize.</summary>
-		/// <param name="fontSize">The fontsize to use.</param>
-		/// <returns>The full ascent height.</returns>
-		public float GetFullAscend(int fontSize){
-			return FullAscend*fontSize/DefaultSize;
+		/// <summary>Gets the max descend at the given font size.</summary>
+		public float GetDescend(float fontSize){
+			
+			if(Family==null){
+				
+				// Try fallbacks:
+				if(Fallback==null){
+					
+					if(DefaultFamily!=null || LoadInternalFont()){
+						
+						return fontSize * DefaultFamily.Descender;
+						
+					}
+					
+				}else{
+					return Fallback.GetDescend(fontSize);
+				}
+				
+			}
+			
+			return fontSize * Descender;
+		}
+		
+		/// <summary>Gets the max ascend at the given font size. Positive value.</summary>
+		public float GetAscend(float fontSize){
+			
+			if(Family==null){
+				
+				// Try fallbacks:
+				if(Fallback==null){
+					
+					if(DefaultFamily!=null || LoadInternalFont()){
+						
+						return fontSize * DefaultFamily.Ascender;
+						
+					}
+					
+				}else{
+					return Fallback.GetAscend(fontSize);
+				}
+				
+			}
+			
+			return fontSize * Ascender;
+		}
+		
+		/// <summary>Gets the height of the font at the given font size.</summary>
+		public float GetHeight(float fontSize){
+			
+			if(Family==null){
+				
+				// Try fallbacks:
+				if(Fallback==null){
+					
+					if(DefaultFamily!=null || LoadInternalFont()){
+						
+						return fontSize * DefaultFamily.LineSize;
+						
+					}
+					
+				}else{
+					return Fallback.GetHeight(fontSize);
+				}
+				
+			}
+			
+			return fontSize * LineSize;
 		}
 		
 		/// <summary>Gets the standard size of a space for the given font size.</summary>
 		/// <param name="fontSize">The size of the font.</param>
 		/// <returns>The space size.</returns>
-		public float GetSpaceSize(int fontSize){
-			return (float)fontSize/3f;
-		}
-		
-		/// <summary>Gets the ascent of a character at the given fontsize.</summary>
-		/// <param name="fontSize">The fontsize to use.</param>
-		/// <returns>The ascent height.</returns>
-		public float GetAscend(int fontSize){
-			return Ascend*fontSize/DefaultSize;
-		}
-		
-		/// <summary>Gets the descent of a character at the given fontsize.</summary>
-		/// <param name="fontSize">The fontsize to use.</param>
-		/// <returns>The descent.</returns>
-		public float GetDescend(int fontSize){
-			return Descend*fontSize/DefaultSize;
-		}
-		
-		/// <summary>Gets the meanline height at the given fontsize.</summary>
-		/// <param name="fontSize">The fontsize to use.</param>
-		/// <returns>The meanline height.</returns>
-		public float GetMeanline(int fontSize){
-			return Meanline*fontSize/DefaultSize;
-		}
-		
-		/// <summary>Gets the maximum height of a character at the given fontsize.</summary>
-		/// <param name="fontSize">The fontsize to use.</param>
-		/// <returns>The maximum height.</returns>
-		public float GetHeight(int fontSize){
-			return CharacterSize*fontSize/DefaultSize;
-		}
-		
-		/// <summary>Updates the given character with the raw character info from the font.</summary>
-		/// <param name="character">The character to display.</param>
-		/// <param name="fontSize">The fontsize to display it at.</param>
-		/// <param name="styleID">The style of the character:
-		/// 0 = Normal
-		/// 1 = Bold
-		/// 2 = Italic
-		/// 3 = Bold Italic</param>
-		/// <param name="isAvailable">Assumes the character is available and searches for it's raw info.</param>
-		/// <returns>The displayable character.</returns>
-		public DynamicCharacter GetCharacter(char character,int fontSize,int styleID,bool isAvailable){
+		public float GetSpaceSize(float fontSize){
 			
-			DynamicCharacter result=GetCharacter(character,fontSize,styleID);
+			if(Family==null){
+				
+				// Try fallbacks:
+				if(Fallback==null){
+					
+					if(DefaultFamily!=null || LoadInternalFont()){
+						
+						return fontSize * DefaultFamily.SpaceSize;
+						
+					}
+					
+				}else{
+					return Fallback.GetSpaceSize(fontSize);
+				}
+				
+			}
 			
-			FontStyle fontStyle=CharacterSets[styleID].Style;
-			
-			CharacterInfo charInfo;
-			RawFont.GetCharacterInfo(character,out charInfo,fontSize,fontStyle);
-			result.SetCharacter(charInfo);
-			
-			return result;
+			return (float)fontSize * SpaceSize;
 		}
 		
 		/// <summary>Gets a displayable character as a surrogate pair from this font.</summary>
 		/// <param name="lowCharacter">The low surrogate character to display.</param>
 		/// <param name="highCharacter">The high surrogate character to display.</param>
-		/// <param name="fontSize">The fontsize to display it at.</param>
-		/// <param name="styleID">The style of the character:
-		/// 0 = Normal
-		/// 1 = Bold
-		/// 2 = Italic
-		/// 3 = Bold Italic</param>
+		/// <param name="style">The style of the character.</param>
 		/// <returns>The displayable character.</returns>
-		public DynamicCharacter GetCharacter(char lowCharacter,char highCharacter,int fontSize,int styleID){ 
+		public Glyph GetCharacter(int charcode,FontFaceFlags style){ 
 			
-			// Does this character exist in our lookups?
-			// If it does, return it straight away.
-			// Otherwise, add it to our lookups and return that - we also need to flag a change has occured.
-			// This will then result in that character being requested.
+			// Is it e.g. emoji?
+			Glyph result=CharacterProviders.Find(charcode);
 			
-			DynamicCharSet charSet=CharacterSets[styleID];
-			if(charSet==null){
-				charSet=CharacterSets[styleID]=new DynamicCharSet(this,styleID);
+			if(result!=null){
+				
+				// Character has been overriden.
+				return result;
+				
 			}
 			
-			return charSet.GetCharacter(lowCharacter,highCharacter,fontSize);
-		}
-		
-		/// <summary>Gets a displayable character from this font.</summary>
-		/// <param name="character">The character to display.</param>
-		/// <param name="fontSize">The fontsize to display it at.</param>
-		/// <param name="styleID">The style of the character:
-		/// 0 = Normal
-		/// 1 = Bold
-		/// 2 = Italic
-		/// 3 = Bold Italic</param>
-		/// <returns>The displayable character.</returns>
-		public DynamicCharacter GetCharacter(char character,int fontSize,int styleID){ 
-			if(character==' '){
-				return Space;
+			if(Family!=null){
+				
+				result=Family.GetGlyph(charcode,style);
+				
 			}
 			
-			// Does this character exist in our lookups?
-			// If it does, return it straight away.
-			// Otherwise, add it to our lookups and return that - we also need to flag a change has occured.
-			// This will then result in that character being requested.
-			
-			DynamicCharSet charSet=CharacterSets[styleID];
-			if(charSet==null){
-				charSet=CharacterSets[styleID]=new DynamicCharSet(this,styleID);
-			}
-			
-			return charSet.GetCharacter(character,fontSize);
-		}
-		
-		/// <summary>Prepares all text for an allocation by setting them as all being not in use.</summary>
-		public void PrepareForAllocate(){
-			for(int i=0;i<4;i++){
-				DynamicCharSet charSet=CharacterSets[i];
-				if(charSet==null){
-					continue;
+			if(result==null){
+				
+				if(Fallback!=null){
+					result=Fallback.GetCharacterDirect(charcode,style);
 				}
-				charSet.PrepareForAllocate();
-			}
-		}
-		
-		public void UpdateTexture(){
-			FontTexture=GetTexture();
-			FontTexture.filterMode=FilterMode.Point;
-			FontTexture.wrapMode=TextureWrapMode.Clamp;
-			FontTexture.anisoLevel=0;
-		}
-		
-		/// <summary>When the font atlas rebuilds, all characters must be re-requested. This method re-requests all sets of characters.</summary>
-		public void RebuildAll(){
-			RebuildRequired=false;
-			RebuildUpto(null);
-		}
-		
-		/// <summary>Called after PrepareForLayout. Makes sure all characters in the buffer are up-to-date.</summary>
-		/// <param name="infoRequired">True if HasCharacterInfo must be false for a request to occur. Requested anyway if false.</param>
-		public void RefreshBufferedCharacters(bool infoRequired){
-			for(int i=0;i<4;i++){
-				DynamicCharSet charSet=CharacterSets[i];
-				if(charSet==null){
-					continue;
+				
+				// Global fallback - last chance!
+				if(result==null){
+					
+					if(DefaultFamily==null && !LoadInternalFont()){
+						// Font not found!
+						return null;
+					}
+					
+					return DefaultFamily.Family.GetGlyph(charcode,style);
 				}
-				charSet.RefreshBufferedCharacters(infoRequired);
-			}
-		}
-		
-		/// <summary>When the font atlas rebuilds, all characters before the set that caused the rebuild must be re-requested.
-		/// This method re-requests all sets up to the given one (which should be the one that caused a rebuild).</summary>
-		/// <param name="stopAt">The set to stop rebuilding at (exclusive).</param>
-		public void RebuildUpto(FontSizeCharSet stopAt){
-			for(int i=0;i<4;i++){
-				DynamicCharSet charSet=CharacterSets[i];
-				if(charSet==null){
-					continue;
-				}
-				if(charSet.RebuildUpto(stopAt)){
-					return;
-				}
-			}
-		}
-		
-		/// <summary>Called before the characters are displayed.
-		/// It ensures they are all ready to go and on the font atlas.</summary>
-		public void PrepareForLayout(){
-			
-			PreparingForLayout=true;
-			
-			// Firstly, request all characters in the font.
-			for(int i=0;i<4;i++){
-				DynamicCharSet charSet=CharacterSets[i];
-				if(charSet==null){
-					continue;
-				}
-				charSet.PrepareForLayout();
+				
 			}
 			
-			// Flag used for knowing if we're actively preparing font sets for layout.
-			PreparingForLayout=false;
+			return result;
 			
-			if(RebuildRequired){
-				// If the font texture rebuilds, we'll need to re-request all the characters.
-				RebuildAll();
-				RefreshBufferedCharacters(false);
+		}
+		
+		/// <summary>Gets a displayable character as a surrogate pair from this font. Avoids checking for alternate providers.</summary>
+		public Glyph GetCharacterDirect(int charcode,FontFaceFlags style){ 
+			
+			Glyph result;
+			
+			if(Family!=null){
+				
+				result=Family.GetGlyph(charcode,style);
+				
 			}else{
-				// Next up, refresh any buffered characters to make sure their up-to-date.
-				RefreshBufferedCharacters(true);
+				result=null;
 			}
+			
+			if(result==null){
+				
+				if(Fallback!=null){
+					result=Fallback.GetCharacterDirect(charcode,style);
+				}
+				
+				// Global fallback - last chance!
+				if(result==null){
+					
+					if(DefaultFamily==null && !LoadInternalFont()){
+						// Font not found!
+						return null;
+					}
+					
+					return DefaultFamily.Family.GetGlyph(charcode,style);
+				}
+				
+			}
+			
+			return result;
+			
 		}
-		
-		/// <summary>Gets the unity font atlas texture.</summary>
-		public Texture2D GetTexture(){
-			return (Texture2D)(RawFont.material.mainTexture);
-		}
-		
 	}
 	
 }

@@ -9,6 +9,14 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_2_6 || UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4
+	#define PRE_UNITY3_5
+#endif
+
+#if PRE_UNITY3_5 || UNITY_3_5 || UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6
+	#define PRE_UNITY5
+#endif
+
 using System;
 using UnityEngine;
 using PowerUI;
@@ -16,9 +24,9 @@ using PowerUI.Css;
 using Nitro;
 using Wrench;
 using UnityHttp;
+using InfiniText;
 
-
-#if IsolatePowerUI
+#if IsolatePowerUI || UNITY_4_6 || !PRE_UNITY5
 namespace PowerUI{
 #endif
 
@@ -31,7 +39,10 @@ namespace PowerUI{
 /// </summary>
 
 public static class UI{
-
+	
+	/// <summary>The default max update rate in fps. Note that input is decoupled from this.</summary>
+	public const int DefaultRate=40;
+	
 	/// <summary>The PowerUI layer's index. Used to make sure the UI is not visible with other cameras.</summary>
 	public static int Layer;
 	/// <summary>True if Start has been called.</summary>
@@ -108,8 +119,10 @@ public static class UI{
 	/// <summary>Used internally to fire the OnCameraCreated event.</summary>
 	public static void CameraGotCreated(Camera camera){
 		
+		#if !PRE_UNITY3_5
 		// Setup the sort order:
 		camera.transparencySortMode=TransparencySortMode.Orthographic;
+		#endif
 		
 		// Fire the event:
 		if(OnCameraCreated!=null){
@@ -126,11 +139,18 @@ public static class UI{
 	/// <summary>Used internally - don't call this one. Startup the UI for use in the Editor with AOT Nitro.</summary>
 	/// <param name="nitroAot">True if no gameobject should be generated.</param>
 	public static void Start(bool nitroAot){
+		
 		if(!Started){
 			Started=true;
 			
+			// Setup atlas stacks:
+			AtlasStacks.Start();
+			
 			// Hookup the wrench logging method:
 			Wrench.Log.OnLog+=OnLogMessage;
+			
+			// Hookup the InfiniText logging method:
+			InfiniText.Fonts.OnLog+=OnLogMessage;
 			
 			// Startup the tag handlers:
 			Wrench.TagHandlers.Setup();
@@ -161,6 +181,7 @@ public static class UI{
 			CharacterProviders.Setup();
 			
 			Layer=LayerMask.NameToLayer("PowerUI");
+			
 			if(Layer<0){
 				// Invalid layer.
 				#if UNITY_EDITOR
@@ -175,8 +196,8 @@ public static class UI{
 				#endif
 			}
 			
-			// Default 20FPS:
-			SetRate(20);
+			// Default FPS:
+			SetRate(DefaultRate);
 			
 			#if !NoNitroRuntime
 			// Setup the compiler:
@@ -322,25 +343,23 @@ public static class UI{
 	
 	/// <summary>How the main UI renders images; either on an atlas or with them 'as is'.
 	/// Default is Atlas.</summary>
-	public static RenderMode RenderMode{
+	public static PowerUI.RenderMode RenderMode{
 		get{
+			if(Renderer==null){
+				Start();
+			}
 			return Renderer.RenderMode;
 		}
 		set{
+			if(Renderer==null){
+				Start();
+			}
 			Renderer.RenderMode=value;
 		}
 	}
 	
-	/// <summary>If in Atlas RenderMode (default), this is the initial size of the atlas to use.
-	/// Default size is 1024px.</summary>
-	public static int AtlasSize{
-		get{
-			return Renderer.AtlasSize;
-		}
-		set{
-			Renderer.AtlasSize=value;
-		}
-	}
+	[Obsolete("Atlases are now always global. If you wish to define their size, see AtlasStacks.InitialSize instead.")]
+	public static int AtlasSize;
 	
 	/// <summary>Sets how many world units are used between elements at different depths. Default is 0.05.</summary>
 	/// <param name="gaps">The distance between elements to use.</param>
@@ -394,18 +413,38 @@ public static class UI{
 		}
 	}
 	
+	/// <summary>The image filter mode.</summary>
+	public static FilterMode FilterMode{
+		get{
+			if(!Started){
+				Start();
+			}
+			
+			return Renderer.FilterMode;
+		}
+		set{
+			if(!Started){
+				Start();
+			}
+			
+			Renderer.FilterMode=value;
+		}
+	}
+	
 	/// <summary>Sets the text filter mode. Note: shared fonts will be affected in all other UI's.</summary>
 	public static FilterMode TextFilterMode{
 		get{
 			if(!Started){
 				Start();
 			}
+			
 			return Renderer.TextFilterMode;
 		}
 		set{
 			if(!Started){
 				Start();
 			}
+			
 			Renderer.TextFilterMode=value;
 		}
 	}
@@ -466,6 +505,8 @@ public static class UI{
 			document=null;
 		}
 		
+		Fonts.Clear();
+		AtlasStacks.Clear();
 		Http.Clear();
 		SPA.Clear();
 		UIAnimation.Clear();
@@ -504,6 +545,9 @@ public static class UI{
 		Variables=null;
 		LastWorldUI=null;
 		FirstWorldUI=null;
+		
+		// Clear batch pool:
+		UIBatchPool.Clear();
 	}
 	
 	/// <summary>Gets a loader which tells the wrench framework where to look for
@@ -676,13 +720,16 @@ public static class UI{
 	}
 	
 	/// <summary>Sets the update rate of the UI.</summary>
-	/// <param name="fps">The rate in frames per second. Default is 20fps.</param>
+	/// <param name="fps">The rate in frames per second. Default is UI.DefaultRate.</param>
 	public static void SetRate(int fps){
 		if(fps<=0){
-			fps=20;
+			fps=DefaultRate;
 		}
 		
 		RedrawRate=1f/(float)fps;
+		
+		// Let the atlases know:
+		AtlasStacks.SetRate(fps);
 	}
 	
 	/// <summary>Returns true if the given x/y coordinate is over the UI.</summary>
@@ -804,9 +851,23 @@ public static class UI{
 		InternalUpdate();
 	}
 	
-	/// <summary>Updates the UI. This must be called in a Unity Update.</summary>
-	[Obsolete("You don't need to call update at all anymore! PowerUI figures this out for you.")]
-	public static void Update(){
+	/// <summary>Requests all UI's to update. This occurs when an atlas has been optimised.</summary>
+	public static void RequestFullLayout(){
+		
+		// Request renderer layout (full):
+		Renderer.RequestLayout();
+		
+		WorldUI current=FirstWorldUI;
+		while(current!=null){
+			
+			if(current.Renderer!=null){
+				// Request worldUI layout (full):
+				current.Renderer.RequestLayout();
+			}
+			
+			current=current.UIAfter;
+		}
+		
 	}
 	
 	/// <summary>Updates the UI. Don't call this - PowerUI knows when it's needed; This is done from Start and WorldUI constructors.</summary>
@@ -837,6 +898,10 @@ public static class UI{
 		if(GUICamera==null){
 			return;
 		}
+		
+		// Atlases:
+		AtlasStacks.Update();
+		
 		// Screen size:
 		ScreenInfo.Update();
 		
@@ -915,10 +980,13 @@ public static class UI{
 			
 		}
 		
+		// Flush any atlases:
+		AtlasStacks.Flush();
+		
 	}
 	
 }
 
-#if IsolatePowerUI
+#if IsolatePowerUI || UNITY_4_6 || !PRE_UNITY5
 }
 #endif

@@ -34,6 +34,10 @@ namespace Nitro{
 		public IndexFragment(CodeFragment brackets,CodeFragment variable){
 			Brackets=brackets;
 			Variable=variable;	
+			
+			// Add them as children such that code tree iterators can visit them:
+			AddChild(Variable);
+			AddChild(Brackets);
 		}
 		
 		public override CompiledFragment Compile(CompiledMethod parentBlock){

@@ -10,7 +10,12 @@
 //--------------------------------------
 
 using System;
+
+#if !UNITY_METRO
+
 using System.Threading;
+
+#endif
 
 namespace PowerUI{
 	
@@ -20,7 +25,12 @@ namespace PowerUI{
 	
 	
 		/// <summary>Unities main thread.</summary>
+		#if UNITY_METRO
+		public static int MainThread;
+		#else
 		public static Thread MainThread;
+		#endif
+
 		/// <summary>The main callback queue. Stored as a linked list - this is the tail of the queue.</summary>
 		public static Callback LastToRun;
 		/// <summary>The main callback queue. Stored as a linked list - this is the head of the queue.</summary>
@@ -29,7 +39,22 @@ namespace PowerUI{
 		
 		/// <summary>Sets up the callback system. Always called on Unities main thread.</summary>
 		public static void Start(){
+			
+			#if UNITY_METRO && UNITY_EDITOR
+			
+			// Unable to resolve this one.
+			MainThread=-1;
+			
+			#elif UNITY_METRO
+			
+			MainThread=Environment.CurrentManagedThreadId;
+			
+			#else
+			
 			MainThread=Thread.CurrentThread;
+			
+			#endif
+			
 		}
 		
 		/// <summary>Runs all callbacks in the queue.</summary>
@@ -49,7 +74,7 @@ namespace PowerUI{
 					current.OnRun();
 					
 				}catch(Exception e){
-					UnityEngine.Debug.LogError("Callback error (Type of "+current.GetType()+"): "+e.ToString());
+					Wrench.Log.Add("Callback error (Type of "+current.GetType()+"): "+e.ToString());
 				}
 				
 				// Hop to the next one:

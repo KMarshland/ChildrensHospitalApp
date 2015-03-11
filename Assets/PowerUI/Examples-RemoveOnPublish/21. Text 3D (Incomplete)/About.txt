@@ -1,0 +1,13 @@
+*This will become a complete feature in PowerUI 2 - for now it's a proof of concept only*
+
+
+- This shows the extra power that InfiniText can provide with glyph access.
+- The process which converts glyphs into 3D polygons is incomplete and as a result you will see broken letters (e.g. i).
+- These broken letters occur when there are two distinct shapes, like in an i. This is simply because the process doesn't account for them yet.
+- The API used to actually display the letters is incomplete.
+- Similarly the integration with Spark (PowerUI's CSS layout engine) is incomplete too.
+- Mesh generation is not optimised. Each word will be it's own mesh.
+
+As a result, please only use this if:
+- You see the results you're after in the Editor.
+- You accept the API will change with PowerUI 2, probably dramatically.

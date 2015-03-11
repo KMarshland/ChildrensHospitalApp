@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 
 
 namespace PowerUI.Css.Properties{
@@ -66,8 +65,9 @@ namespace PowerUI.Css.Properties{
 			// Apply:
 			text.RequestLayout();
 			
-			// Prompt the renderer to recalculate the width of the word:
-			text.NoTextChange=false;
+			// Recalc size:
+			text.SetDimensions();
+			
 		}
 		
 	}

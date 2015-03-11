@@ -122,12 +122,21 @@ namespace PowerUI{
 			ScrollBy(deltaY,false,true);
 		}
 		
+		public override void ScrollTo(int location,bool scrollTarget){
+			
+			StartY=0;
+			ScrollBy(location,false,scrollTarget);
+			
+		}
+		
 		public override void ScrollBy(int deltaY,bool fromCurrent,bool scrollTarget){
 			// Scroll it by deltaY from StartY.
 			int newLocation=deltaY;
 			
+			ComputedStyle style=Element.style.Computed;
+			
 			if(fromCurrent){
-				newLocation+=Element.style.Computed.PositionTop;
+				newLocation+=style.PositionTop;
 			}else{
 				newLocation+=StartY;
 			}
@@ -137,7 +146,7 @@ namespace PowerUI{
 			
 			int barSize=BarSize();
 			
-			int max=barSize+sizeBefore-Element.style.Computed.PixelHeight;
+			int max=barSize+sizeBefore-style.PixelHeight;
 			
 			if(newLocation<sizeBefore){
 				newLocation=sizeBefore;
@@ -145,24 +154,38 @@ namespace PowerUI{
 				newLocation=max;
 			}
 			
-			if(newLocation==Element.style.Computed.PositionTop){
+			if(newLocation==style.PositionTop){
 				return;
 			}
 			
 			Element.style.top=newLocation+"fpx";
 			
 			if(scrollTarget){
-				Element target=ScrollBar.GetTarget();
 				
-				if(target!=null){
-					float progress=(float)(newLocation-sizeBefore)/(float)barSize;
+				if(ScrollBar.DivertOutput){
 					
-					target.style.Computed.ScrollTop=((int)(progress * target.style.Computed.ContentHeight));
-					// Recompute the size:
-					target.style.Computed.SetSize();
-					// And request a redraw:
-					target.Document.Renderer.RequestLayout();
+					int tabSize=style.PixelHeight;
+					
+					float progress=(float)(newLocation-sizeBefore)/(float)(barSize-tabSize);
+					
+					ScrollBar.OnScrolled(progress);
+					
+				}else{
+				
+					Element target=ScrollBar.GetTarget();
+					
+					if(target!=null){
+						float progress=(float)(newLocation-sizeBefore)/(float)barSize;
+						
+						target.style.Computed.ScrollTop=((int)(progress * target.style.Computed.ContentHeight));
+						// Recompute the size:
+						target.style.Computed.SetSize();
+						// And request a redraw:
+						target.Document.Renderer.RequestLayout();
+					}
+				
 				}
+				
 			}
 			
 		}

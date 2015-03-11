@@ -18,7 +18,8 @@ namespace Nitro{
 	
 	public enum AddResult{
 		Ok,
-		Stop
+		Stop,
+		Local
 	}
 	
 }

@@ -41,6 +41,12 @@ namespace Nitro{
 			Arguments=arguments;
 		}
 		
+		public override bool RequiresStoring{
+			get{
+				return false;
+			}
+		}
+		
 		public override bool IsMemberAccessor(){
 			return true;
 		}
@@ -117,18 +123,24 @@ namespace Nitro{
 			GetMethodInfo();
 			// First, the instance this method is on:
 			bool useVirtual=(CalledOn!=null);
+			
 			if(useVirtual){
 				Type type=CalledOn.OutputType(out CalledOn);
 				CalledOn.OutputIL(into);
 				if(type.IsValueType){
-					// Value must be set into a temporary local and reloaded (but as an address).
-					// Future optimization may be to pool these.
-					LocalBuilder builder=into.DeclareLocal(type);
-					into.Emit(OpCodes.Stloc,builder);
-					into.Emit(OpCodes.Ldloca,builder);
+					
+					if(!CalledOn.EmitsAddress){
+						// Value must be set into a temporary local and reloaded (but as an address).
+						// Future optimization may be to pool these.
+						LocalBuilder builder=into.DeclareLocal(type);
+						into.Emit(OpCodes.Stloc,builder);
+						into.Emit(OpCodes.Ldloca,builder);
+					}
+					
 					useVirtual=false;
 				}
 			}
+			
 			// Next, its arguments:
 			if(Types.IsDynamic(MethodToCall)){
 				if(Arguments!=null){
@@ -139,6 +151,7 @@ namespace Nitro{
 			}else{
 				Types.OutputParameters(Arguments,Method,into,MethodToCall.GetParameters());
 			}
+			
 			// And emit the call:
 			if(useVirtual){
 				into.Emit(OpCodes.Callvirt,MethodToCall);

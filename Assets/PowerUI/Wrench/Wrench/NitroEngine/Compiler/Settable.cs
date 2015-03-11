@@ -10,6 +10,7 @@
 //          www.kulestar.com
 //--------------------------------------
 
+using System;
 using System.Reflection.Emit;
 
 namespace Nitro{
@@ -22,7 +23,7 @@ namespace Nitro{
 	internal interface ISettable{
 		
 		/// <summary>Generates the instruction which performs the set.</summary>
-		void OutputSet(NitroIL into);
+		void OutputSet(NitroIL into,Type setting);
 		/// <summary>Outputs the location where the value must be set to.</summary>
 		void OutputTarget(NitroIL into);
 		

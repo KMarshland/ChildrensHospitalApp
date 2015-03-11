@@ -76,7 +76,7 @@ public class UnityFromWire : MonoBehaviour {
 					string ypos = reader.GetAttribute("ypos");
 					string align = reader.GetAttribute("align");
 					string valign = reader.GetAttribute("valign");
-					string font = reader.GetAttribute("font");
+					//string font = reader.GetAttribute("font");
 					string background = reader.GetAttribute("background");
 					string color = reader.GetAttribute("color");
 					string size = reader.GetAttribute("size");

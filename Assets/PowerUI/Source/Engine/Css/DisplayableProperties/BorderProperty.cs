@@ -239,6 +239,9 @@ namespace PowerUI.Css{
 					// This region is visible. Clip it:
 					screenRegion.ClipBy(renderer.ClippingBoundary);
 					
+					// Ensure we have a batch (doesn't change graphics or font textures, thus both null):
+					SetupBatch(null,null);
+					
 					// And get our block ready:
 					MeshBlock block=Add();
 					

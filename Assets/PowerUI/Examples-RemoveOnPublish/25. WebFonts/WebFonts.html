@@ -1,0 +1,60 @@
+
+<!-- Time for a little CSS! -->
+<style type='text/css'>
+
+.background-noise{
+	
+	position:fixed;
+	height:100%;
+	width:100%;
+	background:url(noise-background.png);
+	
+}
+
+@font-face{
+	font-family:"London2012";
+	src:url(http://powerui.kulestar.com/PowerUI-Olympics2012.ttf);
+}
+
+#content-box{
+	
+	font-size:2em;
+	background:#e7e8ee;
+	border:6px solid #cccccc;
+	border-radius:70px 30px 70px 30px;
+	width:400px;
+	padding:40px;
+	text-align:justify;
+	color:#000000;
+	margin-top:auto;
+	margin-bottom:auto;
+	font-family:"London2012";
+	left:10%;
+	
+}
+
+</style>
+
+
+<!-- Background (The blue noise part - PowerUI is actually transparent). Gets its style from the CSS above. -->
+<div class='background-noise'></div>
+
+<!-- The PowerUI logo off to the right. We're using direct style here. -->
+<div style='vertical-align:middle;right:10%;width:140px;height:100%;position:fixed;'>
+	
+	<!-- The logo itself. -->
+	<img src='powerUI-logo.png'/>
+
+</div>
+
+<!-- The rounded box containing the welcome info. Gets its style from the CSS above. -->
+<div id='content-box'>
+		<center><b>Web Fonts</b></center>
+		<br><br>
+		PowerUI now partially supports @font-face which allows you to even load fonts from the web!
+		<br><br>
+		Partial because:<br>
+		- The font must be TTF or OTF.<br>
+		- format() specifier is ignored.<br><br>
+		Please note that the font displayed here is for demo purposes only!
+</div>

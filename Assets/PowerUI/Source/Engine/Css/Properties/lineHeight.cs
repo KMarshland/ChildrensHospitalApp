@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 
 
 namespace PowerUI.Css.Properties{
@@ -21,21 +20,32 @@ namespace PowerUI.Css.Properties{
 	
 	public class LineHeight:CssProperty{
 		
+		public LineHeight(){
+			IsTextual=true;
+		}
+		
 		public override string[] GetProperties(){
 			return new string[]{"line-height"};
 		}
 		
 		public override void Apply(ComputedStyle style,Value value){
 			
-			if(value==null){
-				style.LineHeight=1f;
-			}else if(value.Type==Css.ValueType.Text && value.Text=="normal"){
-				style.LineHeight=1f;
-			}else{
-				style.LineHeight=value.Single;
+			// Get the text:
+			TextRenderingProperty text=GetText(style);
+			
+			if(text==null){
+				return;
 			}
 			
-			style.RequestLayout();
+			if(value==null || value.Text=="normal"){
+				text.LineGap=0.2f;
+			}else{
+				text.LineGap=value.Single-1f;
+			}
+			
+			// Apply the changes:
+			text.SetDimensions();
+			
 		}
 		
 	}

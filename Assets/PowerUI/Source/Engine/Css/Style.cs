@@ -10,9 +10,9 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
 
 namespace PowerUI.Css{
 
@@ -167,8 +167,13 @@ namespace PowerUI.Css{
 						}
 					}
 					
-					Set("border-width",width,innerIndex,important);
-					Set("border-color",colour,innerIndex,important);
+					if(width!=""){
+						Set("border-width",width,innerIndex,important);
+					}
+					
+					if(colour!=""){
+						Set("border-color",colour,innerIndex,important);
+					}
 					
 					return;
 				}
@@ -197,6 +202,33 @@ namespace PowerUI.Css{
 				Set("border-style",style,-1,important);
 				Set("border-width",width,-1,important);
 				Set("border-color",colour,-1,important);
+				
+				return;
+			}else if(property=="text-decoration"){
+				
+				string decoLine="";
+				string colour="";
+				string[] pieces=value.Split(' ');
+				
+				foreach(string piece in pieces){
+					
+					ValueType type=Value.TypeOf(piece);
+					
+					if(piece=="initial" || type==ValueType.Color){
+						colour=piece;
+					}else{
+						decoLine=piece;
+					}
+					
+				}
+				
+				Set("text-decoration-line",decoLine,-1,important);
+				
+				if(colour!=""){
+					Set("text-decoration-color",colour,-1,important);
+				}
+				
+				
 				
 				return;
 			}else if(property=="background"){

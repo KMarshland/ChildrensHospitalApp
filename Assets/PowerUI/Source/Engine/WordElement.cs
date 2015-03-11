@@ -25,6 +25,7 @@ namespace PowerUI{
 		/// <param name="text">The text of this word.</param>
 		public WordElement(Document document,Element parent,string text):base(document,parent){
 			SetTag("word");
+			
 			// Words are CSS driven:
 			style.innerText=text;
 		}
@@ -35,18 +36,14 @@ namespace PowerUI{
 			return Style.Computed.Text.LetterCount();
 		}
 		
-		public override void AllocateText(){
-			KidsToRender=ChildNodes;
-			if(Style.Computed.Text==null){
-				return;
-			}
-			Style.Computed.Text.AllocateText();
-		}
-		
 		/// <summary>Gets this word as a string.</summary>
 		/// <returns>The word as a string.</returns>
 		public override string ToString(){
 			return Style.Computed.Text.ToString();
+		}
+		
+		public override void ToString(System.Text.StringBuilder builder){
+			Style.Computed.Text.ToString(builder);
 		}
 		
 	}

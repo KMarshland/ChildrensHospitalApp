@@ -1,14 +1,19 @@
-<div style='position:fixed;height:100%;width:100%;background:url(background.png);'></div>
+<!-- Background (The blue noise part - PowerUI is actually transparent) -->
+<div style='position:fixed;height:100%;width:100%;background:url(noise-background.png);'></div>
 
-<div style='background:#fff;border:3px solid #000;width:300px;height:200px;padding:20px;color:#000000;margin:auto;'>
+
+<div style='background:#fff;border:3px solid #000;width:300px;height:200px;padding:20px;color:#000000;margin:auto;text-clip:clip;'>
 	<div style='height:100%;width:100%;overflow:hidden;' onmousedown='DragScroller.StartScroll' onmousemove='DragScroller.ScrollNow'>
 	<center>
 		<u>Click and drag this element to get it to scroll</u><br><br>
 		<br>
 		<br>
-		This is done by C# methods. When this element is clicked, it gets focused and the C# script, DragScroller, stores the location of the mouse. 
+		This is done by C# methods which can be reused anywhere in the project. When this element is clicked, it gets focused and the C# script, DragScroller, stores the location of the mouse. 
 		Because it's focused, onmousemove also occurs. Mouse up might not occur on this element though, so the mousemove function looks out for a mouse up. 
 		When one occurs, it simply unfocuses this element.
+		<br>
+		<br>
+		Note the use of text-clip on the scrollers style. Optional of course, but this disables an optimisation which makes text appear to get squished otherwise.
 		<br>
 		<br>
 		Time for some random text! Welcome to the PowerUI source documentation pages. These are available for anybody wishing to directly integrate or use internal features of PowerUI. If you're looking for guides on how to do things with PowerUI, head over to the <a href='http://powerui.kulestar.com/'>main PowerUI website</a>.

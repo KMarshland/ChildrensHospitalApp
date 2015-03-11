@@ -69,6 +69,10 @@ namespace PowerUI{
 			return null;
 		}
 		
+		/// <summary>True if this UI is rendering flat.</summary>
+		public bool Flat;
+		/// <summary>The width/height ratio.</summary>
+		public float Ratio=1f;
 		/// <summary>The width of the UI in pixels.</summary>
 		public int pixelWidth;
 		/// <summary>The height of the UI in pixels.</summary>
@@ -240,16 +244,8 @@ namespace PowerUI{
 			}
 		}
 		
-		/// <summary>If in Atlas RenderMode (default), this is the initial size of the atlas to use.
-		/// Default size is 1024px.</summary>
-		public int AtlasSize{
-			get{
-				return Renderer.AtlasSize;
-			}
-			set{
-				Renderer.AtlasSize=value;
-			}
-		}
+		[Obsolete("Atlases are now always global. If you wish to define their size, see AtlasStacks instead.")]
+		public int AtlasSize;
 		
 		/// <summary>Flushes resolution changes. Use this after a set resolution method if you want to see your
 		/// changes on the next update. Note that this is not needed when you've just created your WorldUI or if you're
@@ -300,7 +296,7 @@ namespace PowerUI{
 		
 		/// <summary>Puts all batches of this renderer into the given unity layer.</summary>
 		/// <param name="id">The ID of the unity layer.</param>
-		public void RenderWithCamera(int id){
+		public virtual void RenderWithCamera(int id){
 			Renderer.RenderWithCamera(id);
 			gameObject.layer=id;
 		}
@@ -326,6 +322,14 @@ namespace PowerUI{
 		/// <param name="ppw">Pixels per world unit to use for both x and y.</param>
 		public void SetResolution(int ppw){
 			SetResolution(ppw,ppw);
+		}
+		
+		/// <summary>Sets how many Pixels Per World unit this renderer uses. Maps directly to applying a scale.
+		/// Default is 100. The actual world space size is dictated by this and <see cref="PowerUI.WorldUI.SetDimensions"/>.
+		/// The amount of pixels and pixels per world unit (resolution).</summary>
+		/// <param name="ppw">Pixels per world unit to use for both x and y.</param>
+		public void SetResolution(float ppw){
+			transform.localScale=new Vector3(1f/ppw,1f/ppw,1f);
 		}
 		
 		/// <summary>Sets how many Pixels Per World unit this renderer uses, allowing for distortion. Maps directly to applying a scale.
@@ -365,7 +369,7 @@ namespace PowerUI{
 		/// <see cref="PowerUI.WorldUI.SetResolution"/>. The amount of pixels and pixels per world unit (resolution).</summary>
 		/// <param name="widthPX">The width in pixels.</param>
 		/// <param name="heightPX">The height in pixels.</param>
-		public void SetDimensions(int widthPX,int heightPX){
+		public virtual void SetDimensions(int widthPX,int heightPX){
 			if(widthPX!=pixelWidth){
 				pixelWidth=widthPX;
 				document.html.style.width=widthPX+"px";
@@ -376,6 +380,9 @@ namespace PowerUI{
 				PixelHeightF=(float)pixelHeight;
 				document.html.style.height=heightPX+"px";
 			}
+			
+			// Update ratio:
+			Ratio=(float)pixelWidth / PixelHeightF;
 			
 			// Reset the origin position:
 			SetOrigin(OriginLocation.x,OriginLocation.y);
@@ -394,7 +401,7 @@ namespace PowerUI{
 		/// <summary>Sets the location of the gameobjects origin relatively.</summary>
 		/// <param name="x">The x coordinate of the origin as a value from 0->1. Zero is the left edge. Default 0.5.</param>
 		/// <param name="y">The y coordinate of the origin as a value from 0->1. Zero is the bottom edge. Default is 0.5.</param>
-		public void SetOrigin(float x,float y){
+		public virtual void SetOrigin(float x,float y){
 			OriginLocation.x=x;
 			OriginLocation.y=y;
 			
@@ -583,6 +590,11 @@ namespace PowerUI{
 		/// <summary>Destroys this UI. Note that this also occurs if the gameobject is destroyed;
 		/// Just destroying the gameobject or a parent gameObject is all that is required.</summary>
 		public void Destroy(){
+			
+			if(Renderer==null){
+				return;
+			}
+		
 			Renderer.Destroy();
 			Renderer=null;
 			

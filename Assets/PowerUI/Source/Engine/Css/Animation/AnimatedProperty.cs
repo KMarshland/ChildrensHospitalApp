@@ -83,7 +83,7 @@ namespace PowerUI{
 				}else{
 					ValueObject=new Css.Value();
 					
-					if(type==Css.ValueType.Null){
+					if(innerIndex!=-1 || type==Css.ValueType.Null){
 						type=Css.ValueType.Rectangle;
 					}
 					
@@ -180,6 +180,18 @@ namespace PowerUI{
 		public void Update(){
 			CurrentTime+=UI.RedrawRate;
 			
+			// Get the element being animated:
+			Element element=Animation.Animating;
+			
+			if(!element.isRooted){
+				
+				// Immediately stop - the element was removed (don't call the finished event):
+				Stop();
+				
+				return;
+				
+			}
+			
 			if(CurrentTime>=Animation.TotalTime){
 				// Done!
 				
@@ -196,7 +208,7 @@ namespace PowerUI{
 					
 					// If we're the main animation (updateCss is true), tell the style it changed:
 					// Note that in grouped properties, only the last one actually runs the update.
-					Animating.style.OnChanged(PropertyInfo,PropertyValueObject);
+					element.style.OnChanged(PropertyInfo,PropertyValueObject);
 					
 					// And call the done function:
 					Animation.Finished();
@@ -240,7 +252,7 @@ namespace PowerUI{
 			if(UpdateCss){
 				// And Tell the style it changed:
 				// Note that in grouped properties, only the last one actually runs the update.
-				Animating.style.OnChanged(PropertyInfo,PropertyValueObject);
+				element.style.OnChanged(PropertyInfo,PropertyValueObject);
 			}
 			
 		}
@@ -261,11 +273,13 @@ namespace PowerUI{
 			}else{
 				PropertyBefore.PropertyAfter=PropertyAfter;
 			}
+			
 			if(PropertyAfter==null){
 				UIAnimation.LastProperty=PropertyBefore;
 			}else{
 				PropertyAfter.PropertyBefore=PropertyBefore;
 			}
+			
 		}
 		
 		/// <summary>The prime property being animated.</summary>
@@ -275,7 +289,7 @@ namespace PowerUI{
 			}
 		}
 		
-		/// <summary>
+		/// <summary>The element being animated.</summary>
 		public Element Animating{
 			get{
 				return Animation.Animating;

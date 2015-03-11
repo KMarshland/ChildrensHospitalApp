@@ -268,25 +268,33 @@ namespace Nitro{
 			while(child!=null){
 				CodeFragment next=child.NextChild;
 				
-				if(child.IsParent()){
+				if(child.IsParent){
+					
 					FindClasses(child);
+					
 				}else if(child.GetType()==typeof(VariableFragment)){
 					VariableFragment vfrag=(VariableFragment)child;
+					
 					if(vfrag.Value=="class"){
 						bool isPublic;
 						Modifiers.Handle(vfrag,out isPublic);
 						
 						Type baseType=null;
 						CodeFragment nameBlock=vfrag.NextChild;
+						
 						if(nameBlock==null||nameBlock.GetType()!=typeof(VariableFragment)){
 							vfrag.Error("Class keyword used but no class name given.");
 						}
+						
 						vfrag.Remove();
 						vfrag=(VariableFragment)nameBlock;
+						
 						if(vfrag.IsKeyword()){
 							vfrag.Error("Can't use keywords for class names.");
 						}
+						
 						string name=vfrag.Value;
+						
 						if(Types.ContainsKey(name)){
 							vfrag.Error("Cannot redefine class "+name+" - it already exists in this scope.");
 						}
@@ -300,23 +308,29 @@ namespace Nitro{
 						}
 						
 						CodeFragment cblock=vfrag.NextChild;
+						
 						if(cblock==null||cblock.GetType()!=typeof(BracketFragment)){
 							vfrag.Error("Class "+name+" is missing it's code body. Correct syntax: class "+name+"{ .. }.");
 						}
+						
 						next=cblock.NextChild;
 						vfrag.Remove();
 						cblock.Remove();
 						Types.Add(name,new CompiledClass(cblock,this,name,baseType,isPublic));
 					}
+					
 				}
+				
 				child=next;
 			}
+			
 		}
 		
 		/// <summary>Checks if a type is allowed to be used.</summary>
 		/// <param name="ofType">The type to check for clearance.</param>
 		/// <returns>True if it's allowed, false otherwise.</returns>
 		public bool AllowUse(Type ofType){
+			
 			if(typeof(NitroDomainManager).IsAssignableFrom(ofType)){
 				// Never allowed to use a nitro security domain.
 				return false;
@@ -329,6 +343,7 @@ namespace Nitro{
 			if(ScriptDomainManager.IsAllowed(ofType)){
 				return true;
 			}
+			
 			return false;
 		}
 		
@@ -336,6 +351,21 @@ namespace Nitro{
 		/// <param name="name">The method name to search for.</param>
 		/// <returns>True if this code contains the named method.</returns>
 		public bool ContainsMethod(string name){
+			
+			if(BaseClass==null){
+				
+				// It's been compiled.
+				
+				if(CompiledType==null){
+				
+					// Well, a compile attempt happened at least!
+					return false;
+				}
+				
+				// Grab the method from the compiled type instead:
+				return (CompiledType.GetMethod(name.ToLower())!=null);
+			}
+			
 			return BaseClass.ContainsMethod(name);
 		}
 		
@@ -343,6 +373,21 @@ namespace Nitro{
 		/// <param name="field">The field name to search for.</param>
 		/// <returns>True if this code contains the named field.</returns>
 		public bool ContainsField(string field){
+			
+			if(BaseClass==null){
+				
+				// It's been compiled.
+				
+				if(CompiledType==null){
+				
+					// Well, a compile attempt happened at least!
+					return false;
+				}
+				
+				// Grab the method from the compiled type instead:
+				return (CompiledType.GetField(field.ToLower())!=null);
+			}
+			
 			return BaseClass.ContainsField(field);
 		}
 		
@@ -352,6 +397,7 @@ namespace Nitro{
 		public Type GetType(string name){
 			// Alias lookup - is name an alias? (e.g. 'int')
 			Type type=TypeAliases.Find(name);
+			
 			if(type!=null){
 				// It sure was - return the result.
 				return type;
@@ -360,13 +406,14 @@ namespace Nitro{
 			// Check if we can straight get the type by this name.
 			// Go hunting - can we find typeName anywhere?
 			type=Type.GetType(name,false,true);
+			
 			if(type!=null){
 				// Wohoo that was easy!
 				return type;
 			}
 			
 			// Start looking around in our Referenced namespaces to find this type.
-			// This is done because e.g. Debug is named UnityEngine.Debug in the UnityEngine namespace.
+			// This is done because e.g. Socket is named System.Net.Socket in the System.Net namespace.
 			// As the reference knows which assembly to look in, these are quick to handle.
 			if(References==null){
 				return null;
@@ -374,9 +421,11 @@ namespace Nitro{
 			
 			foreach(CodeReference reference in References){
 				type=reference.GetType(name);
+				
 				if(type!=null){
 					return type;
 				}
+				
 			}
 			
 			// It could also be in an assembly on it's own without a namespace.
@@ -386,14 +435,18 @@ namespace Nitro{
 			
 			// And check in each one:
 			foreach(KeyValuePair<string,CodeAssembly> assembly in CodeReference.Assemblies){
+				
 				if(assembly.Value.Current || assembly.Value.NitroAOT){
 					// This was the first thing we checked, or is a Nitro assembly - skip.
 					continue;
 				}
+				
 				type=assembly.Value.GetType(name);
+				
 				if(type!=null){
 					return type;
 				}
+				
 			}
 			
 			return null;
@@ -413,6 +466,7 @@ namespace Nitro{
 			if(name=="NitroScriptCode"){
 				return BaseClass;
 			}
+			
 			CompiledClass result;
 			Types.TryGetValue(name,out result);
 			return result;
@@ -426,7 +480,15 @@ namespace Nitro{
 			if(CompiledType==null){
 				return null;
 			}
+			
 			return Activator.CreateInstance(CompiledType);
+		}
+		
+		/// <summary>The compiled useable type of the object returned by Instance.</summary>
+		public Type OutputType{
+			get{
+				return CompiledType;
+			}
 		}
 		
 	}

@@ -24,10 +24,10 @@ namespace Nitro{
 
 	public class CompiledMethod{
 		
-		/// <summary>The line the method starts on.</summary>
-		public int Line;
 		/// <summary>The name of the method.</summary>
 		public string Name;
+		/// <summary>The current line number.</summary>
+		public int CurrentLine;
 		/// <summary>The script that this method belongs to.</summary>
 		public NitroCode Script;
 		/// <summary>The IL stream for this method. This is what will make this method executable.</summary>
@@ -64,9 +64,8 @@ namespace Nitro{
 			Name=name;
 		}
 		
-		public CompiledMethod(CompiledClass parent,string name,BracketFragment parameterBlock,BracketFragment codeBlock,TypeFragment retType,int line,bool isPublic){
+		public CompiledMethod(CompiledClass parent,string name,BracketFragment parameterBlock,BracketFragment codeBlock,TypeFragment retType,bool isPublic){
 			Name=name;
-			Line=line;
 			Parent=parent;
 			CodeBlock=codeBlock;
 			Script=Parent.Script;
@@ -88,25 +87,32 @@ namespace Nitro{
 			// Does the parent base type define this method?
 			// If so, use it's name.
 			Type baseType=Parent.Builder.BaseType;
-			Type[] pSet=null;
-			if(ParameterBlock!=null){
-				pSet=new Type[ParameterBlock.ChildCount()];
-			}
-			MethodInfo mInfo=Types.GetOverload(baseType.GetMethods(),Name,pSet,true);
+			
+			// Parse the parameter set right away:
+			ParseParameters();
+			
+			MethodInfo mInfo=Types.GetOverload(baseType.GetMethods(),Name,ParameterTypes,true);
+			
 			if(mInfo!=null){
 				methodName=mInfo.Name;
 				attrib|=MethodAttributes.Virtual|MethodAttributes.HideBySig;//|MethodAttributes.NewSlot;
 			}
+			
 			bool isVoid=Types.IsVoid(returnType);
+			
 			if(isVoid){
 				returnType=typeof(void);
 			}
+			
 			Builder=Parent.Builder.DefineMethod(
 				methodName,
 				attrib,
 				returnType,
 				null
 			);
+			
+			ApplyParameters();
+			
 			ILStream=new NitroIL(Builder.GetILGenerator());
 			EndOfMethod=ILStream.DefineLabel();
 			if(!isVoid){
@@ -178,7 +184,7 @@ namespace Nitro{
 		/// <summary>Throws an error that occured in the compilation of this method with the given message.</summary>
 		/// <param name="message">A message to state why this error occured.</param>
 		public void Error(string message){
-			throw new CompilationException(Line,message);
+			throw new CompilationException(message);
 		}
 		
 		/// <summary>Gets the return type of this method.</summary>
@@ -216,13 +222,15 @@ namespace Nitro{
 		/// <returns>The local, if found or created. Null otherwise.</returns>
 		public LocalVariable GetLocal(string variableName,bool create,Type createType){
 			LocalVariable result=null;
+			
 			if(!LocalSet.TryGetValue(variableName,out result)&&create){
-				if(createType==null){
-					createType=typeof(object);
-				}
-				result=new LocalVariable(variableName,ILStream.DeclareLocal(createType));
+				
+				result=new LocalVariable(variableName,createType);
+				
 				LocalSet.Add(variableName,result);
+				
 			}
+			
 			return result;
 		}
 		
@@ -278,17 +286,17 @@ namespace Nitro{
 		/// <summary>Confirms that the recently loaded parameters are valid.</summary>
 		private void ParametersOk(){
 			ParametersLoaded=true;
-			Parent.FindMethodSet(Name).ParametersOk(this);
+			//Parent.FindMethodSet(Name).ParametersOk(this);
 		}
 		
 		/// <summary>Loads the parameter block into a set of types.</summary>
-		public void ParseParameters(){
+		private void ParseParameters(){
 			if(DefaultParameterValues!=null){
 				DefaultParameterValues=null;
 				Builder.SetParameters(null);
 			}
 			
-			if(ParameterBlock==null||!ParameterBlock.IsParent()){
+			if(ParameterBlock==null||!ParameterBlock.IsParent){
 				// No inputs anyway, e.g. test(){..}
 				ParametersOk();
 				return;
@@ -299,37 +307,51 @@ namespace Nitro{
 			ParameterTypes=new Type[ParameterBlock.ChildCount()];
 			DefaultParameterValues=new CompiledFragment[ParameterTypes.Length];
 			int index=0;
+			
 			// For each parameter..
 			CodeFragment current=ParameterBlock.FirstChild;
+			
 			while(current!=null){
-				if(!current.IsParent()){
+				
+				if(!current.IsParent){
 					Error("Invalid function definition input variable found.");
 				}
+				
 				// Default value of this variable (if any). E.g. var1=true,var2..
 				CompiledFragment DefaultValue=null;
 				
 				CodeFragment inputName=current.FirstChild;
+				
 				if(inputName.GetType()!=typeof(VariableFragment)){
 					Error("Invalid function definition inputs for "+Name+". Must be (var1:type,var2:type[=a default value],var3:type..). [=..] is optional and can be used for any of the variables.");
 				}
 				
 				string paramName=((VariableFragment)inputName).Value;
+				
 				if(inputName.NextChild==null){
 				}else if(inputName.NextChild!=null&&!Types.IsTypeOf(inputName.NextChild,typeof(OperatorFragment))){
-					//no type OR default, or the block straight after isn't : or =
+					
+					// No type OR default, or the block straight after isn't : or =
 					Error("Invalid function parameters for "+Name+". '"+paramName+"' is missing a type or default value.");
+					
 				}else{
+					
 					OperatorFragment opFrag=(OperatorFragment)inputName.NextChild;
 					//it must be a set otherwise it's invalid.
+					
 					if(opFrag.Value==null||opFrag.Value.GetType()!=typeof(OperatorSet)){
 						Error("Invalid default function parameter value provided for "+Name+". '"+paramName+"'.");
 					}
+					
 					current.FirstChild=inputName.NextChild.NextChild;
-					if(!current.IsParent()){
+					
+					if(!current.IsParent){
 						Error("Invalid default function definition. Must be (name:type=expr,..)");
 					}
+					
 					DefaultValue=current.Compile(this);
 				}
+				
 				if(inputName.GivenType!=null){
 					ParameterTypes[index]=inputName.GivenType.FindType(Script);
 				}else if(DefaultValue!=null){
@@ -337,6 +359,7 @@ namespace Nitro{
 				}else{
 					Error("Parameter "+paramName+"'s type isn't given. Should be e.g. ("+paramName+":String,..).");
 				}
+				
 				DefaultParameterValues[index]=DefaultValue;
 				
 				if(ParameterSet.ContainsKey(paramName)){
@@ -346,17 +369,30 @@ namespace Nitro{
 				}else{
 					ParameterSet.Add(paramName,new ParameterVariable(paramName,ParameterTypes[index]));
 				}
+				
 				current=current.NextChild;
 				index++;
 			}
+			
+			ApplyParameters();
+		}
+		
+		private void ApplyParameters(){
+			if(Builder==null){
+				return;
+			}
+			
 			// Write the Type[] block to the MethodBuilder:
 			Builder.SetParameters(ParameterTypes);
+			
 			// Next, go over all the parameters generating a ParameterBuilder for each one:
-			index=1;
+			int index=1;
+			
 			foreach(KeyValuePair<string,ParameterVariable> kvp in ParameterSet){
 				kvp.Value.Builder=Builder.DefineParameter(index,ParameterAttributes.None,kvp.Key);
 				index++;
 			}
+			
 			ParametersOk();
 		}
 		

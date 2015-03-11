@@ -1,0 +1,99 @@
+
+<!-- Time for a little CSS! -->
+<style type='text/css'>
+
+.background-noise{
+	
+	position:fixed;
+	height:100%;
+	width:100%;
+	background:url(noise-background.png);
+	
+}
+
+#content-box{
+	
+	background:#e7e8ee;
+	border:6px solid #cccccc;
+	border-radius:70px 30px 70px 30px;
+	width:300px;
+	padding:40px;
+	text-align:justify;
+	color:#000000;
+	margin-top:auto;
+	margin-bottom:auto;
+	left:10%;
+	
+}
+
+</style>
+
+
+<!-- Background (The blue noise part - PowerUI is actually transparent). Gets its style from the CSS above. -->
+<div class='background-noise'></div>
+
+<!-- The PowerUI logo off to the right. We're using direct style here. -->
+<div style='vertical-align:middle;right:10%;width:140px;height:100%;position:fixed;'>
+	
+	<!-- The logo itself. -->
+	<img src='powerUI-logo.png'/>
+
+</div>
+
+<!-- The rounded box containing the welcome info. Gets its style from the CSS above. -->
+<div id='content-box'>
+	
+	<canvas id='my-canvas' width='300' height='200'></canvas>
+	
+</div>
+
+<script type='text/nitro'>
+	
+function Start(){
+	
+	// Grab the canvas:
+	var canvas:Element=document.getElementById("my-canvas");
+	
+	// Get the context:
+	var ctx:CanvasContext2D=canvas.getContext("2d");
+	
+	ctx.beginPath();
+	ctx.moveTo(0f,10f);
+	ctx.lineTo(50f,10f);
+	ctx.lineTo(50f,60f);
+	ctx.closePath();
+	
+	// Colour with alpha:
+	ctx.fillStyle="#2288ff99";
+	ctx.fill();
+	
+	// Stroke style:
+	ctx.strokeStyle="#000022";
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(40f,10f);
+	ctx.lineTo(90f,10f);
+	ctx.lineTo(90f,60f);
+	ctx.closePath();
+	
+	// Colour with alpha:
+	ctx.fillStyle="#ff882299";
+	ctx.fill();
+	
+	ctx.beginPath();
+	ctx.moveTo(80f,10f);
+	ctx.lineTo(130f,10f);
+	ctx.lineTo(130f,60f);
+	ctx.quadraticCurveTo(80f,60f,80f,10f);
+	
+	// Colour with alpha:
+	ctx.fillStyle="#22ff8899";
+	ctx.fill();
+	
+	// PowerUI required apply call - call this last:
+	ctx.apply();
+	
+}
+	
+</script>

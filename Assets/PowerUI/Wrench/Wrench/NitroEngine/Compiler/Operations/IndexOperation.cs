@@ -91,7 +91,7 @@ namespace Nitro{
 			Index.OutputIL(into);
 		}
 		
-		public void OutputSet(NitroIL into){
+		public void OutputSet(NitroIL into,Type setting){
 			if(ElementType.IsValueType){
 				into.Emit(OpCodes.Stelem,ElementType);
 			}else{

@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 
 
 namespace PowerUI.Css.Properties{
@@ -53,10 +52,10 @@ namespace PowerUI.Css.Properties{
 				style.InnerWidth=value.PX;
 			}
 			
+			style.SetSize();
+			
 			// Fire percent pass:
 			style.Element.SetWidthForKids(style);
-			
-			style.SetSize();
 			
 			style.RequestLayout();
 		}

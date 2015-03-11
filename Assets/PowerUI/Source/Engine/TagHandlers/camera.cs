@@ -9,6 +9,10 @@
 //          www.kulestar.com
 //--------------------------------------
 
+#if UNITY_2_6 || UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5
+	#define PRE_UNITY4
+#endif
+
 using System;
 using PowerUI.Css;
 using UnityEngine;
@@ -137,7 +141,19 @@ namespace PowerUI{
 				}
 				
 				// Create the object:
+				#if PRE_UNITY4
+				GameObject maskObject=GameObject.CreatePrimitive(PrimitiveType.Plane);
+				#else
 				GameObject maskObject=GameObject.CreatePrimitive(PrimitiveType.Quad);
+				#endif
+				
+				// Remove the MC:
+				MeshCollider collider=maskObject.GetComponent<MeshCollider>();
+				
+				if(collider!=null){
+					// Remove it:
+					GameObject.Destroy(collider);
+				}
 				
 				// Grab the transform:
 				Mask=maskObject.transform;

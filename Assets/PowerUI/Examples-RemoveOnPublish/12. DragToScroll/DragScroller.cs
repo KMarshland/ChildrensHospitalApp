@@ -61,7 +61,8 @@ public static class DragScroller{
 			// This will prevent any further mousemove's:
 			Scrolling.Unfocus();
 			
-			// Running an animation here could be done to create 'drift' where the scrolling decelerates to a smooth stop.
+			// Running an animation here could be done to create 'drift' where the scrolling decelerates to a smooth stop. Highly reccommended to use the "scroll" CSS property.
+			
 			// Alternatively, delay the unfocus and have a speed value, then affect the speed from this function to have the same effect.
 		}
 		

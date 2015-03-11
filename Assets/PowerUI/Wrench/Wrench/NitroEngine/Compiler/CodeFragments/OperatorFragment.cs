@@ -59,6 +59,13 @@ namespace Nitro{
 			Set(""+operatorChar);
 		}
 		
+		/// <summary>Is this the set operator?</summary>
+		public bool IsSetOperator{
+			get{
+				return (Value!=null && Value.GetType()==typeof(OperatorSet));
+			}
+		}
+		
 		/// <summary>Sets the current operator of this fragment from the operator as a string (e.g. "+").</summary>
 		/// <param name="value">The operator as a string.</param>
 		/// <returns>True if the string is an operator and it was set successfully; False otherwise.</returns>

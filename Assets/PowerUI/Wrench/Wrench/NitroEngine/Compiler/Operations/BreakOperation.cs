@@ -31,6 +31,12 @@ namespace Nitro{
 			Depth=depth;
 		}
 		
+		public override bool RequiresStoring{
+			get{
+				return false;
+			}
+		}
+		
 		public override Type OutputType(out CompiledFragment v){
 			v=this;
 			return null;

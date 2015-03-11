@@ -10,6 +10,7 @@
 //--------------------------------------
 
 using Wrench;
+using System.Text;
 
 namespace PowerUI{
 	
@@ -42,15 +43,23 @@ namespace PowerUI{
 		public override void OnParseContent(MLLexer lexer){
 			lexer.Literal=true;
 			// Keep reading until we hit </script>.
-		
-			string codeText="";
+			
+			StringBuilder codeText=new StringBuilder();
+			
+			// Let the parser know what line it's really at:
+			codeText.Append("\n#l"+(lexer.LineNumber-1)+"\n");
+			
+			// Get the initial "empty" size:
+			int size=codeText.Length;
+			
 			while(!AtEnd(lexer)){
-				codeText+=lexer.Read();
+				codeText.Append(lexer.Read());
 			}
+			
 			// Great, good stuff. Add to the Document's code but only if this tag shouldn't be dumped:
 			if(!Dump){
-				if(codeText!=""){
-					Element.Document.AddCode(codeText);
+				if(codeText.Length!=size){
+					Element.Document.AddCode(codeText.ToString());
 				}
 			}else{
 				Wrench.Log.Add("Warning: Some script has been ignored due to it's type ('"+Element["type"]+"'). Did you mean 'text/nitro'?");

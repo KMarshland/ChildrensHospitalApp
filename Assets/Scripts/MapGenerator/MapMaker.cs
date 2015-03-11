@@ -20,17 +20,9 @@ public class MapMaker : MonoBehaviour {
 	static Path path;
 
 	static Seeker seeker;
-	static AstarPath astarPath;
+	//static AstarPath astarPath;
 
-	public static Floor[] floors = new Floor[]{
-		new Floor(Resources.Load("Textures/Maps/CMHFloor0") as Texture2D),
-		new Floor(Resources.Load("Textures/Maps/CMHFloor1") as Texture2D),
-		new Floor(Resources.Load("Textures/Maps/CMHFloor2") as Texture2D),
-		new Floor(Resources.Load("Textures/Maps/CMHFloor3") as Texture2D),
-		new Floor(Resources.Load("Textures/Maps/CMHFloor4") as Texture2D),
-		new Floor(Resources.Load("Textures/Maps/CMHFloor5") as Texture2D),
-		new Floor(Resources.Load("Textures/Maps/CMHFloor6") as Texture2D)
-	};
+	public static Floor[] _floors;
 	static Floor floor;
 
 	public string[] extraLog;
@@ -39,7 +31,7 @@ public class MapMaker : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		instance = this;
-
+		ConsoleControl.Log("Start called");
 		float theBeforeTime = Time.realtimeSinceStartup;
 		/*for (int i = 0; i < floors.Length; i++){
 			floors[i].Id = i+1;
@@ -50,10 +42,9 @@ public class MapMaker : MonoBehaviour {
 
 		line = this.GetComponent<LineRenderer>();//get a reference to the line
 		seeker = GetComponent<Seeker>();
-		astarPath = GetComponent<AstarPath>();
+		//astarPath = GetComponent<AstarPath>();
 		//logs["Getting components"] = Time.realtimeSinceStartup - theBeforeTime;
 
-		ActiveFloor = floors[0];
 		//logs["Set active floor"] = Time.realtimeSinceStartup - theBeforeTime;
 
 		//add the waypoints to the graph
@@ -63,7 +54,7 @@ public class MapMaker : MonoBehaviour {
 		MapLabel.loadMarkers();
 		//logs["Initial marker load"] = Time.realtimeSinceStartup - theBeforeTime;
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork){
-			StartCoroutine(MapLabel.updateMarkerSave());
+			startMarkerUpdate();
 		}
 		//logs["Start update of markers"] = Time.realtimeSinceStartup - theBeforeTime;
 
@@ -79,6 +70,10 @@ public class MapMaker : MonoBehaviour {
 			AstarPath.active.Scan();
 			needsToScan = false;
 		}
+	}
+
+	public void startMarkerUpdate(){
+		StartCoroutine(MapLabel.updateMarkerSave());
 	}
 
 	void makeLine(Vector3[] points){//a handy-dandy function to turn a list of points into something on the screen
@@ -185,6 +180,24 @@ public class MapMaker : MonoBehaviour {
 		}
 	}
 
+	public static Floor[] floors{
+		get {
+			if (_floors == null || _floors.Length == 0){
+				_floors = new Floor[]{
+					new Floor(Resources.Load("Textures/Maps/CMHFloor0") as Texture2D),
+					new Floor(Resources.Load("Textures/Maps/CMHFloor1") as Texture2D),
+					new Floor(Resources.Load("Textures/Maps/CMHFloor2") as Texture2D),
+					new Floor(Resources.Load("Textures/Maps/CMHFloor3") as Texture2D),
+					new Floor(Resources.Load("Textures/Maps/CMHFloor4") as Texture2D),
+					new Floor(Resources.Load("Textures/Maps/CMHFloor5") as Texture2D),
+					new Floor(Resources.Load("Textures/Maps/CMHFloor6") as Texture2D)
+				};
+			}
+			
+			return _floors;
+		}
+	}
+
 	static void loadGraphForFloor(Floor f){
 		TextAsset cache = (Resources.Load("PathCaches/Floor" + (f.Id)) as TextAsset);
 		if (cache != null){//load the cache if it exists
@@ -202,7 +215,7 @@ public class MapMaker : MonoBehaviour {
 		get {
 			return floor;
 		} set {
-			float theBeforeTime = Time.realtimeSinceStartup;
+			//float theBeforeTime = Time.realtimeSinceStartup;
 			if (floor != null){
 				floor.Active = false;
 			}
@@ -213,7 +226,7 @@ public class MapMaker : MonoBehaviour {
 			//logs["Spawn floor"] = Time.realtimeSinceStartup - theBeforeTime;
 			loadGraphForFloor(floor);
 			//logs["Load graph"] = Time.realtimeSinceStartup - theBeforeTime;
-			MapMaker.instance.setLogs();
+			//MapMaker.instance.setLogs();
 			MapLabel.onFloorChange();
 		}
 	}

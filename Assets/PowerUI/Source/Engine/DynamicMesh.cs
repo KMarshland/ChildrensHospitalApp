@@ -13,6 +13,8 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Blaze;
+
 
 namespace PowerUI{
 	
@@ -35,16 +37,12 @@ namespace PowerUI{
 		public Mesh OutputMesh;
 		/// <summary>The material to use when rendering.</summary>
 		public Material Material;
-		/// <summary>The texture atlas to use on the material.</summary>
-		public TextureAtlas Atlas;
 		/// <summary>The number of blocks that were allocated last UI update.</summary>
 		private int LastBlockCount;
 		/// <summary>The tail of the linked list of all allocated blocks.</summary>
 		public MeshBlock LastBlock;
 		/// <summary>The head of the linked list of all allocated blocks.</summary>
 		public MeshBlock FirstBlock;
-		/// <summary>The current font texture used by the default UI material.</summary>
-		public Texture2D FontTexture;
 		/// <summary>The renderer being used to layout the blocks.</summary>
 		private MeshRenderer Renderer;
 		/// <summary>The material used by this mesh when it is using an atlas.</summary>
@@ -55,12 +53,18 @@ namespace PowerUI{
 		public GameObject OutputGameObject;
 		/// <summary>An array of uv coordinates.</summary>
 		public FixedSizeBuffer<Vector2> UV;
+		/// <summary>An array of uv coordinates.</summary>
+		public FixedSizeBuffer<Vector2> UV2;
 		/// <summary>An array of triangles.</summary>
 		public FixedSizeBuffer<int> Triangles;
 		/// <summary>An array of vertex colours.</summary>
 		public FixedSizeBuffer<Color> Colours;
+		/// <summary>An array of normals.</summary>
+		public FixedSizeBuffer<Vector3> Normals;
 		/// <summary>An array of vertex coordinates.</summary>
 		public FixedSizeBuffer<Vector3> Vertices;
+		/// <summary>An array of tangent values.</summary>
+		public FixedSizeBuffer<Vector4> Tangents;
 		/// <summary>The collider that receives clicks in physics mode.</summary>
 		public MeshCollider FullPhysicsModeCollider;
 		
@@ -68,67 +72,44 @@ namespace PowerUI{
 		/// <summary>Creates a new dynamic mesh which uses the hybrid shader and a texture atlas.</summary>
 		public DynamicMesh(UIBatch batch){
 			Batch=batch;
-			SetMaterial();
-			Setup();
-		}
-		
-		/// <summary>Creates a new dynamic mesh, applying the given atlas to it.</summary>
-		/// <param name="atlas">The texture atlas to use.</param>
-		public DynamicMesh(UIBatch batch,TextureAtlas atlas){
-			Batch=batch;
-			Atlas=atlas;
-			SetMaterial();
-			Setup();
-		}
-		
-		/// <summary>Changes the font texture used by the default material.</summary>
-		/// <param name="fontTexture">The new texture to use.</param>
-		public void ChangeFontTexture(Texture2D fontTexture){
-			if(FontTexture==fontTexture){
-				return;
-			}
-			FontTexture=fontTexture;
-			Material.SetTexture("_Font",fontTexture);
-		}
-		
-		/// <summary>Sets the default hybrid (text and graphics) shader and a new atlas.</summary>
-		public void SetMaterialAndAtlas(){
-			Atlas=new TextureAtlas();
-			SetMaterial();
-		}
-		
-		/// <summary>Sets a default material to this mesh. Note that this must only run when an atlas is available.</summary>
-		public void SetMaterial(){
+			
 			if(UIShader==null){
-				UIShader=Shader.Find("Hybrid GUI Shader");
+				UIShader=Shader.Find("StandardUI Unlit");
 			}
 			
-			if(GlobalMaterial==null){
-				GlobalMaterial=new Material(UIShader);
-			}
+			GlobalMaterial=new Material(UIShader);
 			
-			Material material=GlobalMaterial;
-			Material=null;
-			SetMaterial(material);
-			ApplyAtlas();
+			Setup();
 		}
 		
-		/// <summary>Applies a TextureAtlas to the material of this mesh if there is one.</summary>
-		public void ApplyAtlas(TextureAtlas atlas){
-			Atlas=atlas;
-			ApplyAtlas();
-		}
-		
-		/// <summary>Applies the TextureAtlas to the material of this mesh if there is one.</summary>
-		public void ApplyAtlas(){
-			if(Material==null){
-				return;
-			}
-			if(Atlas!=null){
-				Material.SetTexture("_Atlas",Atlas.Texture);
+		/// <summary>Changes the font atlas used by the default material.</summary>
+		public void SetFontAtlas(TextureAtlas atlas){
+			Texture2D texture;
+			
+			if(atlas==null){
+				texture=null;
 			}else{
-				Material.SetTexture("_Atlas",null);
+				texture=atlas.Texture;
 			}
+			
+			Material.SetTexture("_Font",texture);
+		}
+		
+		/// <summary>Sets a default material to this mesh.</summary>
+		public void SetGraphicsAtlas(TextureAtlas atlas){
+			Texture2D texture;
+			
+			if(atlas==null){
+				texture=null;
+			}else{
+				texture=atlas.Texture;
+			}
+			
+			Material.SetTexture("_Atlas",texture);
+		}
+		
+		public void SetGlobalMaterial(){
+			SetMaterial(GlobalMaterial);
 		}
 		
 		/// <summary>Applies the given material to this mesh.</summary>
@@ -137,77 +118,80 @@ namespace PowerUI{
 			if(Material==material){
 				return;
 			}
+			
 			Material=material;
+			
 			if(Renderer==null){
 				return;
 			}
-			Renderer.material=Material;
+			
+			Renderer.sharedMaterial=Material;
 		}
 		
 		/// <summary>Called only by constructors. This creates the actual mesh and the buffers for verts/tris etc.</summary>
 		private void Setup(){
-			UV=new FixedSizeBuffer<Vector2>(4);
-			Triangles=new FixedSizeBuffer<int>(6);
-			Colours=new FixedSizeBuffer<Color>(4);
-			Vertices=new FixedSizeBuffer<Vector3>(4);
+			UV=new FixedSizeBuffer<Vector2>(4,false);
+			Triangles=new FixedSizeBuffer<int>(6,true);
+			Colours=new FixedSizeBuffer<Color>(4,false);
+			Vertices=new FixedSizeBuffer<Vector3>(4,false);
+			UV2=new FixedSizeBuffer<Vector2>(4,false);
 			
 			OutputMesh=new Mesh();
 			OutputGameObject=new GameObject();
-			OutputTransform=OutputGameObject.transform;	
+			OutputTransform=OutputGameObject.GetComponent<Transform>();	
 			
 			Renderer=OutputGameObject.AddComponent<MeshRenderer>();
-			Renderer.material=Material;
+			Renderer.sharedMaterial=Material;
 			
 			MeshFilter filter=OutputGameObject.AddComponent<MeshFilter>();
 			filter.mesh=OutputMesh;
-
+		}
+		
+		/// <summary>Let the mesh know that normals are required.</summary>
+		public void RequireNormals(){
+			
+			Normals=new FixedSizeBuffer<Vector3>(4,false);
+			
+		}
+		
+		/// <summary>Let the mesh know that tangents are required.</summary>
+		public void RequireTangents(){
+			
+			Tangents=new FixedSizeBuffer<Vector4>(4,false);
+			
+		}
+		
+		/// <summary>Called to update the parenting of this mesh.</summary>
+		public void ChangeParent(){
+		
 			if(Batch!=null && Batch.Renderer!=null && Batch.Renderer.Node!=null){
-				OutputGameObject.transform.parent=Batch.Renderer.Node.transform;
+				OutputTransform.parent=Batch.Renderer.Node.transform;
 			}else if(UI.GUINode!=null){
-				OutputGameObject.transform.parent=UI.GUINode.transform;
+				OutputTransform.parent=UI.GUINode.transform;
 			}
 			
 			// Make sure the object is correctly transformed:
 			OutputTransform.localScale=Vector3.one;
 			OutputTransform.localPosition=Vector3.zero;
 			OutputTransform.localRotation=Quaternion.identity;
+			
 		}
 		
 		/// <summary>Called to tell this mesh to update which input mode its working in.
 		/// E.g. this may revert this mesh from screen mode to physics mode, or vice versa.</summary>
-		public void SetInputMode(InputMode mode){
-			if(mode==InputMode.Physics){
+		public void SetPhysicsMode(bool physics){
+			
+			if(physics){
 				if(FullPhysicsModeCollider==null){
 					FullPhysicsModeCollider=OutputGameObject.AddComponent<MeshCollider>();
 					FullPhysicsModeCollider.sharedMesh=OutputMesh;
+					OutputGameObject.name="PowerUI-CMesh";
 				}
-				OutputGameObject.name="PowerUI-CMesh";
 			}else if(FullPhysicsModeCollider!=null){
 				GameObject.Destroy(FullPhysicsModeCollider);
 				FullPhysicsModeCollider=null;
 			}
-		}
-		
-		/// <summary>Adds the given texture to the atlas.
-		/// Note that the atlas buffers internally and won't be rebuilt every update.</summary>
-		/// <param name="texture">The texture to add to the atlas.</param>
-		public AtlasLocation AddTexture(Texture2D texture){
-			CreateAtlas();
-			if(Atlas==null){
-				return null;
-			}
-			AtlasLocation location=Atlas.Add(texture);
-			if(location==null){
-				return null;
-			}
-			location.AddedThisUpdate=true;
-			return location;
-		}
-		
-		public void CreateAtlas(){
-			if(Atlas==null && Batch!=null && !Batch.Isolated){
-				Atlas=Batch.Renderer.SharedAtlas;
-			}
+			
 		}
 		
 		/// <summary>Let the mesh know it's about to undergo a layout routine.
@@ -224,6 +208,16 @@ namespace PowerUI{
 			if(BlockCount!=LastBlockCount){
 				// We gained or lost some blocks - resize our buffers:
 				UV.Resize(BlockCount);
+				UV2.Resize(BlockCount);
+				
+				if(Normals!=null){
+					Normals.Resize(BlockCount);
+				}
+				
+				if(Tangents!=null){
+					Tangents.Resize(BlockCount);
+				}
+				
 				Colours.Resize(BlockCount);
 				Vertices.Resize(BlockCount);
 				Triangles.Resize(BlockCount);
@@ -261,43 +255,6 @@ namespace PowerUI{
 			// Output the new mesh data:
 			Flush();
 			
-			if(Atlas==null){
-				return;
-			}
-			
-			// Update the texture atlas by removing the textures that were not 'AddedThisUpdate'.
-			AtlasLocation firstToRemove=null;
-			bool somethingToRemove=false;
-			
-			foreach(KeyValuePair<Texture2D,AtlasLocation> kvp in Atlas.ActiveTextures){
-				if(kvp.Value.AddedThisUpdate){
-					kvp.Value.AddedThisUpdate=false;
-					continue;
-				}
-				// Remove the texture from the atlas, without updating ActiveTextures just yet:
-				// If we updated ActiveTextures, we would be modifying it whilst iterating which will error.
-				kvp.Value.Deselect();
-				if(!somethingToRemove){
-					somethingToRemove=true;
-					firstToRemove=Atlas.LastEmpty;
-				}
-			}
-			
-			if(!somethingToRemove){
-				return;
-			}
-			
-			// To prevent the above error, we'll instead look out for new objects added to the end of the atlases empty queue - from firstToRemove onwards.
-			
-			while(firstToRemove!=null){
-				// Foreach newly removed element, remove its texture from the ActiveTextures dictionary.
-				// This is much more performant than rebuilding the dictionary as in most cases this will be a small set from a large dictionary.
-				Atlas.CanOptimize=true;
-				
-				Atlas.ActiveTextures.Remove(firstToRemove.Texture);
-				firstToRemove=firstToRemove.EmptyAfter;
-			}
-			
 		}
 		
 		/// <summary>Allocates a block from this mesh. The block can then have
@@ -317,10 +274,18 @@ namespace PowerUI{
 			OutputMesh.vertices=Vertices.Buffer;
 			OutputMesh.colors=Colours.Buffer;
 			OutputMesh.uv=UV.Buffer;
+			OutputMesh.uv2=UV2.Buffer;
+			
+			if(Normals!=null){
+				OutputMesh.normals=Normals.Buffer;
+			}
+			
+			if(Tangents!=null){
+				OutputMesh.tangents=Tangents.Buffer;
+			}
 			
 			//And apply the triangles:
 			OutputMesh.triangles=Triangles.Buffer;
-			OutputMesh.RecalculateNormals();
 			OutputMesh.RecalculateBounds();
 		}
 		
@@ -328,16 +293,20 @@ namespace PowerUI{
 		public void Destroy(){
 			OutputMesh=null;
 			OutputTransform=null;
+			
 			if(OutputGameObject!=null){
 				GameObject.Destroy(OutputGameObject);
 				OutputGameObject=null;
 			}
 			
 			UV=null;
-			Atlas=null;
+			UV2=null;
 			Colours=null;
+			Normals=null;
 			Vertices=null;
 			Triangles=null;
+			Tangents=null;
+			
 		}
 		
 	}

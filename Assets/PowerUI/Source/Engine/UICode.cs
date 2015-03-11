@@ -93,6 +93,11 @@ namespace PowerUI{
 			return (fInfo!=null);
 		}
 		
+		/// <summary>Escapes the given string, essentially making any HTML it contains literal.</summary>
+		public string escapeHTML(string html){
+			return Wrench.Text.Escape(html);
+		}
+		
 		/// <summary>Parses the given text into a number.</summary>
 		public int parseInt(string text){
 			if(string.IsNullOrEmpty(text)){

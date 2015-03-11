@@ -14,11 +14,15 @@
 /// Depending on your platform, one or the other may be more suitable. No atlas uses less memory, but is slower to render.
 /// </summary>
 
-public enum RenderMode{
-	
-	/// <summary>Default. Textures are placed on an atlas. Fast rendering but higher memory usage.</summary>
-	Atlas,
-	/// <summary>Textures are rendered as they come. Slower rendering time but minimal memory usage.</summary>
-	NoAtlas
-	
+namespace PowerUI{
+
+	public enum RenderMode{
+		
+		/// <summary>Default. Textures are placed on an atlas. Fast rendering but higher memory usage.</summary>
+		Atlas,
+		/// <summary>Textures are rendered as they come. Slower rendering time but minimal memory usage.</summary>
+		NoAtlas
+		
+	}
+
 }

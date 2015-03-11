@@ -81,7 +81,11 @@ namespace UnityHttp{
 		/// <param name="form">A http form to send with the request.</param>
 		public static void Request(string url,OnHttpEvent onDone,WWWForm form){
 			HttpRequest request=new HttpRequest(url,onDone);
-			request.AttachForm(form);
+			
+			if(form!=null){
+				request.AttachForm(form);
+			}
+			
 			request.Send();
 		}
 		

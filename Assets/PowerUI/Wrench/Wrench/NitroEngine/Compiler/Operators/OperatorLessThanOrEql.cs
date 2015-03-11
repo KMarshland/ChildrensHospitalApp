@@ -25,7 +25,7 @@ namespace Nitro{
 		public OperatorLessThanOrEql():base("<=",12){}
 		
 		protected override Operation Compile(CompiledFragment left,CompiledFragment right,CompiledMethod method){
-			return new OrOperation(method,new LessThanOperation(method,left,right),new EqualsOperation(method,left,right));
+			return new LessThanOrEqualOperation(method,left,right);
 		}
 		
 	}

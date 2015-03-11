@@ -36,12 +36,23 @@ namespace Nitro{
 		/// <param name="method">The method that this operation belongs to.</param>
 		public Operation(CompiledMethod method){
 			Method=method;
+			LineNumber=method.CurrentLine;
+		}
+		
+		/// <summary>This operation requires you "storing" its output. A variable does; for(){} does not.</summary>
+		public virtual bool RequiresStoring{
+			get{
+				return true;
+			}
 		}
 		
 		public override int GetLineNumber(){
+			
 			if(LineNumber==-1){
+				// Go up the DOM
 				return base.GetLineNumber();
 			}
+			
 			return LineNumber;
 		}
 		

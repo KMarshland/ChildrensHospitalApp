@@ -125,7 +125,7 @@ namespace PowerUI{
 		/// <summary>Gets the relative position in pixels of the letter at the given index.</summary>
 		/// <param name="index">The index of the letter in this text element.</param>
 		/// <returns>The number of pixels from the left and top edges of this text element the letter is as a vector.</returns>
-		public Vector2 GetPosition(int index){
+		public Vector2 GetPosition(ref int index){
 			if(index==0||ChildNodes==null){
 				return Vector2.zero;
 			}
@@ -134,6 +134,7 @@ namespace PowerUI{
 			WordElement word=GetWordWithLetter(index,out localOffset);
 			
 			if(word==null){
+				index-=localOffset;
 				return Vector2.zero;
 			}
 			
@@ -167,6 +168,7 @@ namespace PowerUI{
 				}
 			}
 			
+			localOffset=lettersSoFar;
 			return null;
 		}
 		
@@ -177,16 +179,22 @@ namespace PowerUI{
 		
 		/// <summary>Gets the content of this element as text.</summary>
 		public override string ToString(){
+			System.Text.StringBuilder builder=new System.Text.StringBuilder();
+			ToString(builder);
+			return builder.ToString();
+		}
+		
+		
+		public override void ToString(System.Text.StringBuilder builder){
 			if(ChildNodes==null){
-				return "";
+				return;
 			}
 			
-			string result="";
 			for(int i=0;i<ChildNodes.Count;i++){
-				result+=ChildNodes[i].ToString();
+				ChildNodes[i].ToString(builder);
 			}
-			return result;
 		}
+		
 		
 	}
 	

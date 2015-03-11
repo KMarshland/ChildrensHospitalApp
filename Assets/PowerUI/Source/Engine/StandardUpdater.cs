@@ -33,6 +33,11 @@ namespace PowerUI{
 			#endif
 		}
 		
+		public void OnDisable(){
+			// Called when a scene changes.
+			UI.Destroy();
+		}
+		
 	}
 	
 }

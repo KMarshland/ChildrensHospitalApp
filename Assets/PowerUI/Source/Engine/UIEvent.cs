@@ -20,7 +20,7 @@ namespace PowerUI{
 	/// An event object is always provided with any onmousedown/onmouseup/onkeydown etc.
 	/// </summary>
 	
-	public class UIEvent{
+	public partial class UIEvent{
 		
 		/// <summary>The x location of the mouse, as measured from the left of the screen.</summary>
 		public int clientX;
@@ -163,6 +163,60 @@ namespace PowerUI{
 				}
 				
 				return target.document.Renderer.InWorldUI;
+			}
+		}
+		
+		/// <summary>A 0-1 value of where this event occured relative to the target element. 0 is left edge, 1 is right edge.</summary>
+		public float relativeX{
+			get{
+				
+				if(target==null){
+					// Unavailable.
+					return 0f;
+				}
+				
+				return (float)(clientX-target.style.Computed.OffsetLeft) / (float)target.style.Computed.PixelWidth;
+				
+			}
+		}
+		
+		/// <summary>A 0-1 value of where this event occured relative to the target element. 0 is top edge, 1 is bottom edge.</summary>
+		public float relativeY{
+			get{
+				
+				if(target==null){
+					// Unavailable.
+					return 0f;
+				}
+				
+				return (float)(clientY-target.style.Computed.OffsetTop) / (float)target.style.Computed.PixelHeight;
+				
+			}
+		}
+		
+		/// <summary>The position of the event relative to the top left corner of the target element in pixels.</summary>
+		public int localX{
+			get{
+				
+				if(target==null){
+					return clientX;
+				}
+				
+				return clientX-target.style.Computed.OffsetLeft;
+				
+			}
+		}
+		
+		/// <summary>The position of the event relative to the top left corner of the target element in pixels.</summary>
+		public int localY{
+			get{
+				
+				if(target==null){
+					return clientY;
+				}
+				
+				return clientY-target.style.Computed.OffsetTop;
+				
 			}
 		}
 		

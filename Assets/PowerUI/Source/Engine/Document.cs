@@ -10,10 +10,11 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Nitro;
+using UnityEngine;
+
 
 namespace PowerUI{
 	
@@ -33,7 +34,7 @@ namespace PowerUI{
 	/// Use PowerUI.Document.innerHTML to set it's content.
 	/// </summary>
 
-	public class Document{
+	public partial class Document{
 	
 		/// <summary>The default style sheet. Contains styling for e.g. div/span etc.</summary>
 		public static Css.StyleSheet DefaultStyleSheet;
@@ -80,6 +81,8 @@ namespace PowerUI{
 		public event InputEvent KeyUp;
 		/// <summary>Called when a key goes down.</summary>
 		public event InputEvent KeyDown;
+		/// <summary>Called when the mouse moves.</summary>
+		public event InputEvent MouseMove;
 		/// <summary>Called when the title of this document changes.</summary>
 		public TitleChange OnTitleChange;
 		/// <summary>Called when the tooltip for this document changes.</summary>
@@ -90,7 +93,10 @@ namespace PowerUI{
 		public DynamicMethod<Nitro.Void> onresize;
 		/// <summary>A method called when any key is pressed anywhere. Note: this applies only to the main UI document (not world UI's).</summary>
 		public DynamicMethod<Nitro.Void> onkeydown;
-		
+		/// <summary>A method called when the mouse moves over this document.</summary>
+		public DynamicMethod<Nitro.Void> onmousemove;
+		/// <summary>A set of all fonts available to this renderer, indexed by font name.</summary>
+		public Dictionary<string,DynamicFont> ActiveFonts;
 		#if !NoNitroRuntime
 		/// <summary>The nitro securty domain for this document.</summary>
 		private NitroDomainManager SecurityDomain;
@@ -141,6 +147,7 @@ namespace PowerUI{
 				window.top=window;
 			}
 			
+			ActiveFonts=new Dictionary<string,DynamicFont>();
 			Style=new Css.StyleSheet(this);
 			html=new Element(this,null);
 			html.SetTag("html");
@@ -154,6 +161,45 @@ namespace PowerUI{
 			html.innerHTML="<body></body>"+ddbox;
 		}
 		
+		/// <summary>Gets the font with the given name. May load it from the cache or generate a new one.</summary>
+		/// <param name="fontName">The name of the font to find.</param>
+		/// <returns>A dynamic font if found; null otherwise.</returns>
+		public DynamicFont GetOrCreateFont(string fontName){
+			
+			if(fontName==null || AotDocument){
+				return null;
+			}
+			
+			DynamicFont result;
+			// Cache contains all available fonts for this document/ renderer.
+			ActiveFonts.TryGetValue(fontName,out result);
+			
+			if(result==null){
+				
+				// Go get the font now:
+				result=DynamicFont.Get(fontName);
+				
+				// And add it:
+				ActiveFonts[fontName]=result;
+				
+			}
+			
+			return result;
+		}
+		
+		/// <summary>Gets the font with the given name.</summary>
+		/// <param name="fontName">The name of the font to find.</param>
+		/// <returns>A dynamic font if found; null otherwise.</returns>
+		public DynamicFont GetFont(string fontName){
+			if(fontName==null){
+				return null;
+			}
+			
+			DynamicFont result;
+			ActiveFonts.TryGetValue(fontName,out result);
+			return result;
+		}
+		
 		/// <summary>Writes the given html to the end of the document.</summary>
 		/// <param name="text">The html to write.</param>
 		public void write(string text){
@@ -162,21 +208,43 @@ namespace PowerUI{
 		
 		/// <summary>Clears the document of all it's content, including scripts and styles.</summary>
 		public void clear(){
+			
+			ClearEvents();
+			
 			if(body!=null){
-				// Need to gracefully clear these like so:
-				// This makes sure all text is deallocated.
+				// Gracefully clear the innerHTML.
 				body.innerHTML="";
 				return;
 			}
 			
 			ClearCode();
 			ClearStyle();
+			
 		}
 		
 		/// <summary>Clears all css style definitions from this document.</summary>
 		public void ClearStyle(){
 			Style=new Css.StyleSheet(this);
 			StyleBuffer=null;
+		}
+		
+		/// <summary>Clears all events on this document.</summary>
+		public void ClearEvents(){
+			
+			KeyUp=null;
+			KeyDown=null;
+			MouseMove=null;
+			
+			OnTitleChange=null;
+			OnTooltipChange=null;
+			
+			OnResized=null;
+			
+			onresize=null;
+			onkeydown=null;
+			onkeyup=null;
+			onmousemove=null;
+			
 		}
 		
 		/// <summary>Runs the keyup events.</summary>
@@ -192,6 +260,27 @@ namespace PowerUI{
 			}
 			
 			return false;
+		}
+		
+		/// <summary>Called when the mouse moves over this document.</summary>
+		/// <param name="e">The mouse event containing the position.</param>
+		public bool RunMouseMove(UIEvent e){
+			
+			// Run mouse over on the HTML element (and internally bubbles to it's kids):
+			bool result=html.RunMouseOver(e);
+			
+			// Run the mousemove C# event:
+			if(MouseMove!=null){
+				MouseMove(e);
+			}
+			
+			// Run the Nitro event:
+			if(onmousemove!=null){
+				// Run the Nitro event:
+				onmousemove.Run(e);
+			}
+			
+			return result;
 		}
 		
 		/// <summary>Runs the keydown events.</summary>
@@ -563,12 +652,6 @@ namespace PowerUI{
 			}
 		}
 		
-		/// <summary>A shortcut for adding a texture to the texture atlas. Note that this is not required.</summary>
-		/// <param name="texture">The texture to add.</param>
-		public void AddTexture(Texture2D texture){
-			Renderer.AddTexture(texture);
-		}
-		
 		/// <summary>Gets the first child element with the given tag.</summary>
 		/// <param name="tag">The html tag to look for.</param>
 		/// <returns>The first child with the tag.</returns>
@@ -617,8 +700,7 @@ namespace PowerUI{
 		/// <param name="id">The ID of the element to search for.</param>
 		/// <returns>If found, a html element with the given ID; null otherwise.</returns>
 		public Element getElementById(string id){
-			//Lets go huntin'!
-			return html.getElementWithProperty("id",id);
+			return html.getElementByAttribute("id",id);
 		}
 		
 		/// <summary>Gets a style definition by css selector from the StyleSheet.

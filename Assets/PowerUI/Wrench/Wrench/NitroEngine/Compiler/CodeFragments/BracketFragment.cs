@@ -75,23 +75,51 @@ namespace Nitro{
 		/// <param name="sr">The lexer to read the bracket content from.</param>
 		/// <param name="readBracket">True if the brackets should be read off (i.e. the first thing done is read a single character). False otherwise.</param>
 		public BracketFragment(CodeLexer sr,bool readBracket){
+			
 			if(readBracket){
-				int Type=IsBracket(sr.Read());
-				Bracket=Brackets[Type];
-				CloseBracket=EndBrackets[Type];
+				int type=IsBracket(sr.Read());
+				
+				if(type==-1){
+					
+					// Seek back just one - we want to re-read the thing we just tested for bracketness:
+					sr.Position--;
+					
+					// No bracket; their implicit - read single operation:
+					AddChild(new OperationFragment(sr,this));
+					
+					// And stop there:
+					return;
+					
+				}else{
+					
+					// Grab the brackets:
+					Bracket=Brackets[type];
+					CloseBracket=EndBrackets[type];
+				
+				}
+				
 			}
+			
 			char peek=sr.Peek();
 			bool bracket=(IsEndBracket(peek)!=-1);
 			
-			while(peek!=StringReader.NULL&&!bracket){
+			while(peek!=StringReader.NULL && !bracket){
+				
+				// Add the operation:
 				AddChild(new OperationFragment(sr,this));
+				
+				// What's next?
 				peek=sr.Peek();
+				
+				// Is it a bracket?
 				bracket=(IsEndBracket(peek)!=-1);
 			}
+			
 			if(bracket){
-				// Read the last bracket off
+				// Read the last bracket off:
 				sr.Read();
 			}
+			
 		}
 		
 		public override bool Typeable(){
@@ -99,19 +127,24 @@ namespace Nitro{
 		}
 		
 		public override CompiledFragment Compile(CompiledMethod method){
-			if(!IsParent()){
+			if(!IsParent){
 				return null;
 			}
+			
 			CodeFragment child=FirstChild;
+			
 			while(child!=null){
 				CodeFragment next=child.NextChild;
 				CompiledFragment cfrag=child.Compile(method);
+				
 				if(cfrag!=null){
 					cfrag.AddAfter(child);
 				}
+				
 				child.Remove();
 				child=next;
 			}
+			
 			if(GivenType!=null){
 				Type toType=GivenType.FindType(method.Script);
 				
@@ -125,8 +158,10 @@ namespace Nitro{
 				if(result==null){
 					Error("Cannot cast "+compiledKid.OutputType()+" to "+toType+".");
 				}
+				
 				return result;
 			}
+			
 			return (CompiledFragment)FirstChild;
 		}
 		
@@ -140,17 +175,22 @@ namespace Nitro{
 		
 		public override AddResult AddTo(CodeFragment to,CodeLexer sr){
 			if(Bracket=='['){
+				
 				if(to.LastChild==null){
 					Error("Unexpected indexing. must be something[index].");
 				}else{
 					CodeFragment var=to.LastChild;
 					var.Remove();
+					
 					return new IndexFragment(this,var).AddTo(to,sr);
 				}
+				
 			}else if(Bracket=='{'&&to.LastChild!=null){
 				// new TYPE[]{default,default..};
+				
 				if(to.LastChild.GetType()==typeof(VariableFragment)&&((VariableFragment)(to.LastChild)).Value=="new"){
 					VariableFragment var=(VariableFragment)(to.LastChild);
+					
 					if(var.GivenType==null){
 						Error("new must always be followed by a type name.");
 					}else if(!var.GivenType.IsArray){
@@ -159,9 +199,12 @@ namespace Nitro{
 						var.Remove();
 						return new ArrayFragment(var.GivenType,this).AddTo(to,sr);
 					}
+					
 				}
+				
 			}else if(Bracket=='('&&to.LastChild!=null){
 				Type type=to.LastChild.GetType();
+				
 				if(type==typeof(IndexFragment)||type==typeof(PropertyFragment)||(type==typeof(VariableFragment)&&!((VariableFragment)(to.LastChild)).IsKeyword())){
 					// Method call!
 					CodeFragment meth=to.LastChild;
@@ -169,7 +212,9 @@ namespace Nitro{
 					
 					return new MethodFragment(this,meth).AddTo(to,sr);
 				}
+				
 			}
+			
 			return base.AddTo(to,sr);
 		}
 		
@@ -177,10 +222,13 @@ namespace Nitro{
 			if(Bracket==StringReader.NULL){
 				return base.ToString();
 			}
+			
 			string result=Bracket+base.ToString()+CloseBracket;
+			
 			if(GivenType!=null){
 				result+=GivenType.ToString();
 			}
+			
 			return result;
 		}
 		

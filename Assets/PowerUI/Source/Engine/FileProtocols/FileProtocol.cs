@@ -40,6 +40,10 @@ namespace PowerUI{
 			return false;
 		}
 		
+		/// <summary>Get generic binary at the given path using this protocol. Used for e.g. fonts.
+		/// Once it's been retrieved, this must call package.GotData(theText) internally.</summary>
+		public virtual void OnGetData(DataPackage package,FilePath path){}
+		
 		/// <summary>Get the file at the given path as some html text using this protocol.
 		/// Once it's been retrieved, this must call package.GotText(theText) internally.</summary>
 		public virtual void OnGetText(TextPackage package,FilePath path){}

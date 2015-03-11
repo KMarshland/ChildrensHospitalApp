@@ -1,4 +1,28 @@
-<div style='position:fixed;height:100%;width:100%;background:url(background.png);'></div>
+<!-- Time for a little CSS! -->
+<style type='text/css'>
+
+.background-noise{
+	
+	position:fixed;
+	height:100%;
+	width:100%;
+	background:url(noise-background.png);
+	
+}
+
+</style>
+
+
+<!-- Background (The blue noise part - PowerUI is actually transparent). Gets its style from the CSS above. -->
+<div class='background-noise'></div>
+
+<!-- The Nitro logo off to the right. We're using direct style here. -->
+<div style='vertical-align:middle;right:2%;width:240px;height:100%;position:fixed;'>
+	
+	<!-- The nitro logo itself. -->
+	<img src="nitroLogo.png"/>
+
+</div>
 
 <style type='text/css'>
 .padded{
@@ -44,36 +68,43 @@ body{
 	
 </div>
 
-<img src="nitroLogo.png" style="position:fixed;top:25px;right:25px;"/>
-
 <script type='text/nitro'>
 // Nitro looks very similar to Unity Javascript.
-// There are differences though! All variables must always be given types.
+// There are differences though! Functions must be given types.
 // Make sure you check out the nitro website for more information on what the differences are:
 // http://nitro.kulestar.com/
 
-function simpleNitro(e:UIEvent){
+function simpleNitro(e:UIEvent){ // <- Notice the :type here. This generally makes Nitro go faster than typical JS.
+	
 	// Add a console message (This is the same unity function):
 	debug.log("Welcome to nitro! :) ");
+	
 	// Let's rewrite what the element says:
 	this.innerHTML="Check out the console!";
+	
 }
 
 
 
 function styleMe(e:UIEvent){
+	
 	// Let's make the font go green:
 	this.style.color="#00ff00";
+	
 }
 
 
 
 function animateMe(e:UIEvent){
+	
 	this.animate("left:30px;color-overlay:#0000ff;opacity:0;",0.3f,0.5f,0.2f).ondone(doneAnimation);
+
 }
 
 function doneAnimation(a:UIAnimation){
+	
 	debug.log("done playing the animation!");
+	
 }
 
 
@@ -91,63 +122,79 @@ function runGameCode(e:UIEvent){
 	NitroExampleJS.Hello();
 	
 	// How about making objects? That works too!
-	var item:EpicItem=new EpicItem("194",14);
+	var item=new EpicItem("194",14);
+	
 	// Properties [uses get/set]:
 	item.Quantity++;
+	
 	// Fields:
 	item.ID="195";
+	
 	// Methods:
 	item.AddOne();
+	
 	// Note that nitro is case insensitive:
 	debug.log(item.quantity.tostring());
+	
 }
 
 
 
 
 function elementByID(e:UIEvent){
+	
 	// Getting an element by it's ID.
 	document.getElementById("nitro_title").innerHTML="I wonder what changed?";
+	
 	// Making multiple changes? Store it in a variable for the best performance:
-	var element:Element=document.getElementById("nitro_title");
+	var element=document.getElementById("nitro_title");
+	
 	// Let's rotate it a little around the z axis:
 	element.style.rotateZ="2deg";
+	
 	// And make it go a fun blueish colour:
 	element.style.color="#C3DEFA";
+	
 }
-
-
-
 
 function classeyCode(e:UIEvent){
 	// Instancing classes defined entirely in Nitro.
 	// The classes are defined just below.
 	
-	var myFruit:fruit=new fruit(14);
+	var myFruit=new fruit(14);
+	
 	// Let's make it say hello:
 	debug.log(myFruit.sayHello());
 	
 	// Make an orange too:
-	var myOrange:orange=new orange(200);
-	// And make it say hi aswell (note that it's overriden):
+	var myOrange=new orange(200);
+	
+	// And make it say hi as well (note that it's overriden):
 	debug.log(myOrange.sayHello());
+	
 	// Because oranges override the sayHello method, they also provide a method for getting 
 	// to the original fruit method too:
 	debug.log(myOrange.sayFruitHello());
+	
 }
 
 // Here's how to define a class entirely in nitro.
 class fruit{
 	
-	var weight:int=0;
+	// A property of fruit - it's weight:
+	var weight=0;
 	
 	// A class constructor for defining the fruit weight:
 	function new(fruitWeight:int){
+		
 		weight=fruitWeight;
+		
 	}
 	
 	function sayHello():string{
+		
 		return "Hello!! Your fruit weighs "+weight+"kg.";
+		
 	}
 	
 }
@@ -157,19 +204,26 @@ class orange:fruit{
 	
 	// A class constructor for defining the orange weight:
 	function new(fruitWeight:int){
+		
 		// Nitro allows you to call the base constructor after other things, like this log call:
 		debug.log("An orange is being created!");
+		
 		// Call the base constructor - that's the new function of "fruit", the class we're inheriting.
 		base.new(fruitWeight);
+		
 	}
 	
 	function sayHello():string{
+		
 		return "Oranges aren't very friendly. Plus they weigh "+weight+"kg.";
+		
 	}
 	
 	function sayFruitHello():string{
+		
 		// When you override a function, you can access the original with the base keyword:
 		return base.sayHello();
+		
 	}
 	
 }
@@ -177,13 +231,17 @@ class orange:fruit{
 
 // Dropdown Nitro:
 function dropdownChange(){
+	
 	debug.log("You have selected: "+this.value);
+	
 }
 
 
 // Start is where all code you want to run straight away should go.
 function Start(){
+	
 	debug.log("Hello! This is always called when the script is loaded.");
+	
 }
 
 </script>

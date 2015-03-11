@@ -10,7 +10,6 @@
 //--------------------------------------
 
 using System;
-using UnityEngine;
 
 
 namespace PowerUI.Css.Properties{
@@ -55,11 +54,11 @@ namespace PowerUI.Css.Properties{
 				style.PaddingLeft=value.GetPX(3);
 			}
 			
+			style.SetSize();
+			
 			// Fire percent passes:
 			style.Element.SetHeightForKids(style);
 			style.Element.SetWidthForKids(style);
-			
-			style.SetSize();
 			
 			style.RequestLayout();
 		}

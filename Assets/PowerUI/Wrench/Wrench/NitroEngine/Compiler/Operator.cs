@@ -35,10 +35,19 @@ namespace Nitro{
 			string pattern=newOperator.Pattern;
 			// The first character is cached for fast lookup purposes.
 			char first=pattern[0];
+			
 			if(!Starts.ContainsKey(first)){
 				Starts.Add(first,0);
 			}
+			
 			FullOperators.Add(pattern,newOperator);
+		}
+		
+		/// <summary>Is the given character an operator or the start of one?</summary>
+		public static bool IsOperator(char character){
+			
+			return Starts.ContainsKey(character);
+			
 		}
 		
 		

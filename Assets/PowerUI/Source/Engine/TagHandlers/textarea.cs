@@ -94,14 +94,14 @@ namespace PowerUI{
 			lexer.Literal=true;
 			// Keep reading until we hit </textarea>.
 		
-			string valueText="";
+			StringBuilder valueText=new StringBuilder();
 			
 			while(!AtEnd(lexer)){
-				valueText+=lexer.Read();
+				valueText.Append(lexer.Read());
 			}
 			
 			// Assign to the value:
-			SetValue(valueText);
+			SetValue(valueText.ToString());
 			
 			lexer.Literal=false;
 		}
@@ -137,7 +137,7 @@ namespace PowerUI{
 			if(html){
 				Element.innerHTML=value;
 			}else{
-				Element.textContent=value;
+				Element.innerHTML=Wrench.Text.Escape(value).Replace("\n","<br>");
 			}
 			
 			if(Cursor!=null){
@@ -229,6 +229,16 @@ namespace PowerUI{
 						
 						Clipboard.Copy(value);
 					}
+				}else if(key==KeyCode.Return || key==KeyCode.KeypadEnter){
+					
+					// Add a newline
+					if(value==null){
+						value=""+pressEvent.character;
+					}else{
+						value=value.Substring(0,CursorIndex)+'\n'+value.Substring(CursorIndex,value.Length-CursorIndex);
+					}
+					SetValue(value);
+					MoveCursor(CursorIndex+1);
 					
 				}else if(char.IsControl(pressEvent.character)){
 					return;
@@ -302,11 +312,26 @@ namespace PowerUI{
 			// ..Which will be in the text element:
 			Vector2 position=Vector2.zero;
 			
-			if(Element.childNodes.Count>1){
+			int count=Element.childNodes.Count;
+			
+			if(count>1){
 				// Note: If it's equal to 1, ele[0] is the cursor.
-				TextElement text=(TextElement)(Element.childNodes[0]);
-				if(text!=null){
-					position=text.GetPosition(CursorIndex);
+				int index=CursorIndex;
+				
+				for(int i=0;i<count;i++){
+					
+					if(index>=0){
+						
+						TextElement text=Element.childNodes[0] as TextElement;
+						
+						if(text!=null){
+							position=text.GetPosition(ref index);
+						}
+						
+					}else{
+						break;
+					}
+					
 				}
 			}
 			
@@ -324,7 +349,7 @@ namespace PowerUI{
 			
 			// Add a cursor.
 			Element.appendInnerHTML("<div class='cursor-textarea'></div>");
-			Cursor=Element.getElementWithProperty("class","cursor-textarea");
+			Cursor=Element.getElementByAttribute("class","cursor-textarea");
 			CursorIndex=0;
 		}
 		

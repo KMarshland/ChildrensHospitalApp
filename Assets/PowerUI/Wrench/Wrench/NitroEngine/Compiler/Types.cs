@@ -425,6 +425,7 @@ namespace Nitro{
 			}
 			MethodOperation mo=new MethodOperation(method,type.GetMethod("ToString",new Type[0]));
 			mo.CalledOn=frag;
+			frag.ParentFragment=mo;
 			return mo;
 		}
 		

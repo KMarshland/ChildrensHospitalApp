@@ -40,13 +40,68 @@ namespace Wrench{
 		protected override LanguageSet[] GetAllLanguages(){
 			
 			if(Languages==null){
+				
+				// Load all:
 				object[] assets=Resources.LoadAll(Path,typeof(TextAsset));
 				
+				// Create the set:
 				Languages=new LanguageSet[assets.Length];
 				
+				// For some reason Unity treats folders as TextAssets, so we've got to strip them if they exist.
+				int directoryCount=0;
+				
 				for(int i=0;i<Languages.Length;i++){
-					Languages[i]=new LanguageSet(((TextAsset)assets[i]).text,this);
+					
+					// Create the set:
+					LanguageSet set=new LanguageSet(((TextAsset)assets[i]).text,this);
+					
+					// Folder?
+					if(set.Code==null){
+						
+						// Yep - or no useable language code - skip.
+						directoryCount++;
+						
+						continue;
+						
+					}
+					
+					// Write it:
+					Languages[i]=set;
+					
 				}
+				
+				if(directoryCount!=0){
+					
+					// Resize:
+					LanguageSet[] tempSet=new LanguageSet[Languages.Length-directoryCount];
+					
+					int index=0;
+					
+					// For each one..
+					for(int i=0;i<Languages.Length;i++){
+						
+						// Grab the set:
+						LanguageSet set=Languages[i];
+						
+						if(set==null){
+							
+							// It was skipped above.
+							continue;
+							
+						}
+						
+						// Add to temp set:
+						tempSet[index]=set;
+						
+						index++;
+						
+					}
+					
+					// Apply temp set to languages:
+					Languages=tempSet;
+					
+				}
+				
 			}
 			
 			return Languages;
