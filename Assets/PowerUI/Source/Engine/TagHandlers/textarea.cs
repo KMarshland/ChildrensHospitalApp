@@ -156,9 +156,27 @@ namespace PowerUI{
 			
 			if(pressEvent.heldDown){
 				// Add to value unless it's backspace:
-				
 				string value=Value;
+				
+				if(!char.IsControl(pressEvent.character) && pressEvent.character!='\0'){
+					
+					// Drop the character in the string at cursorIndex
+					if(value==null){
+						value=""+pressEvent.character;
+					}else{
+						value=value.Substring(0,CursorIndex)+pressEvent.character+value.Substring(CursorIndex,value.Length-CursorIndex);
+					}
+					
+					SetValue(value);
+					MoveCursor(CursorIndex+1);
+					
+					return;
+				}
+				
+				// It's a command character:
+				
 				KeyCode key=((KeyCode)pressEvent.keyCode);
+				
 				if(key==KeyCode.LeftArrow){
 					MoveCursor(CursorIndex-1,true);
 				}else if(key==KeyCode.RightArrow){
@@ -240,21 +258,8 @@ namespace PowerUI{
 					SetValue(value);
 					MoveCursor(CursorIndex+1);
 					
-				}else if(char.IsControl(pressEvent.character)){
-					return;
-				}else{
-					if(pressEvent.character=='\0'){
-						return;
-					}
-					// Drop the character in the string at cursorIndex
-					if(value==null){
-						value=""+pressEvent.character;
-					}else{
-						value=value.Substring(0,CursorIndex)+pressEvent.character+value.Substring(CursorIndex,value.Length-CursorIndex);
-					}
-					SetValue(value);
-					MoveCursor(CursorIndex+1);
 				}
+				
 			}
 		}
 		

@@ -84,7 +84,7 @@ public class MapCameraControl : MonoBehaviour {
 			ActiveScreen = UIName.Landing;
 		}
 
-		if (Input.GetKeyDown(KeyCode.Space)){
+		if (movementInitiated()){
 			speed = 0.3f;
 		}
 
@@ -94,6 +94,10 @@ public class MapCameraControl : MonoBehaviour {
 			new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
 		transform.position += transl;
 		elasticConnection.InitialMovementRelation += transl;
+	}
+
+	bool movementInitiated(){
+		return Input.GetKeyDown(KeyCode.Space) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended;
 	}
 
 	void OnGUI(){

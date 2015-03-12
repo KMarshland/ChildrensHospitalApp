@@ -847,12 +847,97 @@ namespace PowerUI{
 			// Don't call with inline elements - block or inline-block only.
 			ComputedStyle parentStyle=(parentNode==null)?null:parentNode.Style.Computed;
 			
-			if( (style.Display==DisplayType.Block && style.Float==FloatType.None) || ((parentStyle==null || parentStyle.WhiteSpace==WhiteSpaceType.Normal) && ((PenX+style.PixelWidth)>MaxX) )){
+			
+			if( (style.Display==DisplayType.Block && style.Float==FloatType.None) ){
+				
+				// Doesn't fit here.
+				CompleteLine(parentStyle);
+				
+			}else if((parentStyle==null || parentStyle.WhiteSpace==WhiteSpaceType.Normal) && ((PenX+style.PixelWidth)>MaxX) ){
+				
+				// Does the last element on the line end with a space?
+				if(LastOnLine!=null && style.Text!=null){
+					
+					TextRenderingProperty text=LastOnLine.Text;
+					
+					if(text!=null){
+						
+						// It's a word - does it end with a space?
+						
+						if(text.NoEndingSpace){
+							// It's a word which does not end with a space.
+							// These two inline words are actually "touching".
+							// So, first pull that last word from the line it's on:
+							
+							if(FirstOnLine!=LastOnLine){
+								
+								ComputedStyle toMove=LastOnLine;
+								
+								// Must update NextOnLine of the previous element.
+								ComputedStyle beforePrevious=FirstOnLine;
+								toMove=FirstOnLine;
+								
+								// Note that there may actually be more than 2 in a row.
+								// So, we'll go hunting for the first element that is before a sequence of
+								// inline elements with text that does not end with a space.
+								
+								while(true){
+									
+									ComputedStyle next=toMove.NextOnLine;
+									
+									if(next==LastOnLine){
+										break;
+									}
+									
+									if(next.Text!=null && next.Text.NoEndingSpace){
+										
+										// Just advance toMove:
+										toMove=next;
+										continue;
+										
+									}
+									
+									// Advance both:
+									beforePrevious=next;
+									toMove=next;
+									
+								}
+								
+								// Update toMove:
+								toMove=beforePrevious.NextOnLine;
+								
+								// Update before previous:
+								beforePrevious.NextOnLine=null;
+								LastOnLine=beforePrevious;
+								
+								// Complete the line:
+								CompleteLine(parentStyle);
+								
+								// Re-add each one:
+								while(toMove!=null){
+									
+									ComputedStyle next=toMove.NextOnLine;
+									AddToLine(toMove,parentNode);
+									toMove=next;
+									
+								}
+							}
+							
+							// Add this word to the current line:
+							goto AddNow;
+							
+						}
+						
+					}
+					
+				}
 				
 				// Doesn't fit here.
 				CompleteLine(parentStyle);
 				
 			}
+			
+			AddNow:
 			
 			style.NextPacked=null;
 			style.NextOnLine=null;

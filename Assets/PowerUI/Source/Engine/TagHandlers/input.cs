@@ -497,6 +497,20 @@ namespace PowerUI{
 					// Add to value if pwd/text, unless it's backspace:
 					string value=Value;
 					
+					if(!char.IsControl(pressEvent.character) && pressEvent.character!='\0'){
+						
+						// Drop the character in the string at cursorIndex
+						if(value==null){
+							value=""+pressEvent.character;
+						}else{
+							value=value.Substring(0,CursorIndex)+pressEvent.character+value.Substring(CursorIndex,value.Length-CursorIndex);
+						}
+						
+						SetValue(value);
+						MoveCursor(CursorIndex+1);
+						return;
+					}
+					
 					// Grab the keycode:
 					KeyCode key=pressEvent.unityKeyCode;
 					
@@ -583,25 +597,8 @@ namespace PowerUI{
 							Clipboard.Copy(value);
 						}
 						
-					}else if(char.IsControl(pressEvent.character)){
-						// Ignore it.
-						
-						return;
-					}else{
-						if(pressEvent.character=='\0'){
-							return;
-						}
-						
-						// Drop the character in the string at cursorIndex
-						if(value==null){
-							value=""+pressEvent.character;
-						}else{
-							value=value.Substring(0,CursorIndex)+pressEvent.character+value.Substring(CursorIndex,value.Length-CursorIndex);
-						}
-						
-						SetValue(value);
-						MoveCursor(CursorIndex+1);
 					}
+					
 				}
 			}
 		}

@@ -27,7 +27,7 @@ namespace PowerUI{
 		/// <summary>The minor version number of PowerUI.</summary>
 		public const int Minor=9;
 		/// <summary>The revision number of PowerUI.</summary>
-		public const int Revision=4;
+		public const int Revision=122;
 		
 		
 		/// <summary>The version of PowerUI.</summary>

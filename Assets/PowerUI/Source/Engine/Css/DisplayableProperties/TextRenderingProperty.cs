@@ -72,6 +72,19 @@ namespace PowerUI.Css{
 		public TextRenderingProperty(Element element):base(element){}
 		
 		
+		/// <summary>Does this word not end with a whitespace?</summary>
+		public bool NoEndingSpace{
+			get{
+				
+				if(Characters==null || Characters.Length==0){
+					return true;
+				}
+				
+				return !Characters[Characters.Length-1].Space;
+				
+			}
+		}
+		
 		/// <summary>The width in pixels of the last whitespace of this element, if it's got one.</summary>
 		public int EndSpaceSize{
 			get{

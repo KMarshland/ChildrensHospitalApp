@@ -178,18 +178,63 @@ namespace PowerUI{
 			// Handle mouse overs - internally sets MouseX and MouseY too:
 			OnMouseOver((int)MousePosition.x,(int)MousePosition.y);
 			
+			#if MOBILE
+			// Handle mobile keyboard:
+			if(MobileKeyboard!=null && MobileKeyboard.active){
+				
+				// Did the text change? If so, trigger events.
+				if(KeyboardText!=CachedKeyboardValue){
+					
+					string newText=KeyboardText;
+					int original=CachedKeyboardValue.Length;
+					int newLength=newText.Length;
+					
+					CachedKeyboardValue=newText;
+					
+					// Trigger key presses (twice per character):
+					int charDelta=newLength-original;
+					
+					if(charDelta<0){
+						
+						// Invert it:
+						charDelta=-charDelta;
+						
+						// Got shorter - add that many backspace presses:
+						for(int i=0;i<charDelta;i++){
+							
+							// Press delete charDelta times:
+							OnKeyPress(true,'\0',(int)UnityEngine.KeyCode.Delete);
+							OnKeyPress(false,'\0',(int)UnityEngine.KeyCode.Delete);
+							
+						}
+						
+					}else{
+						
+						for(int i=0;i<charDelta;i++){
+							
+							// Press the character:
+							char current=newText[newLength-1-i];
+							
+							// Get as Unity keycode:
+							UnityEngine.KeyCode code=(UnityEngine.KeyCode)current;
+							
+							// Press it:
+							OnKeyPress(true,current,(int)code);
+							OnKeyPress(false,current,(int)code);
+							
+						}
+						
+					}
+					
+					// overwrite the actual value:
+					Focused.value=newText;
+					
+				}
+			}
+			#endif
+			
 			// Handle MouseMove:
 			if(Focused!=null){
-				
-				#if MOBILE
-					// Handle mobile keyboard:
-					if(MobileKeyboard!=null && MobileKeyboard.active){
-						// Did the text change? If so, update the value of Focused.
-						if(KeyboardText!=CachedKeyboardValue){
-							Focused.value=CachedKeyboardValue=KeyboardText;
-						}
-					}
-				#endif
 				
 				// Create the move event using the mapped mouseX/mouseY:
 				UIEvent moveEvent=new UIEvent(MouseX,MouseY,false);
