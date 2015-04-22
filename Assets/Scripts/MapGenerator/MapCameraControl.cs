@@ -92,8 +92,43 @@ public class MapCameraControl : MonoBehaviour {
 
 		Vector3 transl = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f) + 
 			new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
+		if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved){
+			var delts = Input.GetTouch(0).deltaPosition;
+			transl -= new Vector3(delts.x, delts.y, 0f);
+
+			if (Input.touchCount == 2){
+				// Store both touches.
+				Touch touchZero = Input.GetTouch(0);
+				Touch touchOne = Input.GetTouch(1);
+				
+				// Find the position in the previous frame of each touch.
+				Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+				Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+				
+				// Find the magnitude of the vector (the distance) between the touches in each frame.
+				float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+				float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
+				
+				// Find the difference in the distances between each frame.
+				float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+				
+				transl -= new Vector3(0f, 0f, deltaMagnitudeDiff);
+			}
+		}
+
+
+
 		transform.position += transl;
 		elasticConnection.InitialMovementRelation += transl;
+
+		//show/hide the refresh button
+		//Debug.Log(MapLabel.LabelCount);
+		if (MapLabel.LabelCount == 0){
+			PowerUI.UI.document.getElementById("refreshButton").className = "button refreshButton landingButton";
+		} else {
+			PowerUI.UI.document.getElementById("refreshButton").className = "button landingButton hidden";
+		}
+		//Debug.Log(PowerUI.UI.document.getElementById("refreshButton").className);
 	}
 
 	bool movementInitiated(){
@@ -140,14 +175,22 @@ public class MapCameraControl : MonoBehaviour {
 			nEl.textContent = "Floor " + i;
 			var k = i;//we don't want a reference to the old variable gunking up the works
 			nEl.OnClick += delegate(PowerUI.UIEvent mouseEvent){
+				floorSelectDiv.childNodes[MapMaker.ActiveFloor != null ? MapMaker.ActiveFloor.Id-1 : 0].className = "button floorSelectButton";
 				MapMaker.ActiveFloor = MapMaker.floors[k];
+				nEl.className = "button floorSelectButton floorSelectButtonHighlighted";
 			};
 			floorSelectDiv.AppendNewChild(nEl);
 		}
+		floorSelectDiv.childNodes[MapMaker.ActiveFloor != null ? MapMaker.ActiveFloor.Id-1 : 0].className = "button floorSelectButton floorSelectButtonHighlighted";
 
 		//set up events for the landing screen
 		PowerUI.UI.document.getElementById("browseButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
 			ActiveScreen = UIName.Map;
+		};
+		PowerUI.UI.Variables["refreshDisplayType"] = "block";
+
+		PowerUI.UI.document.getElementById("refreshButton").OnClick += delegate(PowerUI.UIEvent mouseEvent){
+			MapMaker.instance.startMarkerUpdate();
 		};
 		
 		PowerUI.UI.document.getElementById("startButton").OnClick += trackedEvents["startDirections"];

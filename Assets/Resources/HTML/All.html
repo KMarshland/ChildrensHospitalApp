@@ -7,13 +7,18 @@
 
 	.backgroundDiv{
 		position:fixed;
-		height:100%;
-		width:100%;
+		height: 100%;
+		width: 100%;
+		min-height:100%;
+		min-width:100%;
 		text-align: center;
+		background: url('Textures/Carmi_SWIPE.png')  no-repeat fixed;
+		background-size: 100%;
 	}
 	
 	.backgroundImg{
-		width: 100%;
+		min-width: 100%;
+		background-size: cover;
 		//max-height: 100%;
 		//max-width: 100%;
 	}
@@ -138,6 +143,20 @@
 		border:1px solid #222;
 		background-color: rgba(0,0,0,0.5);
 	}
+	
+	.floorSelectButtonHighlighted{
+		border:2px solid rgba(200,200,200,1);
+		font-weight: bold;
+		background-color: rgba(0,0,0,0.5);
+	}
+	
+	.refreshButton{
+		display: block;
+	}
+	
+	.hidden{
+		display: none;
+	}
 </style>
 
 <div id="Map">
@@ -158,7 +177,7 @@
 
 <div id='Landing'>
 	<div class='backgroundDiv'>
-		<img class="backgroundImg" src="Textures/Carmi_SWIPE.png"/>
+		
 	</div>
 
 	<div class="mainBox" style='margin-top: 10%;width:80%'>
@@ -174,11 +193,14 @@
 	<div id="startButton" class="button landingButton" style="">
 		Get Directions
 	</div>
+	<div id="refreshButton" class="button landingButton refreshButton">
+		Refresh Labels
+	</div>
 </div>
 
 <div id='WhereFrom'>
 	<div class='backgroundDiv'>
-		<img class="backgroundImg" src="Textures/Carmi_SWIPE.png"/>
+		
 	</div>
 
 	<div class="mainBox" style='margin-top: 25px;width:80%'>
@@ -212,7 +234,7 @@
 
 <div id='WhereTo'>
 	<div class='backgroundDiv'>
-		<img class="backgroundImg" src="Textures/Carmi_SWIPE.png"/>
+		
 	</div>
 
 	<div class="mainBox" style='margin-top: 25px;width:80%'>
@@ -240,7 +262,7 @@
 
 <div id='Confirm'>
 	<div class='backgroundDiv'>
-		<img class="backgroundImg" src="Textures/Carmi_SWIPE.png"/>
+		
 	</div>
 
 	<div class="mainBox" style='margin-top: 25px;width:80%'>

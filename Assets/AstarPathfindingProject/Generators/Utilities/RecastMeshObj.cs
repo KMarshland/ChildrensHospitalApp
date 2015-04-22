@@ -108,9 +108,9 @@ namespace Pathfinding {
 			//Clamp area, upper limit isn't really a hard limit, but if it gets much higher it will start to interfere with other stuff
 			area = Mathf.Clamp (area,-1,1 << 25);
 			
-			Renderer rend = renderer;
+			Renderer rend = GetComponent<Renderer>();
 			
-			Collider coll = collider;
+			Collider coll = GetComponent<Collider>();
 			if (rend == null && coll == null) throw new System.Exception ("A renderer or a collider should be attached to the GameObject");
 			
 			MeshFilter filter = GetComponent<MeshFilter>();
@@ -134,7 +134,7 @@ namespace Pathfinding {
 		
 		/** Recalculates the internally stored bounds of the object */
 		private void RecalculateBounds () {
-			Renderer rend = renderer;
+			Renderer rend = GetComponent<Renderer>();
 			
 			Collider coll = GetCollider();
 			if (rend == null && coll == null) throw new System.Exception ("A renderer or a collider should be attached to the GameObject");
@@ -164,7 +164,7 @@ namespace Pathfinding {
 		}
 		
 		public Collider GetCollider () {
-			return collider;
+			return GetComponent<Collider>();
 		}
 		
 		void OnDisable () {

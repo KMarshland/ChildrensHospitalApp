@@ -161,7 +161,7 @@ public class AIPath : MonoBehaviour {
 		controller = GetComponent<CharacterController>();
 		navController = GetComponent<NavmeshController>();
 		rvoController = GetComponent<RVOController>();
-		rigid = rigidbody;
+		rigid = GetComponent<Rigidbody>();
 	}
 	
 	/** Starts searching for paths.

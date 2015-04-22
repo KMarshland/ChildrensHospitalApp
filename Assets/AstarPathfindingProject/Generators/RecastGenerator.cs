@@ -557,7 +557,7 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 					Mesh mesh = filter.sharedMesh;
 					
 					ExtraMesh smesh = new ExtraMesh();
-					smesh.matrix = filter.renderer.localToWorldMatrix;
+					smesh.matrix = filter.GetComponent<Renderer>().localToWorldMatrix;
 					smesh.original = filter;
 					smesh.area = buffer2[i].area;
 					
@@ -571,7 +571,7 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 						cachedTris[mesh] = smesh.triangles;
 					}
 					
-					smesh.bounds = filter.renderer.bounds;
+					smesh.bounds = filter.GetComponent<Renderer>().bounds;
 					
 					buffer.Add (smesh);
 				} else {
@@ -603,7 +603,7 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 				
 				for (int i=0;i<filters.Length;i++) {
 					MeshFilter filter = filters[i];
-					if (filter.renderer != null && filter.sharedMesh != null && filter.renderer.enabled && (((1 << filter.gameObject.layer) & mask) == (1 << filter.gameObject.layer) || tagMask.Contains (filter.tag))) {
+					if (filter.GetComponent<Renderer>() != null && filter.sharedMesh != null && filter.GetComponent<Renderer>().enabled && (((1 << filter.gameObject.layer) & mask) == (1 << filter.gameObject.layer) || tagMask.Contains (filter.tag))) {
 						if (filter.GetComponent<RecastMeshObj>() == null) {
 							filteredFilters.Add (filter);
 						}
@@ -623,7 +623,7 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 				foreach (MeshFilter filter in filteredFilters) {
 					
 					//Workaround for statically batched meshes
-					if (filter.renderer.isPartOfStaticBatch) {
+					if (filter.GetComponent<Renderer>().isPartOfStaticBatch) {
 	#if UNITY_4
 						containedStatic = true;
 	#else
@@ -644,7 +644,7 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 							}
 							
 							//This is not the real bounds, it will be expanded later as more renderers are found
-							smesh.bounds = filter.renderer.bounds;
+							smesh.bounds = filter.GetComponent<Renderer>().bounds;
 							smesh.matrix = Matrix4x4.identity;
 							meshes.Add (smesh);
 						} else {
@@ -652,15 +652,15 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 							for (int i=0;i<meshes.Count;i++) {
 								if (meshes[i].original == mesh) { smesh = meshes[i]; break; }
 							}
-							smesh.bounds.Encapsulate (filter.renderer.bounds);
+							smesh.bounds.Encapsulate (filter.GetComponent<Renderer>().bounds);
 						}
 	#endif
 					} else {
 						//Only include it if it intersects with the graph
-						if (filter.renderer.bounds.Intersects (bounds)) {
+						if (filter.GetComponent<Renderer>().bounds.Intersects (bounds)) {
 							Mesh mesh = filter.sharedMesh;
 							ExtraMesh smesh = new ExtraMesh();
-							smesh.matrix = filter.renderer.localToWorldMatrix;
+							smesh.matrix = filter.GetComponent<Renderer>().localToWorldMatrix;
 							smesh.original = filter;
 							if (cachedVertices.ContainsKey (mesh)) {
 								smesh.vertices = cachedVertices[mesh];
@@ -672,7 +672,7 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 								cachedTris[mesh] = smesh.triangles;
 							}
 							
-							smesh.bounds = filter.renderer.bounds;
+							smesh.bounds = filter.GetComponent<Renderer>().bounds;
 							
 							meshes.Add (smesh);
 						}
@@ -2120,7 +2120,7 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 				TreeInstance instance = data.treeInstances[i];
 				TreePrototype prot = data.treePrototypes[instance.prototypeIndex];
 				
-				if (prot.prefab.collider == null) {
+				if (prot.prefab.GetComponent<Collider>() == null) {
 					Bounds b = new Bounds(terrain.transform.position + Vector3.Scale(instance.position,data.size), new Vector3(instance.widthScale,instance.heightScale,instance.widthScale));
 					
 					Matrix4x4 matrix = Matrix4x4.TRS (terrain.transform.position +  Vector3.Scale(instance.position,data.size), Quaternion.identity, new Vector3(instance.widthScale,instance.heightScale,instance.widthScale)*0.5f);
@@ -2138,7 +2138,7 @@ But this time, edit the setting named "Forward" to "Z forward" (not -Z as it is 
 					Vector3 scale = new Vector3(instance.widthScale,instance.heightScale,instance.widthScale);
 					
 					//Generate a mesh from the collider
-					ExtraMesh m = RasterizeCollider (prot.prefab.collider,Matrix4x4.TRS (pos,Quaternion.identity,scale));
+					ExtraMesh m = RasterizeCollider (prot.prefab.GetComponent<Collider>(),Matrix4x4.TRS (pos,Quaternion.identity,scale));
 					
 					//Make sure a valid mesh was generated
 					if (m.vertices != null) {

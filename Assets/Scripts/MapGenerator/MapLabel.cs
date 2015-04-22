@@ -59,8 +59,8 @@ public class MapLabel : MonoBehaviour {
 
 		//check if you're supposed to display this one
 		if (priority <= 1){
-			this.renderer.enabled = false;
-			this.transform.GetChild(0).renderer.enabled = false;
+			this.GetComponent<Renderer>().enabled = false;
+			this.transform.GetChild(0).GetComponent<Renderer>().enabled = false;
 		}
 
 		//make sure the world know this label exists
@@ -174,8 +174,8 @@ public class MapLabel : MonoBehaviour {
 	}
 
 	public void highlight(){
-		this.renderer.enabled = true;
-		this.transform.GetChild(0).renderer.enabled = true;
+		this.GetComponent<Renderer>().enabled = true;
+		this.transform.GetChild(0).GetComponent<Renderer>().enabled = true;
 
 		textMesh.color = Color.magenta;
 
@@ -183,8 +183,8 @@ public class MapLabel : MonoBehaviour {
 
 	public void downlight(){
 		if (priority <= 1){
-			this.renderer.enabled = false;
-			this.transform.GetChild(0).renderer.enabled = false;
+			this.GetComponent<Renderer>().enabled = false;
+			this.transform.GetChild(0).GetComponent<Renderer>().enabled = false;
 		}
 
 		textMesh.color = new Color(0f, 218f/255f, 19f/255f, 1f);
@@ -418,6 +418,12 @@ public class MapLabel : MonoBehaviour {
 			}
 		}
 		return f;
+	}
+
+	public static int LabelCount {
+		get {
+			return mapLabels.Count;
+		}
 	}
 
 	public static void LogLibrary(){
