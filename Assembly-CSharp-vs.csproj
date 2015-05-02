@@ -19,7 +19,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_5_0_0;UNITY_5_0;UNITY_5;ENABLE_LICENSE_RENAME;ENABLE_NEW_BUGREPORTER;ENABLE_2D_PHYSICS;ENABLE_4_6_FEATURES;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_NEW_HIERARCHY;ENABLE_PHYSICS;ENABLE_PHYSICS_PHYSX3;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_AUDIOMIXER_SUSPEND;ENABLE_NONPRO;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;UNITY_ANDROID;UNITY_ANDROID_API;ENABLE_SUBSTANCE;ENABLE_TEXTUREID_MAP;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_MONO;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;PowerUI</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_5_0_1;UNITY_5_0;UNITY_5;ENABLE_LICENSE_RENAME;ENABLE_NEW_BUGREPORTER;ENABLE_2D_PHYSICS;ENABLE_4_6_FEATURES;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_FRAME_DEBUGGER;ENABLE_GENERICS;ENABLE_HOME_SCREEN;ENABLE_IMAGEEFFECTS;ENABLE_LIGHT_PROBES_LEGACY;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_NEW_HIERARCHY;ENABLE_PHYSICS;ENABLE_PHYSICS_PHYSX3;ENABLE_PLUGIN_INSPECTOR;ENABLE_SHADOWS;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_AUDIOMIXER_SUSPEND;ENABLE_NONPRO;INCLUDE_DYNAMIC_GI;INCLUDE_GI;INCLUDE_IL2CPP;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;UNITY_ANDROID;UNITY_ANDROID_API;ENABLE_SUBSTANCE;ENABLE_TEXTUREID_MAP;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_MONO;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;PowerUI</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -701,24 +701,16 @@
      <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\VariableSet.cs" />
      <Compile Include="Assets\PowerUI\Wrench\Wrench\Text\WhitespaceMode.cs" />
      <Compile Include="Assets\PowerUI\Wrench\Wrench\TypeData.cs" />
-     <Compile Include="Assets\Scripts\FRect.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\ConsoleControl.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\CubeControl.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\ElasticConnection.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\Extensions.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\Floor.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\MapCameraControl.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\MapLabel.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\MapMaker.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\ObjectLabel.cs" />
-     <Compile Include="Assets\Scripts\MapGenerator\Point.cs" />
-     <Compile Include="Assets\Scripts\MenuItem.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\Elements\ClassElement.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\Elements\PanelElement.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\Elements\TextElement.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\Elements\WireElement.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\UnityFromWire.cs" />
-     <Compile Include="Assets\Scripts\WireToUnity\WireAction.cs" />
+     <Compile Include="Assets\Scripts\ConsoleControl.cs" />
+     <Compile Include="Assets\Scripts\CubeControl.cs" />
+     <Compile Include="Assets\Scripts\ElasticConnection.cs" />
+     <Compile Include="Assets\Scripts\Extensions.cs" />
+     <Compile Include="Assets\Scripts\Floor.cs" />
+     <Compile Include="Assets\Scripts\MapCameraControl.cs" />
+     <Compile Include="Assets\Scripts\MapLabel.cs" />
+     <Compile Include="Assets\Scripts\MapMaker.cs" />
+     <Compile Include="Assets\Scripts\ObjectLabel.cs" />
+     <Compile Include="Assets\Scripts\Point.cs" />
      <None Include="Assets\Resources\PathCaches\Floor5.txt" />
      <None Include="Assets\Resources\PathCaches\Floor2.txt" />
      <None Include="Assets\AstarPathfindingProject\Editor\EditorAssets\Materials\Navmesh2.shader" />
@@ -749,7 +741,6 @@
      <None Include="Assets\Resources\Wires\Wire1.xml" />
      <None Include="Assets\AstarPathfindingProject\Plugins\JsonFx\License.txt" />
      <None Include="Assets\AstarPathfindingProject\Plugins\JsonFx\Readme.txt" />
-     <None Include="Assets\Scripts\Documentation\HUD_docs.txt" />
      <None Include="Assets\PowerUI\Shaders\Resources\StandardUI\UI Lit.shader" />
      <None Include="Assets\AstarPathfindingProject\link.xml" />
      <None Include="Assets\PowerUI\Examples-RemoveOnPublish\24. JSON\Resources\JSON-Example.txt" />
@@ -768,6 +759,9 @@
  </Reference>
  <Reference Include="Pathfinding.Poly2Tri">
  <HintPath>C:/Users/Kai/Desktop/Programming/Unity/ChildrensHospitalApp/Assets/AstarPathfindingProject/Plugins/Poly2Tri/Pathfinding.Poly2Tri.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEditor.iOS.Extensions.Xcode">
+ <HintPath>C:/Program Files/Unity/Editor/Data/PlaybackEngines/iossupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

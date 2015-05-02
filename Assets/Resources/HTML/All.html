@@ -63,7 +63,7 @@
 	
 	.inLobby{
 		font-size: 35px;
-		width: 200px;
+		width: 270px;
 	}
 	
 	.landingButton{
@@ -93,7 +93,7 @@
 	}
 	
 	.searchBoxInput{
-		height:25px;
+		height:35px;
 		font-size:20px;
 		width: 70%;
 	}
@@ -102,6 +102,7 @@
 		width: 49%;
 		height: 200px;
 		overflow-y: scroll;
+		margin-top: 5px;
 		margin-left: 155px;
 	}
 	
@@ -157,16 +158,39 @@
 	.hidden{
 		display: none;
 	}
+	
+	#stepsButtonDiv{
+		margin-top: 35px;
+		text-align: left;
+		left: 5px;
+		top: 0px;
+	}
+	
+	.stepButton {
+		width: 200px;
+	}
 </style>
 
 <div id="Map">
 	<div class="mapButtonDiv">
 		<div id="getDirectionsButton" class="button mapButton">
-			Get Directions
+			&getDirectionsLabel;
 		</div>
 		
 		<div id="backToLandingButton" class="button mapButton">
-			Back
+			&mapBackLabel;
+		</div>
+	</div>
+	
+	<div id="stepsButtonDiv">
+	</div>
+	
+	<div id="stepsButtonDivTemplate" style="display: none;">
+		<div class="button stepButton nextStep">
+			Next Step
+		</div>
+		<div class="button stepButton previousStep">
+			Previous Step
 		</div>
 	</div>
 	
@@ -215,7 +239,7 @@
 		</div>
 		
 		<div id="fromLobbyButton" class="button inLobby">
-			Lobby
+			Main Entrance
 		</div>
 		
 		<center class="directionsOr">
