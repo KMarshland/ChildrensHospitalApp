@@ -96,7 +96,7 @@ public class MapCameraControl : MonoBehaviour {
 			new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
 		if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved){
 			var delts = Input.GetTouch(0).deltaPosition;
-			transl -= new Vector3(delts.x, delts.y, 0f)*-0.005f*transform.position.z;
+			transl -= new Vector3(delts.x, delts.y, 0f)*-0.0005f*transform.position.z;
 
 			if (Input.touchCount == 2){
 				// Store both touches.
@@ -114,7 +114,7 @@ public class MapCameraControl : MonoBehaviour {
 				// Find the difference in the distances between each frame.
 				float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
 				
-				transl -= new Vector3(0f, 0f, deltaMagnitudeDiff*-0.005f*transform.position.z);
+				transl -= new Vector3(0f, 0f, deltaMagnitudeDiff*-0.0005f*transform.position.z);
 			}
 		}
 
