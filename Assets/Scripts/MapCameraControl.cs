@@ -95,8 +95,12 @@ public class MapCameraControl : MonoBehaviour {
 		Vector3 transl = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0f) + 
 			new Vector3(0f, 0f, 25f * Input.GetAxis("Mouse ScrollWheel"));
 		if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved){
+			bool reverse = false;
+			#if UNITY_IOS
+			reverse = true;
+			#endif
 			var delts = Input.GetTouch(0).deltaPosition;
-			transl -= new Vector3(delts.x, delts.y, 0f)*-0.0005f*transform.position.z;
+			transl -= new Vector3(reverse ? -1f*delts.y : delts.x, reverse ? delts.x : delts.y, 0f)*-0.0005f*transform.position.z;
 
 			if (Input.touchCount == 2){
 				// Store both touches.
