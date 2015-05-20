@@ -410,6 +410,7 @@ public class MapCameraControl : MonoBehaviour {
 		PowerUI.UI.Variables["mapBackLabel"] = "Back";
 		PowerUI.UI.document.getElementById("stepsButtonDiv").innerHTML = "";
 		this.transform.rotation = Quaternion.identity;//unrotate
+		elasticConnection.ResetRotationRelation(new Vector3(0, 0, centralCube.rotation.eulerAngles.x + 90f));
 		movementEnabled = true;
 	}
 
