@@ -1,0 +1,224 @@
+<html>
+    
+    <head>
+        <script type="text/javascript" src="marker_content.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        
+        <style>
+            #floorSelectDiv{
+                text-align: center;
+                width: 100%;
+            }
+        </style>
+    </head>
+    
+    <body onload="init();">
+        
+        <div id="form_div" style="text-align: center;">
+            <img src="./logo.jpg" style="width: 75px;margin-bottom: -80px;margin-left:-40px;" />
+            <table align="center" style="display: inline;">
+                
+                <tr>
+                    <td>
+                        
+                    </td>
+                    
+                    <td style="text-align: center;">
+                        <h2>New Marker</h2>
+                    </td>
+                    
+                    <td></td>
+                    
+                    <td style="min-width: 50px;"></td>
+                    
+                    <td style="background-color: rgb(100,100,100)">
+                        
+                    </td>
+                    
+                    <td style="min-width: 50px;"></td>
+                    
+                    <td>
+                        
+                    </td>
+                    
+                    <td style="text-align: center;">
+                        <h2>Edit Existing</h2>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        Text
+                    </td>
+                    <td>
+                        <input type="text" name="text" id="new_text" size="50">
+                    </td>
+                    
+                    <td><input type="button" value="Place" onclick="startPlaceMarker();"></td>
+                    <td></td>
+                    
+                    <td style="background-color: rgb(100,100,100)">
+                        
+                    </td>
+                    
+                    <td></td>
+                    
+                    <td>
+                        Select Marker
+                    </td>
+                    
+                    <td>
+                        <select id='which_marker' onchange='reselectMarker()' style="width:100%;">
+                            
+                        </select>
+                    </td>
+                </tr>
+                
+                <tr>
+                    
+                    
+                </tr>
+                
+                <tr>
+                    
+                    <td></td>
+                    <td>High-Priority</td>
+                    <td>
+                        <span style="text-align: left;">
+                            <input type="checkbox" name="priority" id="create_priority">
+                        </span>
+                    </td>
+                    
+                    <td></td>
+                    
+                    <td style="background-color: rgb(100,100,100)">
+                        
+                    </td>
+                    
+                    <td></td>
+                    
+                    <td>
+                        Edit Text
+                    </td>
+                    <td>
+                        <input type="text" name="text" id="edit_text" size="50">
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td></td>
+                    
+                    <td style="vertical-align: top;">
+                        Is Elevator?
+                        
+                        <span style="text-align: left;">
+                            <input type="checkbox" name="elevator" id="create_elevator">
+                                
+                            <div class="createElevatorOptions" style="display: none;">
+                                Serving floors
+                            </div>
+                            
+                            <div id="createElevatorOptions" class="createElevatorOptions" style="display: none;">
+                                
+                            </div>
+                        </span>
+                    </td>
+                    
+                    <td>
+                        
+                    </td>
+                    <td></td>
+                    
+                    
+                    <td style="background-color: rgb(100,100,100)">
+                        
+                    </td>
+                    
+                    <td></td>
+                    
+                    <td>
+                        High-Priority
+                    </td>
+                    <td>
+                        <span style="text-align: left;">
+                            <input type="checkbox" name="priority" id="edit_priority">
+                        </span>
+                        
+                        <span style="text-align: right;float: right;">
+                            <input type="button" value="Update" onclick="editMarker();" >
+                        </span>
+                    </td>
+                    <td>
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td></td>
+                    <td>
+                        Write tags after the name, separated by commas
+                        <br>
+                        For example, "Cafeteria, food, drink, snacks"
+                    </td>
+                    <td></td>
+                    <td></td>
+                    
+                    <td style="background-color: rgb(100,100,100)">
+                        
+                    </td>
+                    
+                    <td></td>
+                    
+                    <td style="vertical-align: top;">
+                        Is Elevator?
+                        <div class="elevatorOptions" style="display: none;">
+                            Serving floors
+                        </div>
+                    </td>
+                    <td>
+                        <span style="text-align: left;">
+                            <input type="checkbox" name="elevator" id="edit_elevator">
+                            <div id="elevatorOptions" class="elevatorOptions" style="display: none;">
+                                
+                            </div>
+                        </span>
+                        
+                        <span style="text-align: right;float: right;">
+                            <input type="button" value="Delete" onclick="deleteMarker();" >
+                        </span>
+                    </td>
+                    <td>
+                        
+                    </td>
+                </tr>
+                
+                
+                <tr>
+                    
+                    
+                </tr>
+            </table>
+            
+            <div id="txtHint">
+                
+            </div>
+        </div>
+        
+        <hr>
+        <div id="floorSelectDiv">
+            <select id='floorSelect' onchange='onFloorSelectChange();'>
+                
+            </select>
+        </div>
+        <hr>
+        
+        <div id="canvas_div">
+            
+        </div>
+        
+        <div id="popup_div" style="width:100%;height:100%;position:absolute;">
+            
+        </div>
+    </body>
+    
+</html>
