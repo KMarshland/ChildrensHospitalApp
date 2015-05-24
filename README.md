@@ -1,5 +1,5 @@
 # SWIPE
-This app is designed to help navigation around Children's Mercy Hospital.
+This app is designed to help navigation around Children's Mercy Hospital. It is written in C# with Unity 5. 
 
 # Map Generation
 It takes image files for each floor (configured in MapMaker.cs), then creates a bool[,] for every floor based on the grayscale values. For a given pixel, if it's more dark than light, that value is marked as true. Then, each place where it's true gets a cube placed in it. (These cubes do get merged together for rendering speed reasons)
