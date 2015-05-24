@@ -18,14 +18,15 @@ The marker save is just a string that gets updated from the server when it has i
 
 These markers are then rendered on the map if they are marked as important or if they are actively involved in a path.
 
-The server side code for placing the markers and spitting back the marker save is not currently included in the repository, but will be soon. 
-
 # Pathing
 Pathing is done using a node based graph and A*. Most of this is done using a third party library, but the placement of nodes is done by us. Nodes are placed on both inner and outer corners, and where markers are. These node maps are cached in Resources/PathCaches. With a new map, these caches should be regenerated. 
 
 When the A* library completes a path, we smooth it to remove redundant segments. 
 
 We also use our own A* to figure out which elevators to take. Then we call the beefier library to path each segment from markers to elevators.
+
+# Online interface
+The stuff in WebClient/ allows someone to place and edit markers. It's saved via an ajax call. The backend php is very simple -- just a few inserts and gets. It should probably be rewritten with security in mind, since currently it's wide open. 
 
 # Legal peculiarities
 The A* library and the HTML rendering library are both one license per seat. Luckily they're fairly cheap.
