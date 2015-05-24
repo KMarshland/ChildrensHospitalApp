@@ -2,9 +2,6 @@
 //using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-//using System.Runtime.Serialization;
-//using System.Runtime.Serialization.Formatters.Binary;
-using KaiTools;
 using Pathfinding;
 
 public class Floor {
@@ -47,12 +44,12 @@ public class Floor {
 		made = true;
 	}
 
-	public void spawn(){
-		if (!made){
+	public void spawn(){//Does all the initialization, building the 3d model and node map if needed, or loads them from the cache
+		if (!made){//find out which points are occupied if needed
 			make();
 		}
 
-		if (allFather == null){
+		if (allFather == null){//build the physical map
 			Object c = Resources.Load("Prefabs/Floors/Floor " + Id);
 			if (c == null){
 				build();
@@ -64,7 +61,7 @@ public class Floor {
 		this.Active = true;
 	}
 
-	public void build(){
+	public void build(){//creates the 3d model and node map for pathing
 		makeCubes();
 		makeWaypoints();
 	}
@@ -141,38 +138,6 @@ public class Floor {
 			//}
 		}
 		return p;
-
-		/*
-		//No fucking clue what this is for or what I was thinking when writing it.
-		Point[] adj = p.getAdjacentPoints2d();
-		int best = 0;
-		Point bestP = p;
-		
-		Point[] currAdj = adj;
-		
-		for (int i = 0; i < currAdj.Length; i++){
-			if (!isOccupied(currAdj[i])){
-				best ++;
-			}
-		}
-		
-		foreach (Point cp in adj){
-			currAdj = cp.getAdjacentPoints2d();
-			int openNeighbors = 0;
-			for (int i = 0; i < currAdj.Length; i++){
-				if (!isOccupied(currAdj[i])){
-					openNeighbors ++;
-				}
-			}
-			
-			if (openNeighbors > best){
-				best = openNeighbors;
-				bestP = cp;
-			}
-		}
-		
-		return bestP;
-		*/
 	}
 
 	bool[,] findOccupiedPoints(){
